@@ -1,0 +1,2730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hy-Vee Delivery — Lee's Summit #1380</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ═══ DESIGN SYSTEM — Hy-Vee Professional ═══ */
+:root {
+  --red:        #CC0000;
+  --red-dk:     #A30000;
+  --red-lt:     #E8000010;
+  --red-soft:   rgba(204,0,0,0.08);
+  --red-mid:    rgba(204,0,0,0.15);
+
+  --bg-0:   #FFFFFF;
+  --bg-1:   #F8F8F8;
+  --bg-2:   #F1F1F1;
+  --bg-3:   #E8E8E8;
+
+  --line:   rgba(0,0,0,0.11);
+  --line-2: rgba(0,0,0,0.19);
+  --line-3: rgba(0,0,0,0.32);
+
+  --txt-0: #111111;
+  --txt-1: #262626;
+  --txt-2: #444444;
+  --txt-3: #5F5F5F;
+
+  --accent:      var(--red);
+  --accent-2:    var(--red-dk);
+  --accent-soft: var(--red-soft);
+
+  --success:      #1A7A4A;
+  --success-soft: rgba(26,122,74,0.09);
+  --warn:         #B45309;
+  --warn-soft:    rgba(180,83,9,0.09);
+  --info:         #1A5FA3;
+
+  /* Driver colors — restrained, professional */
+  --d-mike: #CC0000;
+  --d-jay:  #1A5FA3;
+
+  --sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+
+  --r-sm:  4px;
+  --r-md:  8px;
+  --r-lg:  12px;
+  --r-xl:  16px;
+}
+
+/* ═══ DARK THEME ═══ */
+body.dark {
+  --red:      #F05050;
+  --red-dk:   #C73E3E;
+  --red-lt:   rgba(240,80,80,0.10);
+  --red-soft: rgba(240,80,80,0.13);
+  --red-mid:  rgba(240,80,80,0.24);
+
+  --bg-0: #141417;
+  --bg-1: #1C1C21;
+  --bg-2: #25252B;
+  --bg-3: #2F2F37;
+
+  --line:   rgba(255,255,255,0.10);
+  --line-2: rgba(255,255,255,0.18);
+  --line-3: rgba(255,255,255,0.30);
+
+  --txt-0: #F2F2F4;
+  --txt-1: #DCDCE0;
+  --txt-2: #B0B0B8;
+  --txt-3: #8C8C96;
+
+  --success:      #4CC38A;
+  --success-soft: rgba(76,195,138,0.13);
+  --warn:         #E5A158;
+  --warn-soft:    rgba(229,161,88,0.13);
+  --info:         #6AA8E8;
+
+  --d-mike: #F05050;
+  --d-jay:  #6AA8E8;
+
+  color-scheme: dark;
+}
+body.dark header { background: #8E0E0E; }
+body.dark .hbtn.solid { color: #B41E1E; }
+body.dark .driver-hero .dh-label,
+body.dark .driver-hero .dh-amt { filter: brightness(1.45) saturate(0.85); }
+body.dark .modal-bg { background: rgba(0,0,0,.6); }
+
+/* theme toggle icon swap */
+#theme-btn .ic-moon { display: none; }
+body.dark #theme-btn .ic-sun { display: none; }
+body.dark #theme-btn .ic-moon { display: block; }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body { font-family: var(--sans); background: var(--bg-0); color: var(--txt-0); font-size: 13px; display: flex; flex-direction: column; }
+
+/* ═══ SCROLLBARS ═══ */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-1); }
+::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--red); }
+::-webkit-scrollbar-corner { background: var(--bg-1); }
+
+/* ═══ HEADER ═══ */
+header {
+  height: 54px;
+  background: var(--red);
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+  gap: 10px;
+  flex-shrink: 0;
+  z-index: 100;
+}
+.logo { display: flex; align-items: center; gap: 12px; }
+.logo-wordmark {
+  display: flex; flex-direction: column;
+}
+.logo-name { font-weight: 800; font-size: 14px; color: #fff; letter-spacing: .2px; }
+.logo-sub  { font-size: 10px; color: rgba(255,255,255,0.75); font-weight: 400; margin-top: 1px; }
+.logo-icon {
+  width: 32px; height: 32px;
+  background: rgba(255,255,255,0.18);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.logo-icon svg { width: 18px; height: 18px; color: #fff; }
+.hsep { flex: 1; }
+.week-chip {
+  font-size: 11px; font-family: var(--mono);
+  color: rgba(255,255,255,0.9);
+  padding: 5px 11px;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 20px;
+}
+.save-ind { font-size: 11px; color: rgba(255,255,255,0.7); font-family: var(--mono); }
+.save-ind.saved { color: rgba(255,255,255,0.95); }
+.save-ind.saving { color: rgba(255,255,255,0.7); }
+
+/* Header buttons — white ghost style */
+.hbtn {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 30px; padding: 0 13px;
+  background: rgba(255,255,255,0.14);
+  border: 1px solid rgba(255,255,255,0.28);
+  border-radius: var(--r-md);
+  color: #fff;
+  font-size: 12px; font-weight: 500;
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: background .14s;
+}
+.hbtn:hover { background: rgba(255,255,255,0.25); }
+.hbtn.solid { background: #fff; color: var(--red); border-color: #fff; font-weight: 700; }
+.hbtn.solid:hover { background: rgba(255,255,255,0.9); }
+.hbtn svg { width: 13px; height: 13px; flex-shrink: 0; }
+.icon-btn {
+  width: 30px; height: 30px;
+  background: rgba(255,255,255,0.14);
+  border: 1px solid rgba(255,255,255,0.28);
+  border-radius: var(--r-md);
+  color: #fff;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .14s;
+}
+.icon-btn:hover { background: rgba(255,255,255,0.25); }
+.icon-btn svg { width: 15px; height: 15px; }
+
+/* ═══ NAV ═══ */
+nav {
+  height: 42px;
+  background: var(--bg-0);
+  border-bottom: 1px solid var(--line-2);
+  display: flex;
+  padding: 0 8px;
+  flex-shrink: 0;
+  z-index: 90;
+}
+.ntab {
+  display: flex; align-items: center; gap: 7px;
+  padding: 0 16px;
+  font-size: 12px; font-weight: 500;
+  color: var(--txt-2);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: all .14s;
+  user-select: none;
+}
+.ntab:hover { color: var(--txt-0); }
+.ntab.active { color: var(--red); border-bottom-color: var(--red); font-weight: 600; }
+.ntab svg { width: 13px; height: 13px; }
+.ntab-badge {
+  background: var(--red);
+  color: #fff; font-size: 10px; font-weight: 700; font-family: var(--mono);
+  padding: 1px 5px; border-radius: 8px; margin-left: 1px;
+}
+
+/* ═══ LAYOUT ═══ */
+.app { display: flex; flex: 1; overflow: hidden; }
+aside {
+  width: 268px; min-width: 268px;
+  background: var(--bg-1);
+  border-right: 1px solid var(--line-2);
+  overflow-y: auto;
+  padding-bottom: 20px;
+}
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--bg-0); }
+.panel { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+.panel.active { display: flex; }
+
+/* ═══ SIDEBAR ═══ */
+.sb { padding: 14px 15px; }
+.sb-label {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 1.2px; text-transform: uppercase;
+  color: var(--txt-3);
+  margin-bottom: 10px;
+}
+.sb-div { height: 1px; background: var(--line-2); }
+
+/* ═══ DROP ZONE ═══ */
+.drop-zone {
+  border: 1.5px dashed var(--line-3);
+  border-radius: var(--r-lg);
+  padding: 16px 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .14s;
+  background: var(--bg-0);
+}
+.drop-zone:hover, .drop-zone.drag {
+  border-color: var(--red);
+  background: var(--red-soft);
+}
+.drop-zone svg { width: 22px; height: 22px; color: var(--txt-3); margin-bottom: 7px; }
+.drop-zone strong { display: block; font-size: 12px; color: var(--txt-0); margin-bottom: 3px; font-weight: 600; }
+.drop-zone p { font-size: 10px; color: var(--txt-3); line-height: 1.5; }
+.drop-zone input { display: none; }
+.file-chip {
+  display: flex; flex-direction: column;
+  padding: 8px 10px;
+  background: var(--success-soft);
+  border: 1px solid var(--success);
+  border-radius: var(--r-md);
+  font-size: 11px; color: var(--success);
+  font-family: var(--mono);
+  margin-top: 8px;
+}
+.file-chip-row {
+  display: flex; align-items: center; gap: 6px;
+  margin-top: 4px;
+}
+.file-chip-row .name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-chip-row button { background: none; border: none; color: currentColor; cursor: pointer; font-size: 14px; }
+.parse-all-btn {
+  width: 100%; margin-top: 8px;
+  background: var(--red); color: #fff;
+  border: none; border-radius: var(--r-md);
+  padding: 9px; font-size: 12px; font-weight: 600;
+  cursor: pointer; font-family: var(--sans);
+  transition: background .14s;
+}
+.parse-all-btn:hover { background: var(--red-dk); }
+.parse-all-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* ═══ FORM FIELDS ═══ */
+.field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+.field label { font-size: 11px; font-weight: 600; color: var(--txt-1); }
+.field select, .field input[type=text], .field input[type=password], .field input[type=number] {
+  background: var(--bg-0);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-md);
+  color: var(--txt-0); font-family: var(--mono); font-size: 12px;
+  padding: 7px 10px; width: 100%; outline: none;
+  transition: border-color .14s; appearance: none;
+}
+.field select:focus, .field input:focus { border-color: var(--red); box-shadow: 0 0 0 2px rgba(204,0,0,0.12); }
+.field select option { background: var(--bg-0); color: var(--txt-0); }
+.field input[type=range] { background: none; border: none; padding: 4px 0; height: 20px; accent-color: var(--red); width: 100%; }
+.kw { position: relative; }
+.kw input { padding-right: 32px; }
+.keye { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--txt-3); cursor: pointer; font-size: 12px; }
+.knote { font-size: 10px; color: var(--txt-3); margin-top: 3px; }
+
+/* ═══ BUTTONS ═══ */
+.sbtn {
+  display: flex; align-items: center; gap: 7px;
+  padding: 8px 11px;
+  background: var(--bg-0);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-md);
+  color: var(--txt-0); font-size: 12px; font-weight: 500;
+  cursor: pointer; transition: all .14s;
+  width: 100%; margin-bottom: 5px;
+  font-family: var(--sans);
+}
+.sbtn:hover { background: var(--bg-2); border-color: var(--line-3); }
+.sbtn.accent { background: var(--red-soft); border-color: rgba(204,0,0,0.3); color: var(--red); }
+.sbtn.accent:hover { background: var(--red); color: #fff; }
+.sbtn.danger { color: var(--red); }
+.sbtn.danger:hover { background: var(--red-soft); border-color: var(--red); }
+.sbtn:disabled { opacity: .4; cursor: not-allowed; }
+.sbtn svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+/* ═══ DRIVER PILLS ═══ */
+.dpills { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; margin-bottom: 8px; }
+.dpill {
+  padding: 8px 10px; border-radius: var(--r-md);
+  border: 1px solid var(--line-2); background: var(--bg-0);
+  text-align: center; cursor: pointer;
+  font-size: 11px; font-weight: 600; color: var(--txt-1);
+  transition: all .14s;
+}
+.dpill:hover { border-color: var(--line-3); }
+.dpill.active { border-color: var(--pc) !important; background: var(--pc) !important; color: #fff !important; }
+.dpill .pc-num { font-family: var(--mono); font-size: 16px; font-weight: 800; display: block; line-height: 1.2; }
+
+/* ═══ TIP CARDS ═══ */
+.tip-card {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 9px 11px; border-radius: var(--r-md);
+  border: 1px solid var(--line); background: var(--bg-0);
+  margin-bottom: 5px; cursor: pointer; transition: all .14s;
+}
+.tip-card:hover { border-color: var(--line-2); background: var(--bg-2); }
+.tc-left { display: flex; align-items: center; gap: 9px; }
+.tc-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.tc-name { font-size: 12px; font-weight: 700; }
+.tc-orders { font-size: 10px; color: var(--txt-3); font-family: var(--mono); }
+.tc-right { text-align: right; }
+.tc-amt { font-family: var(--mono); font-size: 14px; font-weight: 700; }
+.tc-avg { font-size: 9px; color: var(--txt-3); font-family: var(--mono); }
+
+/* ═══ TOGGLES ═══ */
+.settings-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 9px; font-size: 11px; color: var(--txt-1); }
+.toggle { position: relative; width: 34px; height: 18px; cursor: pointer; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-track { position: absolute; inset: 0; background: var(--line-2); border-radius: 9px; transition: background .18s; }
+.toggle input:checked + .toggle-track { background: var(--red); }
+.toggle-thumb { position: absolute; left: 2px; top: 2px; width: 14px; height: 14px; background: #fff; border-radius: 50%; transition: transform .18s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+.toggle input:checked ~ .toggle-thumb { transform: translateX(16px); }
+
+/* ═══ WEEKLY PANEL ═══ */
+.weekly-wrap { flex: 1; overflow-y: auto; padding: 22px; }
+.week-nav {
+  display: flex; align-items: center; justify-content: center;
+  gap: 14px; margin-bottom: 22px;
+}
+.week-arrow {
+  width: 34px; height: 34px;
+  background: var(--bg-1); border: 1px solid var(--line-2);
+  border-radius: 50%; color: var(--txt-0);
+  cursor: pointer; font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .14s;
+}
+.week-arrow:hover { background: var(--red); border-color: var(--red); color: #fff; }
+.week-title { font-size: 19px; font-weight: 800; text-align: center; min-width: 260px; }
+.week-subtitle { font-size: 11px; color: var(--txt-3); text-align: center; margin-top: 2px; font-family: var(--mono); }
+
+/* 2x2 hero grid */
+.hero-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.driver-hero {
+  background: var(--bg-0); border: 1px solid var(--line-2);
+  border-left: 3px solid var(--hc);
+  border-radius: var(--r-lg); padding: 18px;
+  cursor: pointer; transition: box-shadow .14s;
+}
+.driver-hero:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+.dh-label { font-size: 10px; font-weight: 700; letter-spacing: 1.3px; color: var(--hc); margin-bottom: 4px; text-transform: uppercase; }
+.dh-amt { font-family: var(--mono); font-size: 32px; font-weight: 800; color: var(--hc); line-height: 1; }
+.dh-meta { display: flex; gap: 14px; margin-top: 10px; }
+.dh-meta-item { font-size: 10px; color: var(--txt-3); }
+.dh-meta-val { font-family: var(--mono); font-weight: 700; color: var(--txt-0); display: block; font-size: 12px; }
+
+/* Daily breakdown */
+.daily-list { background: var(--bg-0); border: 1px solid var(--line-2); border-radius: var(--r-lg); overflow: hidden; margin-bottom: 16px; }
+.daily-list h3 { padding: 12px 16px; font-size: 12px; font-weight: 700; letter-spacing: .4px; border-bottom: 1px solid var(--line); color: var(--txt-1); display: flex; align-items: center; gap: 7px; }
+.daily-list h3 svg { width: 13px; height: 13px; color: var(--txt-3); }
+.day-row {
+  display: grid; grid-template-columns: 110px 70px 1fr 90px;
+  align-items: center; padding: 10px 16px;
+  border-bottom: 1px solid var(--line); gap: 10px;
+}
+.day-row:last-child { border-bottom: none; }
+.day-row:hover { background: var(--bg-1); }
+.day-row.missing { background: rgba(180,83,9,0.05); }
+.day-row.special { background: rgba(26,95,163,0.04); }
+.dr-date { font-family: var(--mono); font-weight: 700; font-size: 11px; color: var(--txt-0); }
+.dr-dow { font-size: 10px; color: var(--txt-3); font-family: var(--mono); text-transform: uppercase; }
+.dr-drivers { display: flex; gap: 7px; flex-wrap: wrap; }
+.dr-d-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 2px 8px; background: var(--bg-1);
+  border: 1px solid var(--line-2); border-radius: 12px;
+  font-size: 11px;
+}
+.dr-d-pill .nm { font-weight: 700; }
+.dr-d-pill .amt { font-family: var(--mono); font-weight: 700; }
+.dr-total { font-family: var(--mono); font-size: 13px; font-weight: 800; color: var(--success); text-align: right; }
+.dr-status-badge {
+  display: inline-block; font-size: 9px; font-weight: 700;
+  padding: 2px 6px; border-radius: 8px; text-transform: uppercase;
+}
+.dr-status-badge.missing { background: var(--warn-soft); color: var(--warn); }
+.dr-status-badge.special { background: rgba(26,95,163,0.1); color: var(--info); }
+
+/* Tip goal bar */
+.goal-bar-wrap { background: var(--bg-0); border: 1px solid var(--line-2); border-radius: var(--r-lg); padding: 16px; margin-bottom: 12px; }
+.goal-bar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.goal-bar-title { font-size: 11px; font-weight: 700; color: var(--txt-1); display: flex; align-items: center; gap: 6px; }
+.goal-bar-title svg { width: 12px; height: 12px; color: var(--txt-3); }
+.goal-bar-pct { font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--red); }
+.goal-track { height: 6px; background: var(--bg-2); border-radius: 3px; overflow: hidden; }
+.goal-fill { height: 100%; background: var(--red); border-radius: 3px; transition: width .5s; }
+.goal-fill.success { background: var(--success); }
+.goal-meta { display: flex; justify-content: space-between; font-size: 10px; color: var(--txt-3); margin-top: 5px; font-family: var(--mono); }
+.goal-input-row { display: flex; gap: 5px; margin-top: 8px; }
+.goal-input-row input { flex: 1; background: var(--bg-1); border: 1px solid var(--line-2); border-radius: var(--r-sm); color: var(--txt-0); font-family: var(--mono); font-size: 11px; padding: 4px 7px; outline: none; }
+.goal-input-row input:focus { border-color: var(--red); }
+.goal-input-row button { background: var(--red); color: #fff; border: none; border-radius: var(--r-sm); padding: 4px 10px; font-size: 11px; font-weight: 600; cursor: pointer; font-family: var(--sans); }
+
+/* New week prompt banner */
+.new-week-banner { margin-bottom: 16px; padding: 14px 16px; background: rgba(26,95,163,0.07); border: 1px solid rgba(26,95,163,0.25); border-radius: var(--r-lg); display: flex; align-items: center; gap: 12px; }
+.new-week-banner svg { width: 18px; height: 18px; color: var(--info); flex-shrink: 0; }
+.new-week-banner strong { font-size: 12px; font-weight: 700; color: var(--info); }
+.new-week-banner p { font-size: 11px; color: var(--txt-2); margin-top: 2px; }
+.new-week-banner .nwb-actions { margin-left: auto; display: flex; gap: 6px; flex-shrink: 0; }
+.nwb-btn { padding: 5px 12px; border-radius: var(--r-md); font-size: 11px; font-weight: 600; cursor: pointer; font-family: var(--sans); border: 1px solid rgba(26,95,163,0.35); background: rgba(26,95,163,0.1); color: var(--info); }
+.nwb-btn:hover { background: var(--info); color: #fff; }
+.nwb-dismiss { background: none; border: none; color: var(--txt-3); cursor: pointer; font-size: 16px; line-height: 1; padding: 0 4px; }
+
+/* ═══ STATUS HERO (bottom-right 2x2 card) ═══ */
+.status-hero { background: var(--bg-0); border: 1px solid var(--line-2); border-left: 3px solid var(--line-2); border-radius: var(--r-lg); padding: 18px; display: flex; flex-direction: column; transition: border-color .3s; }
+.sh-title { font-size: 10px; font-weight: 700; letter-spacing: 1.3px; text-transform: uppercase; color: var(--txt-3); margin-bottom: 12px; }
+.sh-row { display: flex; align-items: center; gap: 9px; padding: 7px 0; }
+.sh-row+.sh-row { border-top: 1px solid var(--line); }
+.sh-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; background: var(--line-2); transition: background .3s; }
+.sh-dot.green { background: var(--success); }
+.sh-dot.red   { background: var(--red); }
+.sh-dot.yellow{ background: var(--warn); }
+.sh-info { flex: 1; min-width: 0; }
+.sh-label  { font-size: 11px; font-weight: 700; color: var(--txt-0); }
+.sh-detail { font-size: 10px; font-family: var(--mono); color: var(--txt-3); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sh-row.status-red    .sh-detail { color: var(--red); }
+.sh-row.status-green  .sh-detail { color: var(--success); }
+.sh-row.status-yellow .sh-detail { color: var(--warn); }
+.sh-upload { font-size: 10px; font-weight: 700; color: var(--red); border: 1px solid rgba(204,0,0,0.3); background: var(--red-soft); border-radius: 5px; padding: 2px 8px; cursor: pointer; white-space: nowrap; flex-shrink: 0; font-family: var(--sans); }
+.sh-upload:hover { background: var(--red); color: #fff; }
+.week-status-card { display: none !important; }
+.missing-warning { display: none; margin-bottom: 14px; padding: 11px 14px; background: var(--warn-soft); border: 1px solid rgba(180,83,9,0.3); border-radius: var(--r-lg); font-size: 12px; color: var(--warn); align-items: center; gap: 10px; }
+.missing-warning svg { width: 16px; height: 16px; flex-shrink: 0; }
+.missing-warning strong { font-weight: 700; }
+
+/* ═══ STATS BAR ═══ */
+.stats-bar {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  background: var(--bg-1); border-bottom: 1px solid var(--line-2); flex-shrink: 0;
+}
+.stat { padding: 10px 14px; border-right: 1px solid var(--line); transition: background .14s; }
+.stat:last-child { border-right: none; }
+.stat:hover { background: var(--bg-2); }
+.slabel { font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--txt-3); margin-bottom: 3px; }
+.sval { font-family: var(--mono); font-size: 18px; font-weight: 800; color: var(--txt-0); }
+.sval.success { color: var(--success); }
+.sval.warn    { color: var(--warn); }
+.sval.accent  { color: var(--red); }
+.sval.info    { color: var(--info); }
+.ssub { font-size: 10px; color: var(--txt-3); font-family: var(--mono); margin-top: 1px; }
+
+/* ═══ TOOLBAR ═══ */
+.toolbar {
+  display: flex; align-items: center; gap: 7px;
+  padding: 8px 14px;
+  background: var(--bg-1); border-bottom: 1px solid var(--line-2);
+  flex-shrink: 0; flex-wrap: wrap;
+}
+.toolbar input[type=text] {
+  height: 30px; padding: 0 10px; font-size: 12px;
+  border: 1px solid var(--line-2); border-radius: var(--r-md);
+  background: var(--bg-0); color: var(--txt-0); font-family: var(--sans);
+  outline: none; width: 210px;
+}
+.toolbar input:focus { border-color: var(--red); box-shadow: 0 0 0 2px rgba(204,0,0,0.1); }
+.toolbar select {
+  height: 30px; padding: 0 8px;
+  font-size: 12px; border: 1px solid var(--line-2); border-radius: var(--r-md);
+  background: var(--bg-0); color: var(--txt-0); font-family: var(--sans);
+  outline: none; appearance: none; cursor: pointer; padding-right: 22px;
+  background-image: linear-gradient(45deg, transparent 50%, var(--txt-3) 50%), linear-gradient(135deg, var(--txt-3) 50%, transparent 50%);
+  background-position: calc(100% - 10px) 12px, calc(100% - 6px) 12px;
+  background-size: 4px 4px; background-repeat: no-repeat;
+}
+.toolbar select option { background: var(--bg-0); color: var(--txt-0); }
+.tbtn {
+  display: inline-flex; align-items: center; gap: 5px;
+  height: 30px; padding: 0 11px;
+  border-radius: var(--r-md); border: 1px solid var(--line-2);
+  background: var(--bg-0); color: var(--txt-1);
+  font-size: 11px; cursor: pointer; font-family: var(--sans);
+  transition: all .14s; white-space: nowrap;
+}
+.tbtn:hover { background: var(--bg-2); color: var(--txt-0); }
+.tbtn.active-filter { border-color: var(--red); color: var(--red); background: var(--red-soft); }
+.tbtn svg { width: 12px; height: 12px; }
+.tsep { flex: 1; }
+.rcount { font-size: 11px; color: var(--txt-3); font-family: var(--mono); }
+
+/* ═══ TABLE ═══ */
+.tbl-wrap { flex: 1; overflow: auto; background: var(--bg-0); }
+table.dt { width: 100%; border-collapse: collapse; font-size: 12px; }
+table.dt thead th {
+  position: sticky; top: 0;
+  background: var(--bg-1); border-bottom: 2px solid var(--red);
+  padding: 9px 11px; text-align: left;
+  font-size: 10px; font-weight: 700; color: var(--txt-2);
+  letter-spacing: .9px; text-transform: uppercase;
+  cursor: pointer; user-select: none; white-space: nowrap; z-index: 5;
+}
+table.dt thead th:hover { background: var(--bg-2); color: var(--txt-0); }
+table.dt thead th.sorted { color: var(--red); }
+table.dt thead th.chk-col { width: 36px; cursor: default; }
+tbody tr.data-row { border-bottom: 1px solid var(--line); transition: background .1s; }
+tbody tr.data-row:hover { background: var(--bg-1) !important; }
+tbody tr.data-row.selected { background: var(--red-soft) !important; }
+tbody tr.data-row.zero-tip { background: var(--warn-soft) !important; }
+tbody tr.data-row.zero-tip td.tip-v { color: var(--warn) !important; }
+tbody tr.data-row.dup-row { border-left: 2px solid var(--warn); }
+tbody tr.data-row.search-match td.match-col { background: rgba(204,0,0,0.06); }
+.day-header { background: var(--bg-1); }
+.day-header td {
+  padding: 7px 11px; font-size: 10px; font-weight: 700; color: var(--txt-2);
+  font-family: var(--mono); border-top: 1px solid var(--line-2); border-bottom: 1px solid var(--line);
+}
+.day-tip-r { margin-left: 12px; color: var(--success); font-weight: 700; }
+td { padding: 9px 11px; vertical-align: middle; color: var(--txt-0); }
+td.mono { font-family: var(--mono); color: var(--txt-2); }
+td.tip-v { font-family: var(--mono); color: var(--success); font-weight: 700; font-size: 13px; cursor: pointer; }
+td.tip-v:hover { background: var(--success-soft); }
+td.ord-v { font-family: var(--mono); color: var(--txt-2); }
+td.editable { cursor: pointer; }
+td.editable:hover { background: var(--bg-2); }
+.srch-hl { background: rgba(204,0,0,0.15); border-radius: 2px; padding: 0 1px; font-weight: 700; }
+.dbadge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 9px; border-radius: 16px;
+  font-size: 11px; font-weight: 700; border: 1px solid;
+  cursor: pointer; transition: opacity .1s; white-space: nowrap;
+}
+.dbadge:hover { opacity: .78; }
+.dbadge .dot { width: 5px; height: 5px; border-radius: 50%; display: inline-block; }
+.tbadge {
+  display: inline-block; padding: 2px 7px; border-radius: 4px;
+  font-size: 10px; font-family: var(--mono);
+  background: var(--bg-2); border: 1px solid var(--line); color: var(--txt-2);
+}
+.miss-badge { font-size: 10px; color: #fff; background: var(--warn); padding: 1px 6px; border-radius: 3px; margin-left: 5px; font-weight: 700; }
+.dup-badge { font-size: 10px; color: #fff; background: var(--warn); padding: 1px 5px; border-radius: 3px; margin-left: 3px; font-weight: 800; }
+input[type=checkbox] { accent-color: var(--red); width: 13px; height: 13px; cursor: pointer; }
+
+/* ═══ NOTE TOOLTIP ═══ */
+.note-cell { position: relative; }
+.note-tip {
+  display: none; position: absolute; bottom: calc(100% + 5px); left: 0; z-index: 200;
+  background: var(--txt-0); color: var(--bg-0); font-size: 11px; line-height: 1.5;
+  padding: 7px 11px; border-radius: var(--r-md); white-space: nowrap; max-width: 260px;
+  white-space: normal; box-shadow: 0 4px 16px rgba(0,0,0,.2); pointer-events: none;
+}
+.note-cell:hover .note-tip { display: block; }
+
+/* ═══ EMPTY ═══ */
+.empty {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 60px 20px; text-align: center; color: var(--txt-3);
+  gap: 12px; flex: 1;
+}
+.empty svg { width: 44px; height: 44px; opacity: .2; }
+.empty-title { font-size: 16px; font-weight: 600; color: var(--txt-2); }
+.empty-sub { font-size: 12px; max-width: 340px; line-height: 1.6; }
+
+/* ═══ DRIVERS PANEL ═══ */
+.drivers-wrap { flex: 1; overflow-y: auto; padding: 20px; }
+.drivers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.driver-card {
+  background: var(--bg-0); border: 1px solid var(--line-2);
+  border-radius: var(--r-lg); padding: 16px; transition: box-shadow .14s;
+}
+.driver-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,.07); }
+.dc-top { display: flex; align-items: center; gap: 11px; margin-bottom: 12px; }
+.dc-avatar { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; color: #fff; }
+.dc-info { flex: 1; }
+.dc-nm { font-size: 14px; font-weight: 700; color: var(--txt-0); }
+.dc-role { font-size: 11px; color: var(--txt-3); }
+.dc-today { font-size: 10px; margin-top: 2px; font-family: var(--mono); font-weight: 700; }
+.dc-actions { display: flex; gap: 4px; }
+.dc-edit, .dc-del {
+  background: none; border: 1px solid var(--line-2); border-radius: var(--r-md);
+  padding: 4px 8px; font-size: 11px; cursor: pointer; color: var(--txt-2); font-family: var(--sans);
+}
+.dc-edit:hover { border-color: var(--line-3); color: var(--txt-0); }
+.dc-del:hover { border-color: var(--red); color: var(--red); background: var(--red-soft); }
+.dc-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 10px; }
+.dc-stat { text-align: center; padding: 7px 4px; background: var(--bg-1); border-radius: var(--r-md); }
+.dc-stat-val { font-family: var(--mono); font-size: 14px; font-weight: 800; color: var(--txt-0); }
+.dc-stat-label { font-size: 9px; color: var(--txt-3); margin-top: 2px; text-transform: uppercase; letter-spacing: .6px; }
+.dc-sched { margin-top: 8px; }
+.dc-sched-label { font-size: 9px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--txt-3); margin-bottom: 5px; }
+.day-pills { display: flex; gap: 3px; }
+.day-pill { font-size: 10px; font-family: var(--mono); padding: 3px 6px; border-radius: var(--r-sm); border: 1px solid var(--line-2); }
+.day-pill.on { background: var(--red); border-color: var(--red); color: #fff; font-weight: 700; }
+.day-pill.off { color: var(--txt-3); background: var(--bg-1); }
+.add-driver-card {
+  background: var(--bg-1); border: 1.5px dashed var(--line-3);
+  border-radius: var(--r-lg); padding: 16px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 8px; cursor: pointer; color: var(--txt-3); font-size: 12px; font-weight: 500;
+  min-height: 120px; transition: all .14s;
+}
+.add-driver-card:hover { border-color: var(--red); color: var(--red); background: var(--red-soft); }
+.add-driver-card svg { width: 20px; height: 20px; }
+
+/* ═══ ANALYTICS ═══ */
+.analytics-wrap { flex: 1; overflow-y: auto; padding: 20px; }
+.an-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; margin-bottom: 14px; }
+.an-card {
+  background: var(--bg-0); border: 1px solid var(--line-2);
+  border-radius: var(--r-lg); padding: 14px;
+}
+.an-card h4 { font-size: 10px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--txt-3); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.an-card h4 svg { width: 11px; height: 11px; }
+.an-val { font-family: var(--mono); font-size: 24px; font-weight: 800; color: var(--txt-0); }
+.an-sub { font-size: 10px; color: var(--txt-3); margin-top: 3px; }
+.bar-chart { margin-top: 8px; }
+.bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; font-size: 11px; }
+.bar-label { width: 44px; color: var(--txt-3); text-align: right; font-family: var(--mono); }
+.bar-track { flex: 1; height: 8px; background: var(--bg-2); border-radius: 4px; overflow: hidden; }
+.bar-fill { height: 100%; background: var(--red); border-radius: 4px; transition: width .5s; }
+.bar-fill.blue { background: var(--info); }
+.bar-val { width: 90px; font-family: var(--mono); font-size: 10px; color: var(--txt-2); text-align: right; }
+.lb-row { display: flex; align-items: center; gap: 7px; padding: 6px 8px; background: var(--bg-1); border-radius: var(--r-md); font-size: 12px; margin-bottom: 3px; }
+.lb-rank { font-family: var(--mono); font-size: 11px; color: var(--txt-3); width: 20px; text-align: center; }
+.lb-name { flex: 1; font-weight: 500; }
+.lb-val { font-family: var(--mono); font-weight: 700; color: var(--success); }
+.best-day-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--success-soft); border: 1px solid rgba(26,122,74,0.25);
+  border-radius: 20px; padding: 4px 10px;
+  font-size: 11px; font-weight: 700; color: var(--success);
+  margin-top: 6px;
+}
+.best-day-badge svg { width: 11px; height: 11px; }
+/* Driver comparison */
+.drv-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.drv-compare-card { background: var(--bg-0); border: 1px solid var(--line-2); border-left: 3px solid var(--dc); border-radius: var(--r-lg); padding: 14px; }
+.dcc-name { font-size: 11px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--dc); margin-bottom: 10px; }
+.dcc-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; padding: 4px 0; border-bottom: 1px solid var(--line); }
+.dcc-row:last-child { border-bottom: none; }
+.dcc-label { color: var(--txt-3); }
+.dcc-val { font-family: var(--mono); font-weight: 700; color: var(--txt-0); }
+/* Week over week chart */
+.wow-chart-wrap { position: relative; height: 180px; }
+
+/* ═══ KEY SECTION ═══ */
+.key-grid { display: flex; flex-direction: column; gap: 5px; }
+.key-row { display: flex; align-items: center; gap: 6px; }
+.key-row label { font-size: 10px; color: var(--txt-2); min-width: 58px; font-weight: 600; }
+.key-row input { flex: 1; background: var(--bg-0); border: 1px solid var(--line-2); border-radius: var(--r-md); color: var(--txt-0); font-family: var(--mono); font-size: 10px; padding: 4px 7px; outline: none; }
+.key-row input:focus { border-color: var(--red); }
+.key-row .key-saved { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; background: var(--line-2); }
+.key-row .key-saved.has-key { background: var(--success); }
+
+/* ═══ MODALS ═══ */
+.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.45); backdrop-filter: blur(4px); z-index: 600; display: none; align-items: center; justify-content: center; }
+.modal-bg.open { display: flex; }
+.modal {
+  background: var(--bg-0); border: 1px solid var(--line-2);
+  border-radius: var(--r-xl); width: 480px; max-height: 88vh; overflow: auto;
+  display: flex; flex-direction: column;
+  box-shadow: 0 16px 48px rgba(0,0,0,.16);
+}
+.modal.sm { width: 380px; }
+.modal.lg { width: 700px; }
+.modal-hd { padding: 16px 20px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 9px; }
+.modal-hd h3 { flex: 1; font-size: 14px; font-weight: 700; }
+.modal-hd svg { width: 16px; height: 16px; color: var(--red); }
+.modal-body { padding: 18px 20px; flex: 1; }
+.modal-ft { padding: 12px 20px; border-top: 1px solid var(--line); display: flex; gap: 7px; justify-content: flex-end; }
+.mbtn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 8px 16px; border-radius: var(--r-md);
+  border: 1px solid var(--line-2); background: var(--bg-1);
+  color: var(--txt-0); font-size: 12px; font-weight: 500; cursor: pointer; font-family: var(--sans);
+}
+.mbtn.primary { background: var(--red); border-color: var(--red-dk); color: #fff; font-weight: 600; }
+.mbtn:hover { opacity: .85; }
+.mbtn:disabled { opacity: .4; cursor: not-allowed; }
+.mfield { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.mfield label { font-size: 11px; font-weight: 600; color: var(--txt-1); }
+.mfield input, .mfield select, .mfield textarea {
+  background: var(--bg-1); border: 1px solid var(--line-2); border-radius: var(--r-md);
+  color: var(--txt-0); font-family: var(--mono); font-size: 12px;
+  padding: 7px 10px; width: 100%; outline: none; appearance: none;
+}
+.mfield input:focus, .mfield select:focus, .mfield textarea:focus { border-color: var(--red); }
+.mfield textarea { resize: vertical; height: 60px; font-family: var(--sans); }
+.color-swatches { display: flex; gap: 6px; flex-wrap: wrap; }
+.swatch { width: 26px; height: 26px; border-radius: 6px; cursor: pointer; border: 2px solid transparent; }
+.swatch:hover, .swatch.selected { border-color: var(--txt-0); }
+.day-checkboxes { display: flex; gap: 5px; flex-wrap: wrap; }
+.day-chk { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
+.day-chk input { display: none; }
+.day-chk-box { width: 30px; height: 30px; border-radius: var(--r-md); border: 1px solid var(--line-2); background: var(--bg-1); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; font-family: var(--mono); }
+.day-chk input:checked + .day-chk-box { background: var(--red); border-color: var(--red); color: #fff; }
+.day-chk-label { font-size: 9px; color: var(--txt-3); }
+.exp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+.exp-opt { padding: 12px; border: 1px solid var(--line-2); border-radius: var(--r-lg); cursor: pointer; transition: all .14s; text-align: center; background: var(--bg-1); }
+.exp-opt:hover { border-color: var(--red); background: var(--red-soft); }
+.exp-opt svg { width: 20px; height: 20px; color: var(--red); margin-bottom: 5px; }
+.exp-opt strong { display: block; font-size: 12px; font-weight: 700; color: var(--txt-0); }
+.exp-opt span { font-size: 10px; color: var(--txt-3); }
+.pbar { height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; margin: 10px 0; }
+.pfill { height: 100%; background: var(--red); border-radius: 2px; width: 0; transition: width .3s; }
+.log { background: var(--bg-1); border: 1px solid var(--line); border-radius: var(--r-md); padding: 9px; font-family: var(--mono); font-size: 11px; max-height: 180px; overflow-y: auto; line-height: 1.7; }
+.lok { color: var(--success); }
+.lerr { color: var(--red); }
+.linfo { color: var(--warn); }
+
+/* ═══ AI DRAWER ═══ */
+.ai-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); backdrop-filter: blur(4px); z-index: 500; display: none; align-items: flex-end; justify-content: flex-end; padding: 14px; }
+.ai-overlay.open { display: flex; }
+.ai-drawer {
+  width: 390px; height: calc(100vh - 96px);
+  background: var(--bg-0); border: 1px solid var(--line-2);
+  border-radius: var(--r-xl); display: flex; flex-direction: column; overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,.14);
+}
+.ai-hd { padding: 13px 16px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 9px; background: var(--red-soft); }
+.ai-hd h3 { flex: 1; font-size: 13px; font-weight: 700; }
+.ai-hd svg { width: 14px; height: 14px; color: var(--red); }
+.ai-cls { background: none; border: none; color: var(--txt-3); cursor: pointer; font-size: 18px; line-height: 1; }
+.ai-shortcuts { padding: 9px 13px; border-bottom: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 5px; }
+.ai-shortcut { padding: 3px 9px; background: var(--bg-1); border: 1px solid var(--line-2); border-radius: 16px; font-size: 11px; color: var(--txt-1); cursor: pointer; transition: all .14s; }
+.ai-shortcut:hover { border-color: var(--red); color: var(--red); }
+.ai-msgs { flex: 1; overflow-y: auto; padding: 13px; display: flex; flex-direction: column; gap: 9px; }
+.ai-msg { padding: 10px 13px; border-radius: var(--r-lg); font-size: 12px; line-height: 1.6; max-width: 94%; }
+.ai-msg.user { background: var(--red-soft); border: 1px solid rgba(204,0,0,0.2); color: var(--txt-0); align-self: flex-end; border-radius: var(--r-lg) var(--r-lg) 4px var(--r-lg); }
+.ai-msg.bot  { background: var(--bg-1); border: 1px solid var(--line); color: var(--txt-0); border-radius: 4px var(--r-lg) var(--r-lg) var(--r-lg); }
+.ai-msg.err  { background: var(--red-soft); border: 1px solid rgba(204,0,0,0.2); color: var(--red); }
+.ai-typing { display: flex; gap: 4px; padding: 10px 13px; }
+.ai-typing span { width: 6px; height: 6px; background: var(--txt-3); border-radius: 50%; animation: blink 1.2s infinite; }
+.ai-typing span:nth-child(2) { animation-delay: .2s; }
+.ai-typing span:nth-child(3) { animation-delay: .4s; }
+@keyframes blink { 0%, 80%, 100% { opacity: .2; } 40% { opacity: 1; } }
+.ai-in { padding: 10px 13px; border-top: 1px solid var(--line); display: flex; gap: 7px; }
+.ai-in textarea { flex: 1; height: 60px; resize: none; border: 1px solid var(--line-2); border-radius: var(--r-md); padding: 9px; font-size: 12px; font-family: var(--sans); outline: none; background: var(--bg-1); color: var(--txt-0); }
+.ai-in textarea:focus { border-color: var(--red); }
+.ai-send { width: 36px; height: 60px; background: var(--red); border: none; border-radius: var(--r-md); color: #fff; cursor: pointer; font-size: 16px; }
+.ai-send:hover { background: var(--red-dk); }
+
+/* ═══ FLOATING ═══ */
+.scroll-fab {
+  position: fixed; bottom: 24px; right: 24px;
+  width: 42px; height: 42px; border-radius: 50%;
+  background: var(--red); border: none; color: #fff;
+  cursor: pointer; display: none; align-items: center; justify-content: center;
+  box-shadow: 0 4px 16px rgba(204,0,0,.35); z-index: 700;
+  font-size: 18px; transition: all .14s;
+}
+.scroll-fab.show { display: flex; }
+.scroll-fab:hover { background: var(--red-dk); transform: scale(1.06); }
+
+/* ═══ TOASTS ═══ */
+.toasts { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 7px; z-index: 999; }
+.toast {
+  padding: 10px 16px; border-radius: var(--r-md); font-size: 12px; font-family: var(--sans);
+  border: 1px solid; animation: tin .22s ease; max-width: 360px; cursor: pointer; font-weight: 500;
+  background: var(--bg-0); box-shadow: 0 3px 12px rgba(0,0,0,.12);
+}
+.toast.ok   { border-color: var(--success); color: var(--success); }
+.toast.err  { border-color: var(--red);     color: var(--red);     }
+.toast.info { border-color: var(--warn);    color: var(--warn);    }
+@keyframes tin { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+
+/* ═══ PRINT ═══ */
+@media print {
+  body::before, aside, header, nav, .toolbar, .stats-bar, .ai-overlay, .modal-bg, .toasts, .scroll-fab { display: none !important; }
+  .main { overflow: visible !important; }
+  .panel { overflow: visible !important; }
+  body { background: white !important; color: black !important; }
+  table.dt thead th { background: #eee !important; color: #000 !important; border-bottom: 2px solid #CC0000 !important; }
+  td { color: #000 !important; padding: 5px 8px !important; }
+  .day-header td { background: #f5f5f5 !important; }
+  .tip-v { color: #1A7A4A !important; font-weight: 700 !important; }
+}
+
+/* Print preview inside modal */
+#print-preview .route-sheet { background: #fff; color: #1a1a1a; padding: 14px; margin-bottom: 12px; border: 1px solid #e0e0e0; border-radius: 5px; font-family: 'Helvetica Neue', Arial, sans-serif; }
+#print-preview .rs-header { border-bottom: 3px solid #CC0000; padding-bottom: 7px; margin-bottom: 11px; }
+#print-preview .rs-header h2 { font-size: 17px; margin: 0 0 2px; }
+#print-preview .rs-header div { font-size: 11px; color: #555; }
+#print-preview .rs-day { margin-bottom: 12px; }
+#print-preview .rs-day-header { background: #f3f3f3; padding: 5px 9px; font-weight: 700; font-size: 12px; border-left: 3px solid #CC0000; margin-bottom: 4px; color: #1a1a1a; }
+#print-preview .rs-table { width: 100%; border-collapse: collapse; font-size: 10.5px; }
+#print-preview .rs-table th { background: #e8e8e8; padding: 5px 7px; text-align: left; border: 1px solid #999; font-weight: 700; font-size: 9.5px; text-transform: uppercase; color: #333; letter-spacing: 0.4px; }
+#print-preview .rs-table td { padding: 5px 7px; border: 1px solid #ccc; vertical-align: top; color: #1a1a1a; }
+
+/* Sidebar instructions block */
+.sb-help { font-size: 10px; color: var(--txt-3); line-height: 1.7; padding: 0 15px 12px; }
+.sb-help strong { color: var(--txt-2); font-weight: 600; }
+.sb-help .sb-help-item { display: flex; align-items: flex-start; gap: 6px; margin-bottom: 3px; }
+.sb-help .sb-help-item svg { width: 11px; height: 11px; flex-shrink: 0; margin-top: 2px; color: var(--txt-3); }
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">
+      <!-- Cart/store icon -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+    </div>
+    <div class="logo-wordmark">
+      <div class="logo-name">Hy-Vee Delivery Tracker</div>
+      <div class="logo-sub">Lee's Summit #1380 · Employee Owned</div>
+    </div>
+  </div>
+  <div class="hsep"></div>
+  <div class="week-chip" id="week-display">Week of —</div>
+  <div class="save-ind" id="save-ind">saved</div>
+  <button class="icon-btn" onclick="toggleTheme()" title="Toggle light/dark mode" id="theme-btn">
+    <!-- Moon icon (shown in light mode — click for dark) -->
+    <svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+    <!-- Sun icon (shown in dark mode — click for light) -->
+    <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+  </button>
+  <button class="hbtn" onclick="openAI()">
+    <!-- Chat bubble icon -->
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Ask AI
+  </button>
+  <button class="hbtn" onclick="copyWeeklySummary()" title="Copy weekly summary to clipboard">
+    <!-- Clipboard icon -->
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>Copy Summary
+  </button>
+  <button class="hbtn" onclick="openModal('exp-modal')">
+    <!-- Download icon -->
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export
+  </button>
+  <button class="hbtn solid" onclick="parseAllPDFs()" id="parse-btn">
+    <!-- File-plus icon -->
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>Parse PDF(s)
+  </button>
+</header>
+
+<!-- ═══ NAV ═══ -->
+<nav>
+  <div class="ntab active" data-panel="weekly" onclick="switchTab('weekly',this)">
+    <!-- Calendar icon -->
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    This Week
+  </div>
+  <div class="ntab" data-panel="deliveries" onclick="switchTab('deliveries',this)">
+    <!-- List icon -->
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+    All Deliveries <span class="ntab-badge" id="badge-deliveries" style="display:none;">0</span>
+  </div>
+  <div class="ntab" data-panel="drivers" onclick="switchTab('drivers',this)">
+    <!-- Users icon -->
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+    Drivers
+  </div>
+  <div class="ntab" data-panel="analytics" onclick="switchTab('analytics',this)">
+    <!-- Bar chart icon -->
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    Analytics
+  </div>
+</nav>
+
+<div class="app">
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside>
+    <div class="sb">
+      <div class="sb-label">Upload Files</div>
+      <div class="drop-zone" id="dz" onclick="document.getElementById('fi').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event)">
+        <!-- Upload icon -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9,15 12,12 15,15"/></svg>
+        <strong>Drop multiple files here</strong>
+        <p>MTO Printout PDFs, Route Sheets, Excel .xlsx, or JSON backup. Mix and drop at once.</p>
+        <input type="file" id="fi" accept=".pdf,.xlsx,.xls,.json,.csv" multiple onchange="handleFiles(event)">
+      </div>
+      <div id="file-list"></div>
+    </div>
+
+    <div style="padding:0 15px 12px;">
+      <div class="sb-help">
+        <div class="sb-help-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg><span><strong>MTO Printout PDFs</strong> — orders + tips extracted</span></div>
+        <div class="sb-help-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span><strong>Route Sheets</strong> — driver assignment only</span></div>
+        <div class="sb-help-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M2 8h20M8 2v20"/></svg><span><strong>Excel .xlsx</strong> — loaded directly</span></div>
+      </div>
+    </div>
+
+    <div class="sb-div"></div>
+    <div class="sb">
+      <div class="sb-label">AI Engine</div>
+      <div class="field">
+        <label>Provider</label>
+        <select id="ai-prov" onchange="updateModels();loadKey()">
+          <option value="anthropic">Claude (Anthropic)</option>
+          <option value="openai">GPT (OpenAI)</option>
+          <option value="google">Gemini (Google)</option>
+          <option value="deepseek">DeepSeek</option>
+        </select>
+      </div>
+      <div class="field"><label>Model</label><select id="ai-model" onchange="updateModelNote()"></select><div id="model-note" class="knote" style="margin-top:3px;font-size:10px;"></div></div>
+      <div style="font-size:10px;font-weight:700;color:var(--txt-3);margin-bottom:6px;letter-spacing:.5px;">API KEYS</div>
+      <div class="key-grid">
+        <div class="key-row"><div class="key-saved" id="ks-anthropic"></div><label>Claude</label><input type="password" id="key-anthropic" placeholder="sk-ant-..." onchange="saveAllKeys()"></div>
+        <div class="key-row"><div class="key-saved" id="ks-openai"></div><label>OpenAI</label><input type="password" id="key-openai" placeholder="sk-..." onchange="saveAllKeys()"></div>
+        <div class="key-row"><div class="key-saved" id="ks-google"></div><label>Gemini</label><input type="password" id="key-google" placeholder="AIza..." onchange="saveAllKeys()"></div>
+        <div class="key-row"><div class="key-saved" id="ks-deepseek"></div><label>DeepSeek</label><input type="password" id="key-deepseek" placeholder="sk-..." onchange="saveAllKeys()"></div>
+      </div>
+      <div class="knote" style="margin-top:5px;">Stored in your browser only</div>
+      <button class="sbtn" style="margin-top:8px;" onclick="saveAllKeys();toast('All keys saved','ok')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17,21 17,13 7,13 7,21"/></svg>Save All Keys
+      </button>
+      <button class="sbtn accent" style="margin-top:0;" onclick="testAllKeys()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Test All Keys
+      </button>
+      <div id="key-test-results" style="margin-top:7px;display:flex;flex-direction:column;gap:3px;"></div>
+    </div>
+
+    <div class="sb-div"></div>
+    <div class="sb">
+      <div class="sb-label">Drivers</div>
+      <div class="dpills" id="dpills"></div>
+      <button class="sbtn accent" onclick="autoAssign()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Auto-assign by schedule
+      </button>
+    </div>
+
+    <div class="sb-div"></div>
+    <div class="sb">
+      <div class="sb-label">Tip Totals</div>
+      <div id="tip-scroll"></div>
+    </div>
+
+    <div class="sb-div"></div>
+    <div class="sb">
+      <div class="sb-label">Settings</div>
+      <div class="field">
+        <label>Font size: <span id="fs-val">13</span>px</label>
+        <input type="range" min="11" max="17" value="13" id="fs-range" oninput="setFS(this.value)">
+      </div>
+      <div class="settings-row">
+        <label>Group by date</label>
+        <label class="toggle"><input type="checkbox" id="t-group" onchange="renderTable()" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+      </div>
+      <div class="settings-row">
+        <label>Highlight $0 tips</label>
+        <label class="toggle"><input type="checkbox" id="t-zero" onchange="renderTable()" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+      </div>
+    </div>
+
+    <div class="sb-div"></div>
+    <div class="sb">
+      <div class="sb-label">Data</div>
+      <button class="sbtn" onclick="undoAction()" id="undo-btn" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 00-4-4H4"/></svg>Undo
+      </button>
+      <button class="sbtn" onclick="mergeDuplicates()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M6 21V9a9 9 0 009 9"/></svg>Merge Duplicates
+      </button>
+      <button class="sbtn danger" onclick="clearAll()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>Clear All Data
+      </button>
+    </div>
+  </aside>
+
+  <div class="main">
+
+    <!-- ═══ WEEKLY PANEL ═══ -->
+    <div class="panel active" id="panel-weekly">
+      <div class="weekly-wrap">
+
+        <div id="new-week-banner" style="display:none;" class="new-week-banner">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <div>
+            <strong>New week detected</strong>
+            <p>It's Monday — no data for this week yet. Ready to start tracking?</p>
+          </div>
+          <div class="nwb-actions">
+            <button class="nwb-btn" onclick="document.getElementById('fi').click();dismissNewWeekBanner()">Upload PDFs</button>
+            <button class="nwb-dismiss" onclick="dismissNewWeekBanner()" title="Dismiss">&#x2715;</button>
+          </div>
+        </div>
+
+        <div class="week-nav">
+          <button class="week-arrow" onclick="weekNav(-1)">&#8249;</button>
+          <div>
+            <div class="week-title" id="week-title">—</div>
+            <div class="week-subtitle" id="week-subtitle">No data</div>
+          </div>
+          <button class="week-arrow" onclick="weekNav(1)">&#8250;</button>
+        </div>
+
+        <div id="hero-layout-container"></div>
+
+        <div id="missing-warning" class="missing-warning">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <div><strong>Route sheets uploaded but no MTO Printout PDFs found.</strong> Drop MTO Delivery Printout PDFs to get order details and tip amounts.</div>
+        </div>
+        <div class="week-status-card" id="week-status-card">
+          <div class="wsc-row" id="ws-mto-row"><div class="wsc-dot" id="ws-mto-dot"></div><div class="wsc-text"><span class="wsc-label" id="ws-mto-label">MTO Printouts</span><span class="wsc-detail" id="ws-mto-detail">No data for this week</span></div><button class="wsc-btn" onclick="document.getElementById('fi').click()" id="ws-mto-btn">+ Upload</button></div>
+          <div class="wsc-divider"></div>
+          <div class="wsc-row" id="ws-route-row"><div class="wsc-dot" id="ws-route-dot"></div><div class="wsc-text"><span class="wsc-label" id="ws-route-label">Route Sheets</span><span class="wsc-detail" id="ws-route-detail">No route sheets uploaded</span></div><button class="wsc-btn" onclick="document.getElementById('fi').click()" id="ws-route-btn">+ Upload</button></div>
+        </div>
+
+        <div class="daily-list">
+          <h3>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Daily Breakdown
+          </h3>
+          <div id="daily-list-body"></div>
+        </div>
+
+        <!-- Tip Goal Bar (Feature 1) -->
+        <div class="goal-bar-wrap">
+          <div class="goal-bar-header">
+            <div class="goal-bar-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Weekly Tip Goal
+            </div>
+            <span class="goal-bar-pct" id="goal-pct">—</span>
+          </div>
+          <div class="goal-track"><div class="goal-fill" id="goal-fill" style="width:0%"></div></div>
+          <div class="goal-meta"><span id="goal-current">$0.00 earned</span><span id="goal-target-lbl">Goal: $<span id="goal-display">—</span></span></div>
+          <div class="goal-input-row">
+            <input type="number" id="goal-input" placeholder="Set weekly goal..." min="0" step="10">
+            <button onclick="saveGoal()">Set</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══ DELIVERIES PANEL ═══ -->
+    <div class="panel" id="panel-deliveries">
+      <div class="stats-bar">
+        <div class="stat"><div class="slabel">Orders</div><div class="sval" id="s1">0</div></div>
+        <div class="stat"><div class="slabel">Tips</div><div class="sval success" id="s2">$0.00</div></div>
+        <div class="stat"><div class="slabel">Sales</div><div class="sval warn" id="s3">$0.00</div></div>
+        <div class="stat"><div class="slabel">Avg Tip</div><div class="sval info" id="s4">$0.00</div></div>
+        <div class="stat"><div class="slabel">Days</div><div class="sval accent" id="s5">0</div></div>
+        <div class="stat"><div class="slabel">Duplicates</div><div class="sval" id="s6">None</div></div>
+      </div>
+      <div class="toolbar">
+        <input type="text" id="srch" placeholder="Search name, address, order #..." oninput="debounceSearch()" style="width:220px;">
+        <select id="fd" onchange="renderTable()"><option value="">All Dates</option></select>
+        <select id="fdrv" onchange="renderTable()"><option value="">All Drivers</option></select>
+        <select id="ftip" onchange="renderTable()">
+          <option value="">All Tips</option>
+          <option value="zero">$0 only</option>
+          <option value="nonzero">Has tip</option>
+        </select>
+        <select id="ftype" onchange="renderTable()">
+          <option value="">All Types</option>
+          <option value="MTO">MTO</option>
+          <option value="Blended">Blended</option>
+        </select>
+        <button class="tbtn" onclick="clearAllFilters()" id="clear-filters-btn" style="display:none;" title="Clear all filters">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Clear
+        </button>
+        <button class="tbtn" onclick="quickPrintWeek()" title="Print all drivers weekly route sheets">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print Week
+        </button>
+        <button class="tbtn" onclick="openPrint()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print
+        </button>
+        <div class="tsep"></div>
+        <span class="rcount" id="rc">0 rows</span>
+      </div>
+      <div class="tbl-wrap" id="tw">
+        <div class="empty" id="empty-state">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          <div class="empty-title">No deliveries loaded</div>
+          <div class="empty-sub">Drop PDFs in the sidebar — multiple at once is fine — then click "Parse PDFs"</div>
+        </div>
+        <table class="dt" id="dt" style="display:none;">
+          <thead id="dt-head"><tr></tr></thead>
+          <tbody id="dtb"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ DRIVERS PANEL ═══ -->
+    <div class="panel" id="panel-drivers">
+      <div class="drivers-wrap">
+        <div class="drivers-grid" id="drivers-grid"></div>
+      </div>
+    </div>
+
+    <!-- ═══ ANALYTICS PANEL ═══ -->
+    <div class="panel" id="panel-analytics">
+      <div class="analytics-wrap" id="analytics-wrap"><div class="empty"><div class="empty-title">No data yet</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ AI DRAWER ═══ -->
+<div class="ai-overlay" id="ai-overlay" onclick="if(event.target===this)closeAI()">
+  <div class="ai-drawer">
+    <div class="ai-hd">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      <h3>Ask about your deliveries</h3>
+      <button class="ai-cls" onclick="closeAI()">&#x2715;</button>
+    </div>
+    <div class="ai-shortcuts">
+      <div class="ai-shortcut" onclick="askAI('Who made the most tips this week?')">Top earner</div>
+      <div class="ai-shortcut" onclick="askAI('What days are missing data?')">Missing days</div>
+      <div class="ai-shortcut" onclick="askAI('Summarize this week')">Summary</div>
+      <div class="ai-shortcut" onclick="askAI('Which orders have $0 tips?')">Zero tips</div>
+      <div class="ai-shortcut" onclick="askAI('Average tip per order?')">Avg tip</div>
+    </div>
+    <div class="ai-msgs" id="ai-msgs">
+      <div class="ai-msg bot">Hi — I know your Lee's Summit #1380 delivery data. Ask me anything about tips, drivers, or orders.</div>
+    </div>
+    <div class="ai-in">
+      <textarea id="ai-inp" placeholder="Ask anything..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAI();}"></textarea>
+      <button class="ai-send" onclick="sendAI()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PROC MODAL ═══ -->
+<div class="modal-bg" id="proc-modal">
+  <div class="modal sm">
+    <div class="modal-hd">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+      <h3 id="proc-title">Processing</h3>
+    </div>
+    <div class="modal-body">
+      <div class="pbar"><div class="pfill" id="pfill"></div></div>
+      <div class="log" id="proc-log"></div>
+    </div>
+    <div class="modal-ft">
+      <button class="mbtn primary" id="proc-done" onclick="closeModal('proc-modal')" disabled>Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ EXPORT MODAL ═══ -->
+<div class="modal-bg" id="exp-modal">
+  <div class="modal">
+    <div class="modal-hd">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      <h3>Export</h3>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:12px;color:var(--txt-3);margin-bottom:12px;">All exports reflect current driver assignments and tip amounts.</p>
+      <div class="exp-grid">
+        <div class="exp-opt" onclick="exportXLSX();closeModal('exp-modal')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M2 8h20M8 2v20M14 2v20M2 14h20"/></svg>
+          <strong>Full Workbook</strong><span>All sheets + scheduler</span>
+        </div>
+        <div class="exp-opt" onclick="exportCSV('all');closeModal('exp-modal')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+          <strong>CSV — All Orders</strong><span>Every delivery</span>
+        </div>
+        <div class="exp-opt" onclick="exportWeek();closeModal('exp-modal')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg>
+          <strong>This Week Only</strong><span>Current week tips</span>
+        </div>
+        <div class="exp-opt" onclick="exportAllDriverWeekSheets();closeModal('exp-modal')" style="border-color:rgba(204,0,0,0.3);background:var(--red-soft);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+          <strong>All Drivers — This Week</strong><span>One sheet per driver</span>
+        </div>
+        <div class="exp-opt" onclick="exportJSON();closeModal('exp-modal')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>
+          <strong>JSON Backup</strong><span>Full restore-able backup</span>
+        </div>
+        <div class="exp-opt" onclick="copyWeeklySummary();closeModal('exp-modal')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+          <strong>Copy Summary</strong><span>Text summary to clipboard</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="mbtn" onclick="closeModal('exp-modal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ DRIVER MODAL ═══ -->
+<div class="modal-bg" id="drv-modal">
+  <div class="modal sm">
+    <div class="modal-hd">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/></svg>
+      <h3 id="drv-title">Add Driver</h3>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="drv-edit-id">
+      <div class="mfield"><label>Name</label><input type="text" id="drv-name" placeholder="e.g. Mike"></div>
+      <div class="mfield"><label>Role</label><textarea id="drv-role" placeholder="Full-time driver"></textarea></div>
+      <div class="mfield">
+        <label>Color</label>
+        <div class="color-swatches" id="color-swatches">
+          <div class="swatch selected" data-color="#CC0000" style="background:#CC0000"></div>
+          <div class="swatch" data-color="#1A5FA3" style="background:#1A5FA3"></div>
+          <div class="swatch" data-color="#1A7A4A" style="background:#1A7A4A"></div>
+          <div class="swatch" data-color="#B45309" style="background:#B45309"></div>
+          <div class="swatch" data-color="#7C3AED" style="background:#7C3AED"></div>
+          <div class="swatch" data-color="#0891B2" style="background:#0891B2"></div>
+          <div class="swatch" data-color="#BE185D" style="background:#BE185D"></div>
+          <div class="swatch" data-color="#374151" style="background:#374151"></div>
+        </div>
+      </div>
+      <div class="mfield">
+        <label>Drives on</label>
+        <div class="day-checkboxes" id="drv-days">
+          <label class="day-chk"><input type="checkbox" value="0"><div class="day-chk-box">Su</div><span class="day-chk-label">Sun</span></label>
+          <label class="day-chk"><input type="checkbox" value="1" checked><div class="day-chk-box">Mo</div><span class="day-chk-label">Mon</span></label>
+          <label class="day-chk"><input type="checkbox" value="2"><div class="day-chk-box">Tu</div><span class="day-chk-label">Tue</span></label>
+          <label class="day-chk"><input type="checkbox" value="3" checked><div class="day-chk-box">We</div><span class="day-chk-label">Wed</span></label>
+          <label class="day-chk"><input type="checkbox" value="4" checked><div class="day-chk-box">Th</div><span class="day-chk-label">Thu</span></label>
+          <label class="day-chk"><input type="checkbox" value="5" checked><div class="day-chk-box">Fr</div><span class="day-chk-label">Fri</span></label>
+          <label class="day-chk"><input type="checkbox" value="6" checked><div class="day-chk-box">Sa</div><span class="day-chk-label">Sat</span></label>
+        </div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="mbtn" onclick="closeModal('drv-modal')">Cancel</button>
+      <button class="mbtn primary" onclick="saveDriver()">Save Driver</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PRINT MODAL ═══ -->
+<div class="modal-bg" id="print-modal">
+  <div class="modal lg">
+    <div class="modal-hd">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      <h3>Print Route Sheet</h3>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;gap:10px;margin-bottom:12px;align-items:flex-end;">
+        <div class="mfield" style="flex:1;margin:0;"><label>Print mode</label>
+          <select id="print-mode" onchange="onPrintModeChange()">
+            <option value="week">Weekly Route Sheet (per driver)</option>
+            <option value="day">Single Day</option>
+          </select>
+        </div>
+        <div class="mfield" id="print-date-wrap" style="flex:1;margin:0;display:none;"><label>Date</label><select id="print-date" onchange="buildPrintPreview()"></select></div>
+        <div class="mfield" style="flex:1;margin:0;"><label>Driver</label><select id="print-driver" onchange="buildPrintPreview()"></select></div>
+      </div>
+      <div id="print-preview" style="background:#fff;color:#1a1a1a;border:1px solid var(--line-2);border-radius:var(--r-md);padding:16px;max-height:420px;overflow-y:auto;font-size:12px;"></div>
+    </div>
+    <div class="modal-ft">
+      <button class="mbtn" onclick="closeModal('print-modal')">Close</button>
+      <button class="mbtn primary" onclick="printRouteSheet()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print
+      </button>
+    </div>
+  </div>
+</div>
+
+<button class="scroll-fab" id="scroll-fab" onclick="scrollFAB()">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+</button>
+<div class="toasts" id="toasts"></div>
+
+<script>
+const PRELOADED_DATA = [{"date":"6/1/2026","promiseTime":"10:00 AM - 11:00 AM","recipient":"Stephanie Jack","customer":"Todd A VanBuskirk","phone":"660-723-2445","address":"1902 Chestnut Dr, Pleasant Hill, MO 64080","zip":"64080","basketType":"MTO","orderTotal":90.88,"tip":5.0,"qtyByDept":"Floral 1","driver":"Mike","orderNumber":"42854361","note":""},{"date":"6/1/2026","promiseTime":"12:00 PM - 01:00 PM","recipient":"Grace Brown","customer":"Matthew Bussard","phone":"816-550-5115","address":"400 NE Colbern Rd, Lee's Summit, MO 64086","zip":"64086","basketType":"MTO","orderTotal":93.14,"tip":9.37,"qtyByDept":"Floral 1","driver":"Mike","orderNumber":"42910043","note":""},{"date":"6/1/2026","promiseTime":"02:00 PM - 03:00 PM","recipient":"James Barszczak","customer":"James R Barszczak","phone":"816-351-7423","address":"829 N.W. Donovan Rd, Lees Summit, MO 64086","zip":"64086","basketType":"Blended","orderTotal":208.02,"tip":10.78,"qtyByDept":"Bakery 1","driver":"Mike","orderNumber":"42911482","note":""},{"date":"6/2/2026","promiseTime":"01:00 PM - 02:00 PM","recipient":"Kristen Merrell","customer":"Kennedy Merrell","phone":"816-668-0616","address":"301 NE Tudor Rd, Lee's Summit, MO 64086","zip":"64086","basketType":"MTO","orderTotal":64.64,"tip":5.88,"qtyByDept":"Floral 1","driver":"Mike","orderNumber":"42927248","note":""},{"date":"6/2/2026","promiseTime":"06:00 PM - 07:00 PM","recipient":"Jerry Sullivan","customer":"Susan Martin","phone":"913-219-5674","address":"952 NW High Point Dr, Lee's Summit, MO 64081","zip":"64081","basketType":"MTO","orderTotal":73.0,"tip":6.64,"qtyByDept":"Floral 1","driver":"Mike","orderNumber":"42930817","note":""},{"date":"6/3/2026","promiseTime":"10:00 AM - 11:00 AM","recipient":"Erin Birchard","customer":"Jon Birchard","phone":"816-703-7220","address":"901 NE Bluestem, Lee's Summit, MO 64086","zip":"64086","basketType":"MTO","orderTotal":70.61,"tip":6.42,"qtyByDept":"Floral 1","driver":"Mike","orderNumber":"42934202","note":""},{"date":"6/3/2026","promiseTime":"11:00 AM - 12:00 PM","recipient":"Nancy Creasy","customer":"Sandra Cassady","phone":"563-343-7901","address":"311 NE Viewpark Dr, Lee's Summit, MO 64086","zip":"64086","basketType":"MTO","orderTotal":76.57,"tip":6.96,"qtyByDept":"Floral 1","driver":"Mike","orderNumber":"42936946","note":""},{"date":"6/4/2026","promiseTime":"12:00 PM - 01:00 PM","recipient":"Tammy Lorance","customer":"Alyssa Ferguson","phone":"816-699-8473","address":"751 NE Anderson Ln, Lee's Summit, MO 64064","zip":"64064","basketType":"MTO","orderTotal":64.64,"tip":5.88,"qtyByDept":"Floral 1","driver":"Jay","orderNumber":"42944567","note":""},{"date":"6/4/2026","promiseTime":"12:00 PM - 01:00 PM","recipient":"Hunter and Haley Hansen","customer":"Bridgette M Bryson","phone":"660-483-1061","address":"2100 SE 7th St, Lee's Summit, MO 64063","zip":"64063","basketType":"MTO","orderTotal":70.61,"tip":6.42,"qtyByDept":"Floral 1","driver":"Jay","orderNumber":"42948569","note":""},{"date":"6/4/2026","promiseTime":"12:00 PM - 01:00 PM","recipient":"Haley Hansen","customer":"Grant Grego","phone":"816-868-9145","address":"2100 SE 7th St, Lee's Summit, MO 64063","zip":"64063","basketType":"MTO","orderTotal":73.82,"tip":9.63,"qtyByDept":"Floral 1","driver":"Jay","orderNumber":"42948584","note":""},{"date":"6/4/2026","promiseTime":"03:00 PM - 04:00 PM","recipient":"Hadleigh Wright","customer":"Hadleigh Wright","phone":"913-405-5045","address":"601 NE Clubhouse Dr, Lee's Summit, MO 64086","zip":"64086","basketType":"Blended","orderTotal":115.49,"tip":15.0,"qtyByDept":"Meat 0","driver":"Jay","orderNumber":"42951127","note":""},{"date":"6/5/2026","promiseTime":"11:00 AM - 12:00 PM","recipient":"Miranda Burton","customer":"Kidz Kabana","phone":"816-258-0306","address":"816 NW Commerce Dr, Lee's Summit, MO 64086","zip":"64086","basketType":"Blended","orderTotal":111.03,"tip":5.38,"qtyByDept":"Delicatessen 1","driver":"Jay","orderNumber":"42950691","note":""},{"date":"6/5/2026","promiseTime":"11:00 AM - 12:00 PM","recipient":"Kari Butrum","customer":"Abby C Rowe","phone":"618-210-2627","address":"1205 E State Rte Vv, Pleasant, MO 64080","zip":"64080","basketType":"MTO","orderTotal":118.34,"tip":10.76,"qtyByDept":"Floral 1","driver":"Jay","orderNumber":"42958549","note":""},{"date":"6/5/2026","promiseTime":"01:00 PM - 02:00 PM","recipient":"Jan Jackson","customer":"Suzanne Currence","phone":"816-582-5625","address":"100 NE SAINT LUKES BLVD # 4007, Lees Summit, MO 64086","zip":"64086","basketType":"MTO","orderTotal":43.06,"tip":0.0,"qtyByDept":"Floral 1","driver":"Jay","orderNumber":"42963483","note":""},{"date":"6/5/2026","promiseTime":"02:00 PM - 03:00 PM","recipient":"Whitney Thomas","customer":"Jason stewart","phone":"816-582-7952","address":"1128 SE 11th St, Lee's Summit, MO 64081","zip":"64081","basketType":"MTO","orderTotal":76.57,"tip":6.96,"qtyByDept":"Floral 1","driver":"Jay","orderNumber":"42962287","note":""},{"date":"6/5/2026","promiseTime":"02:00 PM - 03:00 PM","recipient":"Tiffany Brigman","customer":"Jaycie Tiehen","phone":"816-935-2838","address":"421 NE Woodbury Dr, Lee's Summit, MO 64086","zip":"64086","basketType":"MTO","orderTotal":60.76,"tip":2.0,"qtyByDept":"Floral 1","driver":"Jay","orderNumber":"42962521","note":""},{"date":"6/5/2026","promiseTime":"03:00 PM - 04:00 PM","recipient":"Sharon Wright","customer":"Gwan Cox","phone":"502-396-3893","address":"233 SE Topaz Dr, Lee's Summit, MO 64063","zip":"64063","basketType":"Blended","orderTotal":89.08,"tip":8.08,"qtyByDept":"Floral 1","driver":"Jay","orderNumber":"42963546","note":""},{"date":"6/5/2026","promiseTime":"03:00 PM - 04:00 PM","recipient":"Jack Ryan","customer":"Mary Ryan","phone":"816-510-1660","address":"1683 NE Lashbrook Ct, Lee's Summit, MO 64086","zip":"64086","basketType":"MTO","orderTotal":63.15,"tip":5.74,"qtyByDept":"Floral 1","driver":"Jay","orderNumber":"42965513","note":""},{"date":"6/6/2026","promiseTime":"06:00 PM - 07:00 PM","recipient":"Brenda Rogers","customer":"kellie norris","phone":"918-914-3827","address":"100 N. E. St. Luke's Blvd # 4030, Lee Summit, MO 64086","zip":"64086","basketType":"MTO","orderTotal":69.19,"tip":5.0,"qtyByDept":"Floral 1","driver":"Jay","orderNumber":"42980834","note":""}];
+
+// ═══ CONSTANTS ═══
+const MODELS={
+  anthropic:['claude-haiku-4-5-20251001','claude-sonnet-4-5','claude-opus-4-5'],
+  openai:['gpt-4o-mini','gpt-4o','gpt-4-turbo'],
+  google:['gemini-2.0-flash','gemini-1.5-flash','gemini-1.5-pro'],
+  deepseek:['deepseek-chat','deepseek-reasoner']
+};
+const MODEL_NOTES={
+  'claude-haiku-4-5-20251001':'~$0.001/page · reads PDF natively',
+  'claude-sonnet-4-5':'~$0.005/page · reads PDF natively',
+  'claude-opus-4-5':'~$0.02/page · reads PDF natively',
+  'gpt-4o-mini':'~$0.001/page · text extraction only',
+  'gpt-4o':'~$0.005/page · text extraction only',
+  'gemini-2.0-flash':'~$0.0002/page · reads PDF natively — cheapest',
+  'gemini-1.5-flash':'~$0.0003/page · reads PDF natively',
+  'gemini-1.5-pro':'~$0.002/page · reads PDF natively',
+  'deepseek-chat':'~$0.001/page · text extraction only',
+  'deepseek-reasoner':'~$0.004/page · text extraction only',
+};
+const DAY=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const DAY_FULL=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONTH=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DEF_DRIVERS=[
+  {id:'mike',name:'Mike',color:'#CC0000',role:'Full-time driver',days:[0,2]},
+  {id:'jay', name:'Jay', color:'#1A5FA3',role:'Full-time driver',days:[1,3,4,5,6]}
+];
+
+// ═══ STATE ═══
+let data=[];
+let drivers=[];
+let specialDates=[];
+let undoStack=[];
+let filtered=[];
+let srt={col:'date',dir:'asc'};
+let drvF='all';
+let pendingFiles=[];
+let selColor='#CC0000';
+let currentWeekStart=null;
+let saveTimer=null;
+let searchTimer=null;
+let weeklyTipChart=null;
+let wowChart=null;
+let tipGoal=0;
+
+// ═══ DOM ═══
+const $=(id)=>document.getElementById(id);
+const esc=(s)=>s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'):'';
+const hexRGB=(hex)=>{const r=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex||'#888');return r?`${parseInt(r[1],16)},${parseInt(r[2],16)},${parseInt(r[3],16)}`:'136,136,136';};
+
+// ═══ INIT ═══
+function init(){
+  if(localStorage.getItem('hv_theme')==='dark') document.body.classList.add('dark');
+  drivers=JSON.parse(localStorage.getItem('hv_drivers')||'null')||[...DEF_DRIVERS];
+  specialDates=JSON.parse(localStorage.getItem('hv_special')||'[]');
+  tipGoal=parseFloat(localStorage.getItem('hv_goal')||'0')||0;
+  if(tipGoal){$('goal-input').value=tipGoal;$('goal-display').textContent=tipGoal.toFixed(2);}
+  updateModels(); loadAllKeys();
+  const fs=localStorage.getItem('hv_fs');if(fs){$('fs-range').value=fs;setFS(fs);}
+  const saved=localStorage.getItem('hv_d_june');
+  if(saved){
+    try{
+      const sd=JSON.parse(saved);
+      const savedNums=new Set(sd.map(d=>d.orderNumber).filter(Boolean));
+      const savedKeys=new Set(sd.map(d=>d.date+'|'+(d.recipient||'').toLowerCase()));
+      const extra=PRELOADED_DATA.filter(d=>
+        (d.orderNumber&&!savedNums.has(d.orderNumber))||
+        (!d.orderNumber&&!savedKeys.has(d.date+'|'+(d.recipient||'').toLowerCase()))
+      );
+      data=[...sd,...extra];
+    }catch(e){data=[...PRELOADED_DATA];}
+  }else{
+    data=[...PRELOADED_DATA];
+  }
+  initCurrentWeek();
+  checkNewWeekBanner();
+  setupKeyboard();
+  setupScrollFAB();
+  refresh();
+}
+
+function initCurrentWeek(){
+  const today=new Date();
+  const dow=today.getDay();
+  let candidate=new Date(today);
+  candidate.setDate(today.getDate()-dow);
+  const dates=[...new Set(data.map(d=>d.date).filter(Boolean))];
+  if(!dates.length){currentWeekStart=candidate;return;}
+  const weekStarts=new Set();
+  for(const ds of dates){
+    const dt=parseDate(ds);if(!dt)continue;
+    const ws=new Date(dt);ws.setDate(dt.getDate()-dt.getDay());weekStarts.add(fmtDate(ws));
+  }
+  const sorted=[...weekStarts].map(s=>parseDate(s)).filter(Boolean).sort((a,b)=>b-a);
+  const candidateStr=fmtDate(candidate);
+  if(weekStarts.has(candidateStr))currentWeekStart=candidate;
+  else if(sorted.length)currentWeekStart=sorted[0];
+  else currentWeekStart=candidate;
+}
+
+// Feature: New Week Auto-Prompt (Feature 6)
+function checkNewWeekBanner(){
+  const today=new Date();
+  if(today.getDay()!==1) return; // only Monday
+  const weekStart=new Date(today);weekStart.setDate(today.getDate()-1); // Sunday of this week
+  const weekOrds=data.filter(d=>{
+    const dt=parseDate(d.date);if(!dt)return false;
+    const ws=new Date(dt);ws.setDate(dt.getDate()-dt.getDay());
+    return fmtDate(ws)===fmtDate(weekStart);
+  });
+  if(!weekOrds.length && !localStorage.getItem('hv_new_week_dismissed_'+fmtDate(weekStart))){
+    $('new-week-banner').style.display='flex';
+  }
+}
+function dismissNewWeekBanner(){
+  $('new-week-banner').style.display='none';
+  const today=new Date();
+  const weekStart=new Date(today);weekStart.setDate(today.getDate()-today.getDay()+1);
+  localStorage.setItem('hv_new_week_dismissed_'+fmtDate(weekStart),'1');
+}
+
+// ═══ DATE HELPERS ═══
+function fmtDate(d){return(d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear();}
+function parseDate(ds){if(!ds)return null;const[m,d,y]=ds.split('/').map(Number);if(!y||!m||!d)return null;return new Date(y,m-1,d);}
+function getDOW(ds){const dt=parseDate(ds);return dt?dt.getDay():-1;}
+function getWeekStart(dt){const ws=new Date(dt);ws.setDate(dt.getDate()-dt.getDay());return ws;}
+function fmtWeekTitle(ws){const we=new Date(ws);we.setDate(ws.getDate()+6);return MONTH[ws.getMonth()]+' '+ws.getDate()+' \u2013 '+MONTH[we.getMonth()]+' '+we.getDate()+', '+we.getFullYear();}
+
+// ═══ AI MODELS ═══
+function updateModels(){const p=$('ai-prov').value;$('ai-model').innerHTML=MODELS[p].map(m=>`<option>${m}</option>`).join('');}
+function loadKey(){$('api-key')&&($('api-key').value=localStorage.getItem('hv_k_'+$('ai-prov').value)||'');}
+function saveKey(){localStorage.setItem('hv_k_'+$('ai-prov').value,$('api-key')?.value?.trim()||'');toast('Key saved','ok');}
+function toggleKey(){const i=$('api-key');if(i)i.type=i.type==='password'?'text':'password';}
+
+// ═══ THEME ═══
+function toggleTheme(){
+  document.body.classList.toggle('dark');
+  localStorage.setItem('hv_theme',document.body.classList.contains('dark')?'dark':'light');
+}
+
+// ═══ SAVE/UNDO ═══
+function qSave(){
+  setSaveInd('saving');
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{localStorage.setItem('hv_d_june',JSON.stringify(data));setSaveInd('saved');},700);
+}
+function setSaveInd(s){const el=$('save-ind');el.className='save-ind '+s;el.textContent=s==='saved'?'saved':s==='saving'?'saving...':'unsaved';}
+function pushUndo(action){undoStack.push({action,snap:JSON.stringify(data)});if(undoStack.length>30)undoStack.shift();$('undo-btn').disabled=false;}
+function undoAction(){
+  if(!undoStack.length)return;
+  const last=undoStack.pop();
+  data=JSON.parse(last.snap);
+  if(!undoStack.length)$('undo-btn').disabled=true;
+  qSave();refresh();
+  toast('Undone: '+last.action,'info');
+}
+
+// ═══ KEYBOARD ═══
+function setupKeyboard(){
+  document.addEventListener('keydown',e=>{
+    const tag=e.target.tagName;
+    if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'){
+      if(e.key==='Escape'){e.target.blur();document.querySelectorAll('.modal-bg.open,.ai-overlay.open').forEach(m=>m.classList.remove('open'));}
+      return;
+    }
+    if(e.key==='/'){e.preventDefault();$('srch')?.focus();}
+    else if(e.key==='Escape'){document.querySelectorAll('.modal-bg.open,.ai-overlay.open').forEach(m=>m.classList.remove('open'));}
+    else if(e.key==='p'||e.key==='P')parseAllPDFs();
+    else if(e.key==='z'||e.key==='Z')undoAction();
+    else if(e.key==='a'||e.key==='A')openAI();
+    else if(e.key==='e'||e.key==='E')openModal('exp-modal');
+    else if(e.key==='ArrowLeft'&&e.shiftKey)weekNav(-1);
+    else if(e.key==='ArrowRight'&&e.shiftKey)weekNav(1);
+    else if(e.key>='1'&&e.key<='4'){const tabs=document.querySelectorAll('.ntab');const i=parseInt(e.key)-1;if(tabs[i])tabs[i].click();}
+  });
+}
+
+// ═══ TABS ═══
+function switchTab(id,el){
+  document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  $('panel-'+id).classList.add('active');
+  if(id==='weekly')renderWeekly();
+  else if(id==='deliveries')renderTable();
+  else if(id==='drivers')renderDrivers();
+  else if(id==='analytics')renderAnalytics();
+}
+
+// ═══ FILE HANDLING ═══
+function handleFiles(e){
+  const files=Array.from(e.target.files||[]);
+  files.forEach(f=>queueFile(f));
+  e.target.value='';
+  renderFileList();
+}
+function handleDrop(e){
+  e.preventDefault();
+  $('dz').classList.remove('drag');
+  const files=Array.from(e.dataTransfer.files||[]);
+  files.forEach(f=>queueFile(f));
+  renderFileList();
+}
+function queueFile(f){
+  const ext=f.name.split('.').pop().toLowerCase();
+  if(ext==='pdf'){pendingFiles.push(f);toast(f.name+' queued','info');}
+  else if(ext==='xlsx'||ext==='xls'){loadXLSX(f);}
+  else if(ext==='json'){loadJSONFile(f);}
+  else if(ext==='csv'){loadCSVFile(f);}
+}
+function renderFileList(){
+  const el=$('file-list');
+  if(!pendingFiles.length){el.innerHTML='';return;}
+  const guessType=(name)=>{
+    const n=name.toLowerCase();
+    if(n.includes('mto')||n.includes('delivery_printout')||n.includes('printout'))return'MTO Printout';
+    if(n.includes('route')||n.includes('sheet'))return'Route Sheet';
+    return'PDF';
+  };
+  el.innerHTML=`<div class="file-chip">
+    <div style="font-weight:700;margin-bottom:5px;font-size:11px;">${pendingFiles.length} PDF${pendingFiles.length>1?'s':''} queued</div>`+
+    pendingFiles.map((f,i)=>`<div class="file-chip-row"><span class="name" title="${esc(f.name)}">${esc(f.name)}</span><button onclick="removeQueued(${i})" title="Remove">&times;</button></div>`).join('')+
+    `</div>
+    <button class="parse-all-btn" onclick="parseAllPDFs()">Parse ${pendingFiles.length} PDF${pendingFiles.length>1?'s':''} with AI</button>`;
+}
+function removeQueued(i){pendingFiles.splice(i,1);renderFileList();}
+
+// ═══ CSV / JSON / XLSX LOAD ═══
+function loadCSVFile(f){
+  const r=new FileReader();
+  r.onload=e=>{
+    const imp=parseCSVText(e.target.result);
+    if(imp.length){pushUndo('load CSV');mergeData(imp);toast('Loaded '+imp.length+' from CSV','ok');}
+    else toast('No valid rows','err');
+  };
+  r.readAsText(f);
+}
+function parseCSVText(text){
+  const lines=text.trim().split('\n').filter(l=>l.trim());
+  if(lines.length<2)return[];
+  const hdr=lines[0].split(',').map(h=>h.replace(/"/g,'').toLowerCase().trim());
+  const ci=(ns)=>{for(const n of ns){const i=hdr.findIndex(h=>h.includes(n));if(i>=0)return i;}return -1;};
+  const iD=ci(['date']),iT=ci(['time','promise']),iR=ci(['recipient']),iC=ci(['customer']),iP=ci(['phone']),iA=ci(['address']),iZ=ci(['zip']),iTy=ci(['type','basket']),iTo=ci(['total']),iTip=ci(['tip']),iDrv=ci(['driver']),iO=ci(['order']);
+  return lines.slice(1).map(line=>{
+    const row=line.match(/("(?:[^"]|"")*"|[^,]*)/g)||[];
+    const cv=i=>i>=0&&row[i]?row[i].replace(/^"|"$/g,'').replace(/""/g,'"').trim():'';
+    const ds=cv(iD);if(!ds)return null;
+    return{date:ds,promiseTime:cv(iT),recipient:cv(iR),customer:cv(iC),phone:cv(iP),zip:cv(iZ),address:cv(iA),basketType:cv(iTy)||'MTO',orderTotal:parseFloat(cv(iTo).replace(/[$,]/g,''))||0,tip:parseFloat(cv(iTip).replace(/[$,]/g,''))||0,driver:cv(iDrv),orderNumber:cv(iO),note:'',qtyByDept:''};
+  }).filter(Boolean);
+}
+function loadJSONFile(f){
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const imp=JSON.parse(e.target.result);
+      if(imp.deliveries){
+        if(imp.drivers)drivers=imp.drivers;
+        if(imp.specialDates)specialDates=imp.specialDates;
+        localStorage.setItem('hv_drivers',JSON.stringify(drivers));
+        localStorage.setItem('hv_special',JSON.stringify(specialDates));
+        pushUndo('load JSON');mergeData(imp.deliveries);
+      }else if(Array.isArray(imp)){pushUndo('load JSON');mergeData(imp);}
+      else throw new Error('Invalid format');
+      toast('JSON imported','ok');
+    }catch(err){toast('JSON failed: '+err.message,'err');}
+  };
+  r.readAsText(f);
+}
+function loadXLSX(file){
+  openProcModal('Loading Excel');setProgress(10);log('Reading '+file.name,'info');
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const wb=XLSX.read(e.target.result,{type:'array',cellDates:true});
+      const skip=['Drop Down Lists '];
+      let target=wb.SheetNames.find(s=>!skip.includes(s.trim())&&s.includes('2026'))||wb.SheetNames.find(s=>!skip.includes(s.trim()))||wb.SheetNames[0];
+      setProgress(40);log('Parsing: '+target,'info');
+      const ws=wb.Sheets[target];
+      const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+      const imported=[];
+      for(const row of rows){
+        if(!row||!row[0]||!(row[0] instanceof Date))continue;
+        const date_v=row[0],time_v=row[1];
+        const ds=`${date_v.getMonth()+1}/${date_v.getDate()}/${date_v.getFullYear()}`;
+        let ts='';
+        if(time_v instanceof Date){let h=time_v.getHours(),mi=time_v.getMinutes(),ap=h>=12?'PM':'AM';h=h%12||12;ts=`${h}:${String(mi).padStart(2,'0')} ${ap}`;}
+        const col4=String(row[4]||'').trim();
+        const c4Street=col4&&(/^\d/.test(col4)||/^(SW|NE|SE|NW)\s/.test(col4));
+        const street=c4Street?col4:String(row[5]||'').trim();
+        const customer=c4Street?String(row[5]||'').trim():col4;
+        imported.push({date:ds,promiseTime:ts,recipient:String(row[2]||'').trim(),customer:customer,phone:String(row[3]||'').trim(),address:[street,String(row[6]||'').trim(),String(row[7]||'').trim()].filter(Boolean).join(', '),zip:String(row[8]||'').trim(),basketType:'MTO',orderTotal:0,tip:parseFloat(row[14]||row[15]||0)||0,driver:String(row[13]||'').trim(),orderNumber:String(row[12]||'').trim(),note:'',qtyByDept:''});
+      }
+      setProgress(80);log('Parsed '+imported.length+' rows','ok');
+      pushUndo('load XLSX');mergeData(imported);
+      setProgress(100);$('proc-done').disabled=false;
+      toast('Loaded '+imported.length+' orders','ok');
+    }catch(err){log('Error: '+err.message,'err');$('proc-done').disabled=false;toast('XLSX failed','err');}
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ═══ MULTI-PDF PARSE ═══
+async function parseAllPDFs(){
+  if(!pendingFiles.length){toast('Drop PDF files first','err');return;}
+  const prov=$('ai-prov').value,key=getKey(),model=$('ai-model').value;
+  if(!key){toast('Enter an API key in the sidebar first','err');return;}
+  const total=pendingFiles.length;
+  openProcModal(`Parsing ${total} PDF${total>1?'s':''}`);
+  log(`Starting ${total} file(s) with ${prov}`,'info');
+  let allOrders=[],allRouteAssignments=[],mtoCount=0,routeCount=0,skipCount=0;
+  for(let i=0;i<pendingFiles.length;i++){
+    const f=pendingFiles[i];
+    setProgress(Math.round((i/total)*100));
+    log(`[${i+1}/${total}] ${f.name}...`,'info');
+    try{
+      const result=await parsePDF(f,prov,key,model);
+      if(result.type==='route'){
+        const wkKey=currentWeekStart?fmtDate(currentWeekStart):'none';
+        window._routeUploadedWeeks=window._routeUploadedWeeks||{};
+        window._routeUploadedWeeks[wkKey]=true;
+      }
+      if(result.type==='mto'){
+        log(`  MTO Printout — ${result.orders.length} orders`,'ok');
+        allOrders=allOrders.concat(result.orders);mtoCount++;
+      }else if(result.type==='route'){
+        log(`  Route Sheet — ${result.assignments.driver} on ${result.assignments.date}, ${result.assignments.stops.length} stops`,'ok');
+        allRouteAssignments.push(result.assignments);routeCount++;
+      }else{
+        log(`  Skipped (unrecognized format)`,'info');skipCount++;
+      }
+    }catch(e){log(`  Failed: ${e.message}`,'err');}
+  }
+  setProgress(90);
+  if(allRouteAssignments.length>0&&allOrders.length>0){
+    log(`Matching route sheets to orders...`,'info');
+    const matched=applyRouteAssignments(allOrders,allRouteAssignments);
+    log(`  Matched ${matched} orders`,'ok');
+  }
+  setProgress(100);
+  const summary=[];
+  if(mtoCount)summary.push(mtoCount+' MTO file'+(mtoCount>1?'s':''));
+  if(routeCount)summary.push(routeCount+' route sheet'+(routeCount>1?'s':''));
+  if(skipCount)summary.push(skipCount+' skipped');
+  log(`Done — ${allOrders.length} orders · ${summary.join(' · ')}`,'ok');
+  if(allOrders.length){
+    window._routeOnlyWarning=false;
+    const wkKey=currentWeekStart?fmtDate(currentWeekStart):'none';
+    window._mtoUploadedWeeks=window._mtoUploadedWeeks||{};
+    window._mtoUploadedWeeks[wkKey]=(window._mtoUploadedWeeks[wkKey]||0)+allOrders.length;
+    pushUndo(`parse ${total} PDFs`);mergeData(allOrders);
+    pendingFiles=[];renderFileList();
+    toast(`${allOrders.length} orders from ${mtoCount} MTO file${mtoCount>1?'s':''}${routeCount?' + '+routeCount+' route sheet'+(routeCount>1?'s':''):''}`, 'ok');
+  }else if(routeCount&&!allOrders.length){
+    window._routeOnlyWarning=true;renderWeekStatus();
+    log(`Applying route sheets to existing data...`,'info');
+    const wkKey2=currentWeekStart?fmtDate(currentWeekStart):'none';
+    window._routeUploadedWeeks=window._routeUploadedWeeks||{};
+    window._routeUploadedWeeks[wkKey2]=true;
+    const matched=applyRouteAssignments(data,allRouteAssignments);
+    if(matched){pushUndo('apply route sheets');qSave();refresh();toast(`Assigned ${matched} orders from ${routeCount} route sheet${routeCount>1?'s':''}`, 'ok');}
+    else toast('Route sheets processed but no matches found','info');
+    pendingFiles=[];renderFileList();
+  }else if(!allOrders.length){toast('No MTO orders found in these files','info');}
+  $('proc-done').disabled=false;
+}
+
+async function parsePDF(file,prov,key,model){
+  const b64=await toB64(file);
+  const prompt=`You are processing delivery documents for Hy-Vee Lee's Summit Store #1380, Missouri.
+Known drivers: Mike (usually drives Sunday & Tuesday) and Jay (usually drives Monday, Wednesday, Thursday, Friday, Saturday).
+
+TYPE A — MTO DELIVERY PRINTOUT: Header "MTO Delivery Printout". Table with Order Number, Recipient, Customer, Phone, Promise Time, Zip, Delivery Address, Basket Type, Order Total, Tip Amount, QTY By Dept. Has "Selected Date" field.
+
+TYPE B — HANDWRITTEN ROUTE SHEET: Handwritten. Driver name at top. Date shown. Lists recipient names/addresses. SIGNATURE column. No order numbers starting with 4.
+
+INSTRUCTIONS:
+1. Determine type.
+2. If TYPE A: Return {"type":"mto","orders":[{"date":"M/D/YYYY","promiseTime":"9:00 AM - 10:00 AM","recipient":"Name","customer":"Name","phone":"xxx-xxx-xxxx","zip":"64086","address":"full address","basketType":"MTO","orderTotal":0.00,"tip":0.00,"qtyByDept":"Floral 1","orderNumber":"42xxxxxx"}]}
+3. If TYPE B: Return {"type":"route","driver":"Mike","date":"M/D/YYYY","stops":[{"name":"Recipient Last Name","address":"street address","time":"HH:MM"}]}
+4. If neither: Return {"type":"unknown"}
+Return ONLY valid JSON.`;
+  let rawText='';
+  if(prov==='anthropic'){
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},body:JSON.stringify({model,max_tokens:8000,messages:[{role:'user',content:[{type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}},{type:'text',text:prompt}]}]})});
+    if(!r.ok){const e=await r.json();throw new Error(e.error?.message||'API error');}
+    const d=await r.json();rawText=d.content[0].text;
+  }else if(prov==='openai'){
+    const pdfText=await extractPDFText(b64);
+    const r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model,max_tokens:8000,messages:[{role:'user',content:[{type:'text',text:prompt+'\n\nDOCUMENT TEXT:\n'+pdfText.substring(0,20000)}]}]})});
+    if(!r.ok){const e=await r.json();throw new Error(e.error?.message);}
+    const d=await r.json();rawText=d.choices[0].message.content;
+  }else if(prov==='google'){
+    const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt},{inline_data:{mime_type:'application/pdf',data:b64}}]}]})});
+    if(!r.ok){const e=await r.json();throw new Error(e.error?.message);}
+    const d=await r.json();rawText=d.candidates[0].content.parts[0].text;
+  }else if(prov==='deepseek'){
+    const pdfText=await extractPDFText(b64);
+    const r=await fetch('https://api.deepseek.com/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model,max_tokens:8000,messages:[{role:'system',content:'Return only valid JSON. No markdown.'},{role:'user',content:prompt+'\n\nDOCUMENT TEXT:\n'+pdfText.substring(0,20000)}]})});
+    if(!r.ok){const e=await r.json();throw new Error(e.error?.message);}
+    const d=await r.json();rawText=d.choices[0].message.content;
+  }
+  return parseAIResponse(rawText);
+}
+function parseAIResponse(t){
+  let c=t.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim();
+  const start=c.search(/[\[{]/);
+  if(start<0)return{type:'unknown',orders:[],assignments:[]};
+  const opener=c[start],closer=opener==='{'?'}':']';
+  let depth=0,end=-1;
+  for(let i=start;i<c.length;i++){if(c[i]===opener)depth++;else if(c[i]===closer){depth--;if(depth===0){end=i;break;}}}
+  if(end<0)return{type:'unknown',orders:[],assignments:[]};
+  let obj;try{obj=JSON.parse(c.slice(start,end+1));}catch(e){return{type:'unknown',orders:[],assignments:[]};}
+  if(Array.isArray(obj))return{type:'mto',orders:normalizeOrders(obj),assignments:[]};
+  if(obj.type==='mto')return{type:'mto',orders:normalizeOrders(obj.orders||[]),assignments:[]};
+  if(obj.type==='route'){
+    const drv=obj.driver||'',date=obj.date||'';
+    const stops=(obj.stops||[]).map(s=>({driver:drv,date,name:String(s.name||s.recipient||'').trim(),address:String(s.address||'').trim(),time:String(s.time||'').trim()}));
+    return{type:'route',orders:[],assignments:{driver:drv,date,stops}};
+  }
+  return{type:'unknown',orders:[],assignments:[]};
+}
+function normalizeOrders(arr){
+  return arr.map(o=>({
+    date:String(o.date||''),promiseTime:String(o.promiseTime||o.promise_time||''),
+    recipient:String(o.recipient||''),customer:String(o.customer||''),
+    phone:String(o.phone||''),zip:String(o.zip||''),
+    address:String(o.address||o.deliveryAddress||''),
+    basketType:String(o.basketType||o.basket_type||'MTO'),
+    orderTotal:parseFloat(o.orderTotal||o.order_total||0)||0,
+    tip:parseFloat(o.tip||o.tipAmount||0)||0,
+    qtyByDept:String(o.qtyByDept||''),
+    orderNumber:String(o.orderNumber||o.order_number||''),
+    driver:o.driver||'',note:o.note||''
+  }));
+}
+function toB64(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(f);});}
+
+// ═══ MERGE DATA ═══
+function applyRouteAssignments(orders,routeSheets){
+  let matched=0;
+  for(const sheet of routeSheets){
+    const{driver,date,stops}=sheet;
+    if(!driver||!date||!stops.length)continue;
+    const dateOrders=orders.filter(o=>o.date===date);
+    for(const order of dateOrders){
+      const orderAddr=(order.address||'').toLowerCase().replace(/[^a-z0-9\s]/g,'');
+      const orderRecip=(order.recipient||'').toLowerCase().split(' ').pop();
+      let foundStop=stops.find(s=>{
+        const stopAddr=(s.address||'').toLowerCase().replace(/[^a-z0-9\s]/g,'');
+        const stopName=(s.name||'').toLowerCase();
+        const orderNum=(orderAddr.match(/^\d+/)||[])[0];
+        const stopNum=(stopAddr.match(/^\d+/)||[])[0];
+        const numMatch=orderNum&&stopNum&&orderNum===stopNum;
+        const nameMatch=stopName&&orderRecip&&(stopName.includes(orderRecip)||orderRecip.includes(stopName));
+        return numMatch||nameMatch;
+      });
+      if(foundStop||(dateOrders.length>0&&stops.length>0)){
+        if(!order.driver||order.driver===''){order.driver=driver;matched++;}
+        else if(foundStop){order.driver=driver;matched++;}
+      }
+    }
+    const stillUnassigned=dateOrders.filter(o=>!o.driver);
+    for(const order of stillUnassigned){order.driver=driver;matched++;}
+  }
+  return matched;
+}
+function mergeData(incoming){
+  const incomingNums=new Set(incoming.map(o=>o.orderNumber).filter(Boolean));
+  data=[...data.filter(d=>!incomingNums.has(d.orderNumber)),...incoming];
+  autoAssignArr(data.filter(d=>!d.driver));
+  qSave();refresh();
+}
+function mergeDuplicates(){
+  const nums={};data.forEach(d=>{if(d.orderNumber)nums[d.orderNumber]=(nums[d.orderNumber]||0)+1;});
+  const dups=Object.keys(nums).filter(n=>nums[n]>1);
+  if(!dups.length){toast('No duplicates found','ok');return;}
+  pushUndo('merge duplicates');
+  dups.forEach(n=>{
+    const rows=data.filter(d=>d.orderNumber===n);
+    const keep=rows.find(r=>r.tip>0||r.driver)||rows[0];
+    data=data.filter(d=>d.orderNumber!==n);data.push(keep);
+  });
+  qSave();refresh();toast(`Merged ${dups.length} duplicate(s)`,'ok');
+}
+
+// ═══ DRIVER LOGIC ═══
+function drvForDate(ds){
+  const sd=specialDates.find(s=>s.date===ds);if(sd)return null;
+  const dow=getDOW(ds);return dow<0?null:drivers.find(d=>d.days.includes(dow))||null;
+}
+function autoAssignArr(arr){
+  arr.forEach(o=>{
+    if(o.driver)return;
+    const sd=specialDates.find(s=>s.date===o.date);
+    if(sd){o.note=o.note||('Special: '+sd.note);return;}
+    const drv=drvForDate(o.date);o.driver=drv?drv.name:'';
+  });
+}
+function autoAssign(){
+  pushUndo('auto-assign drivers');
+  data.forEach(o=>{const drv=drvForDate(o.date);if(drv)o.driver=drv.name;});
+  qSave();refresh();toast('Drivers auto-assigned','ok');
+}
+
+// ═══ REFRESH ═══
+function refresh(){
+  updateWeekDisplay();
+  renderPills();
+  renderTipScroll();
+  updateStats();
+  renderWeekly();
+  renderTable();
+}
+
+// ═══ WEEKLY VIEW ═══
+function weekNav(delta){
+  if(!currentWeekStart)return;
+  const d=new Date(currentWeekStart);d.setDate(d.getDate()+(delta*7));
+  currentWeekStart=d;renderWeekly();updateWeekDisplay();
+}
+function updateWeekDisplay(){
+  if(!currentWeekStart){$('week-display').textContent='Week of \u2014';return;}
+  $('week-display').textContent='Week of '+(currentWeekStart.getMonth()+1)+'/'+currentWeekStart.getDate();
+}
+function getWeekOrders(){
+  if(!currentWeekStart)return[];
+  const we=new Date(currentWeekStart);we.setDate(currentWeekStart.getDate()+6);
+  const ws=currentWeekStart.getTime(),wEnd=we.getTime();
+  return data.filter(d=>{const dt=parseDate(d.date);if(!dt)return false;return dt.getTime()>=ws&&dt.getTime()<=wEnd;});
+}
+
+// Feature: Tip Goal (Feature 1)
+function saveGoal(){
+  const v=parseFloat($('goal-input').value)||0;
+  tipGoal=v;
+  localStorage.setItem('hv_goal',v.toString());
+  $('goal-display').textContent=v.toFixed(2);
+  renderGoalBar();
+  toast('Goal set to $'+v.toFixed(2),'ok');
+}
+function renderGoalBar(){
+  const orders=getWeekOrders();
+  const earned=orders.reduce((s,o)=>s+(o.tip||0),0);
+  $('goal-current').textContent='$'+earned.toFixed(2)+' earned';
+  if(!tipGoal){$('goal-pct').textContent='\u2014';$('goal-fill').style.width='0%';return;}
+  const pct=Math.min(100,earned/tipGoal*100);
+  $('goal-pct').textContent=pct.toFixed(0)+'%';
+  const fill=$('goal-fill');fill.style.width=pct+'%';
+  fill.className='goal-fill'+(pct>=100?' success':'');
+  $('goal-display').textContent=tipGoal.toFixed(2);
+}
+
+function buildStatusHeroHTML(orders){
+  const wkKey=currentWeekStart?fmtDate(currentWeekStart):'none';
+  const uploadedRoute=(window._routeUploadedWeeks||{})[wkKey]||false;
+  let mtoState='red',mtoDetail='Missing \u2014 upload MTO Printout PDFs',mtoBtn=true;
+  if(orders.length>0){
+    const mtoUploaded=(window._mtoUploadedWeeks||{})[wkKey]||0;
+    if(mtoUploaded>0){mtoState='green';mtoDetail=mtoUploaded+' orders parsed from MTO PDFs';mtoBtn=false;}
+    else{mtoState='yellow';mtoDetail='Data loaded (source unclear)';mtoBtn=true;}
+  }
+  let routeState='red',routeDetail='Not uploaded \u2014 drop route sheets to assign drivers',routeBtn=true;
+  if(uploadedRoute){routeState='green';routeDetail='Route sheet uploaded \u2013 drivers assigned';routeBtn=false;}
+  else if(orders.length>0&&drivers.every(d=>orders.some(o=>o.driver?.toLowerCase()===d.name.toLowerCase()))){
+    routeState='yellow';routeDetail='Drivers assigned (auto-assigned by schedule)';routeBtn=true;
+  }
+  return`<div class="status-hero">
+    <div class="sh-title">Upload Status</div>
+    <div class="sh-row status-${mtoState}">
+      <div class="sh-dot ${mtoState}"></div>
+      <div class="sh-info">
+        <div class="sh-label">MTO Printouts</div>
+        <div class="sh-detail">${mtoDetail}</div>
+      </div>
+      ${mtoBtn?'<button class="sh-upload" onclick="document.getElementById(\'fi\').click()">+ Upload</button>':''}
+    </div>
+    <div class="sh-row status-${routeState}">
+      <div class="sh-dot ${routeState}"></div>
+      <div class="sh-info">
+        <div class="sh-label">Route Sheets</div>
+        <div class="sh-detail">${routeDetail}</div>
+      </div>
+      ${routeBtn?'<button class="sh-upload" onclick="document.getElementById(\'fi\').click()">+ Upload</button>':''}
+    </div>
+  </div>`;
+}
+
+function renderWeekly(){
+  const orders=getWeekOrders();
+  $('week-title').textContent=fmtWeekTitle(currentWeekStart);
+  const totalTips=orders.reduce((s,d)=>s+(d.tip||0),0);
+  $('week-subtitle').textContent=`${orders.length} orders \u00b7 $${totalTips.toFixed(2)} total tips`;
+
+  const layout=$('hero-layout-container');
+  if(!layout)return;
+
+  let gridHTML='';
+  drivers.forEach(drv=>{
+    const dOrds=orders.filter(o=>o.driver?.toLowerCase()===drv.name.toLowerCase());
+    const tips=dOrds.reduce((s,o)=>s+(o.tip||0),0);
+    const avg=dOrds.length?tips/dOrds.length:0;
+    const best=dOrds.reduce((m,o)=>Math.max(m,o.tip||0),0);
+    gridHTML+=`<div class="driver-hero" style="--hc:${drv.color};cursor:pointer;" onclick="switchToDeliveries('${drv.name}')">
+      <div class="dh-label">${esc(drv.name.toUpperCase())}</div>
+      <div class="dh-amt">$${tips.toFixed(2)}</div>
+      <div class="dh-meta">
+        <div class="dh-meta-item">Orders<span class="dh-meta-val">${dOrds.length}</span></div>
+        <div class="dh-meta-item">Avg<span class="dh-meta-val">$${avg.toFixed(2)}</span></div>
+        <div class="dh-meta-item">Best<span class="dh-meta-val">$${best.toFixed(2)}</span></div>
+      </div>
+    </div>`;
+  });
+
+  gridHTML+=`<div class="driver-hero" style="--hc:var(--success);cursor:pointer;" onclick="switchToDeliveries('')">
+    <div class="dh-label">WEEK TOTAL</div>
+    <div class="dh-amt">$${totalTips.toFixed(2)}</div>
+    <div class="dh-meta">
+      <div class="dh-meta-item">Orders<span class="dh-meta-val">${orders.length}</span></div>
+      <div class="dh-meta-item">Avg<span class="dh-meta-val">$${orders.length?(totalTips/orders.length).toFixed(2):'0.00'}</span></div>
+      <div class="dh-meta-item">Zero tips<span class="dh-meta-val">${orders.filter(o=>(o.tip||0)===0).length}</span></div>
+    </div>
+  </div>`;
+
+  gridHTML+=buildStatusHeroHTML(orders);
+  layout.innerHTML=`<div class="hero-layout">${gridHTML}</div>`;
+
+  // Daily breakdown
+  let dHtml='';
+  for(let i=0;i<7;i++){
+    const d=new Date(currentWeekStart);d.setDate(currentWeekStart.getDate()+i);
+    const ds=fmtDate(d);
+    const dayOrders=orders.filter(o=>o.date===ds);
+    const dayTips=dayOrders.reduce((s,o)=>s+(o.tip||0),0);
+    const sd=specialDates.find(s=>s.date===ds);
+    const isSunday=d.getDay()===0;
+    const hasData=dayOrders.length>0;
+    const isMissing=!hasData&&!isSunday;
+    const cls=isMissing?'missing':sd?'special':'';
+    let driversHtml='';
+    if(hasData){
+      drivers.forEach(drv=>{
+        const dOrds=dayOrders.filter(o=>o.driver?.toLowerCase()===drv.name.toLowerCase());
+        if(dOrds.length){
+          const t=dOrds.reduce((s,o)=>s+(o.tip||0),0);
+          driversHtml+=`<span class="dr-d-pill" style="border-color:${drv.color};color:${drv.color};"><span class="nm">${drv.name}</span>&nbsp;<span class="amt">$${t.toFixed(2)}</span>&nbsp;<span style="opacity:.55;font-family:var(--mono);font-size:10px;">(${dOrds.length})</span></span>`;
+        }
+      });
+      const unassigned=dayOrders.filter(o=>!o.driver);
+      if(unassigned.length)driversHtml+=`<span class="dr-d-pill" style="border-color:var(--warn);color:var(--warn);"><span class="nm">?</span>&nbsp;<span class="amt">${unassigned.length} unassigned</span></span>`;
+    }
+    dHtml+=`<div class="day-row ${cls}">
+      <div class="dr-date">${ds}</div>
+      <div class="dr-dow">${DAY[d.getDay()]}</div>
+      <div class="dr-drivers">${driversHtml||(isMissing?'<span class="dr-status-badge missing">No data</span>':sd?`<span class="dr-status-badge special">${esc(sd.note)}</span>`:'<span style="color:var(--txt-3);font-size:10px;">\u2014</span>')}</div>
+      <div class="dr-total">${hasData?'$'+dayTips.toFixed(2):'\u2014'}</div>
+    </div>`;
+  }
+  $('daily-list-body').innerHTML=dHtml;
+  renderGoalBar();
+}
+
+function switchToDeliveries(driverName){
+  const tab=document.querySelector('.ntab[data-panel="deliveries"]');
+  if(tab){switchTab('deliveries',tab);}
+  if(driverName){
+    drvF=driverName;renderPills();renderTable();
+  }
+}
+
+// ═══ FILTER + TABLE ═══
+function debounceSearch(){clearTimeout(searchTimer);searchTimer=setTimeout(renderTable,180);}
+function applyFilter(){
+  const s=$('srch').value.toLowerCase();
+  const fd=$('fd').value,fdrv=$('fdrv').value,ftip=$('ftip').value;
+  const ftype=$('ftype')?.value||'';
+  filtered=data.filter(d=>{
+    if(drvF!=='all'){
+      if(drvF==='un'&&d.driver)return false;
+      if(drvF!=='un'&&d.driver?.toLowerCase()!==drvF.toLowerCase())return false;
+    }
+    if(fd&&d.date!==fd)return false;
+    if(fdrv&&d.driver?.toLowerCase()!==fdrv.toLowerCase())return false;
+    if(ftip==='zero'&&(d.tip||0)!==0)return false;
+    if(ftip==='nonzero'&&(d.tip||0)===0)return false;
+    if(ftype&&d.basketType!==ftype)return false;
+    if(s&&![d.recipient,d.customer,d.address,d.orderNumber,d.phone,d.note].some(v=>v?.toLowerCase().includes(s)))return false;
+    return true;
+  });
+  const anyFilter=s||fd||fdrv||ftip||ftype||drvF!=='all';
+  const cb=$('clear-filters-btn');if(cb)cb.style.display=anyFilter?'inline-flex':'none';
+  filtered.sort((a,b)=>{
+    let va=a[srt.col]||'',vb=b[srt.col]||'';
+    if(srt.col==='date'){const da=parseDate(va)||0,db=parseDate(vb)||0;return srt.dir==='asc'?da-db:db-da;}
+    if(typeof va==='number')return srt.dir==='asc'?va-vb:vb-va;
+    return srt.dir==='asc'?String(va).localeCompare(String(vb)):String(vb).localeCompare(String(va));
+  });
+}
+
+// Feature: Search highlight helper (Feature 9)
+function hlText(text, srch){
+  if(!srch||!text)return esc(text||'');
+  const escaped=esc(text);
+  const escapedSrch=srch.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  return escaped.replace(new RegExp(escapedSrch,'gi'),m=>`<span class="srch-hl">${m}</span>`);
+}
+
+function renderTable(){
+  applyFilter();
+  updateDateFilter();updateDrvFilter();
+  const tbl=$('dt'),empty=$('empty-state'),rc=$('rc');
+  rc.textContent=filtered.length+' rows';
+  const badge=$('badge-deliveries');
+  if(badge){badge.style.display=data.length?'inline-flex':'none';badge.textContent=data.length;}
+  if(!filtered.length){tbl.style.display='none';empty.style.display='flex';return;}
+  tbl.style.display='';empty.style.display='none';
+
+  const cols=['Date','Time','Recipient','Customer','Address','Type','Tip','Driver','Order #','Note'];
+  const colIds=['date','promiseTime','recipient','customer','address','basketType','tip','driver','orderNumber','note'];
+  $('dt-head').innerHTML='<tr>'+
+    cols.map((c,i)=>{
+      const id=colIds[i];
+      const arrow=srt.col===id?(srt.dir==='asc'?' \u2191':' \u2193'):'';
+      return`<th onclick="sortBy('${id}')" class="${srt.col===id?'sorted':''}">${c}${arrow}</th>`;
+    }).join('')+'</tr>';
+
+  const doGroup=$('t-group').checked,doZero=$('t-zero').checked;
+  const srchTerm=$('srch').value.toLowerCase();
+  let html='',prevDate='',dayTips=0,colspan=cols.length;
+  filtered.forEach(d=>{
+    if(doGroup&&d.date!==prevDate){
+      if(prevDate)html+=`<tr class="day-header"><td colspan="${colspan}"><span>${prevDate} ${DAY_FULL[getDOW(prevDate)]||''}</span><span class="day-tip-r">$${dayTips.toFixed(2)}</span></td></tr>`;
+      dayTips=0;prevDate=d.date;
+    }
+    dayTips+=(d.tip||0);
+    const drv=drivers.find(dr=>dr.name.toLowerCase()===(d.driver||'').toLowerCase());
+    const color=drv?drv.color:'#888',rgb=hexRGB(color);
+    const zeroTip=doZero&&(d.tip||0)===0;
+    const dups=data.filter(x=>x.orderNumber&&x.orderNumber===d.orderNumber).length>1;
+    const idx=data.indexOf(d);
+    const isMiss=d.note&&d.note.toLowerCase().includes('missing');
+    const noteHtml=d.note?`<span class="note-tip">${esc(d.note)}</span>`:'';
+    html+=`<tr class="data-row${zeroTip?' zero-tip':''}${dups?' dup-row':''}" data-idx="${idx}">`+
+      `<td class="mono">${esc(d.date)}</td>`+
+      `<td class="mono">${esc(d.promiseTime)||'\u2014'}</td>`+
+      `<td style="font-weight:600;">${srchTerm?hlText(d.recipient||'',srchTerm):esc(d.recipient)||'\u2014'}${isMiss?'<span class="miss-badge">MISSING</span>':''}${dups?'<span class="dup-badge">DUP</span>':''}</td>`+
+      `<td>${srchTerm?hlText(d.customer||'',srchTerm):esc(d.customer)||'\u2014'}</td>`+
+      `<td style="max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(d.address)}">${srchTerm?hlText(d.address||'',srchTerm):esc(d.address)||'\u2014'}</td>`+
+      `<td><span class="tbadge">${esc(d.basketType||'MTO')}</span></td>`+
+      `<td class="tip-v" onclick="editTip(${idx})" title="Click to edit tip">$${(d.tip||0).toFixed(2)}</td>`+
+      `<td><div class="dbadge" style="background:rgba(${rgb},.12);border-color:${color};color:${color};" onclick="cycleDriver(${idx})"><span class="dot" style="background:${color};"></span>${esc(d.driver||'?')}</div></td>`+
+      `<td class="ord-v">${srchTerm?hlText(d.orderNumber||'',srchTerm):esc(d.orderNumber)||'\u2014'}</td>`+
+      `<td class="editable note-cell" onclick="editNote(${idx})">${d.note?esc(d.note):'\u2014'}${noteHtml}</td>`+
+      `</tr>`;
+  });
+  if(doGroup&&prevDate)html+=`<tr class="day-header"><td colspan="${colspan}"><span>${prevDate} ${DAY_FULL[getDOW(prevDate)]||''}</span><span class="day-tip-r">$${dayTips.toFixed(2)}</span></td></tr>`;
+  $('dtb').innerHTML=html;
+}
+function sortBy(col){if(srt.col===col)srt.dir=srt.dir==='asc'?'desc':'asc';else{srt.col=col;srt.dir='asc';}renderTable();}
+function cycleDriver(i){
+  const opts=[...drivers.map(d=>d.name),''];
+  const cur=data[i].driver||'';
+  pushUndo('change driver');
+  data[i].driver=opts[(opts.indexOf(cur)+1)%opts.length];
+  qSave();refresh();
+}
+
+// Feature: Inline Tip Edit (Feature 8)
+function editTip(i){
+  const cur=(data[i].tip||0).toFixed(2);
+  const v=prompt('Edit tip for '+data[i].recipient+':', cur);
+  if(v===null)return;
+  const newTip=parseFloat(v);
+  if(isNaN(newTip)){toast('Invalid tip amount','err');return;}
+  pushUndo('edit tip');
+  data[i].tip=newTip;
+  qSave();refresh();
+  toast('Tip updated to $'+newTip.toFixed(2),'ok');
+}
+
+function editNote(i){
+  const cur=data[i].note||'';
+  const v=prompt('Note for '+data[i].recipient+':',cur);
+  if(v===null)return;
+  pushUndo('edit note');data[i].note=v;qSave();refresh();
+}
+function updateDateFilter(){
+  const sel=$('fd');const cur=sel.value;
+  const dates=[...new Set(data.map(d=>d.date).filter(Boolean))].sort((a,b)=>(parseDate(b)-parseDate(a)));
+  sel.innerHTML='<option value="">All Dates</option>'+dates.map(d=>`<option ${d===cur?'selected':''}>${d}</option>`).join('');
+}
+function updateDrvFilter(){
+  const sel=$('fdrv');const cur=sel.value;
+  sel.innerHTML='<option value="">All Drivers</option>'+drivers.map(d=>`<option ${d.name===cur?'selected':''}>${d.name}</option>`).join('');
+}
+
+// ═══ STATS / PILLS / TIP SCROLL ═══
+function updateStats(){
+  const src_data=(filtered&&filtered.length<data.length&&filtered.length>0)?filtered:data;
+  const tot=src_data.length,tips=src_data.reduce((s,d)=>s+(d.tip||0),0),sales=src_data.reduce((s,d)=>s+(d.orderTotal||0),0);
+  const avg=tot?tips/tot:0;
+  const dates=[...new Set(src_data.map(d=>d.date).filter(Boolean))];
+  $('s1').textContent=tot;
+  $('s2').textContent='$'+tips.toFixed(2);
+  $('s3').textContent='$'+sales.toFixed(2);
+  $('s4').textContent='$'+avg.toFixed(2);
+  $('s5').textContent=dates.length;
+  const nums={};data.forEach(d=>{if(d.orderNumber)nums[d.orderNumber]=(nums[d.orderNumber]||0)+1;});
+  const dc=Object.values(nums).filter(n=>n>1).length;
+  $('s6').textContent=dc||'None';
+}
+function renderPills(){
+  const el=$('dpills');if(!el)return;
+  let html=`<div class="dpill${drvF==='all'?' active':''}" onclick="setF('all')" style="--pc:var(--red)"><span class="pc-num">${data.length}</span>All</div>`;
+  drivers.forEach(d=>{
+    const cnt=data.filter(o=>o.driver?.toLowerCase()===d.name.toLowerCase()).length;
+    const active=drvF.toLowerCase()===d.name.toLowerCase();
+    html+=`<div class="dpill${active?' active':''}" onclick="setF('${d.name}')" style="--pc:${d.color}"><span class="pc-num">${cnt}</span>${d.name}</div>`;
+  });
+  const un=data.filter(o=>!o.driver).length;
+  html+=`<div class="dpill${drvF==='un'?' active':''}" onclick="setF('un')" style="--pc:var(--warn)"><span class="pc-num">${un}</span>Unassigned</div>`;
+  el.innerHTML=html;
+}
+function setF(v){drvF=v;renderPills();renderTable();}
+function renderTipScroll(){
+  const el=$('tip-scroll');if(!el)return;
+  let html='';
+  drivers.forEach(d=>{
+    const tips=data.filter(o=>o.driver?.toLowerCase()===d.name.toLowerCase()).reduce((s,o)=>s+(o.tip||0),0);
+    const cnt=data.filter(o=>o.driver?.toLowerCase()===d.name.toLowerCase()).length;
+    const avg=cnt?tips/cnt:0;
+    html+=`<div class="tip-card" onclick="setF('${d.name}')">
+      <div class="tc-left"><div class="tc-dot" style="background:${d.color};"></div>
+        <div><div class="tc-name" style="color:${d.color};">${esc(d.name.toUpperCase())}</div><div class="tc-orders">${cnt} orders</div></div>
+      </div>
+      <div class="tc-right"><div class="tc-amt" style="color:${d.color};">$${tips.toFixed(2)}</div><div class="tc-avg">avg $${avg.toFixed(2)}</div></div>
+    </div>`;
+  });
+  el.innerHTML=html||'<div style="font-size:11px;color:var(--txt-3);text-align:center;padding:8px;">No drivers</div>';
+}
+
+// ═══ DRIVERS PANEL ═══
+function renderDrivers(){
+  const grid=$('drivers-grid');let html='';
+  drivers.forEach(d=>{
+    const orders=data.filter(o=>o.driver?.toLowerCase()===d.name.toLowerCase());
+    const tips=orders.reduce((s,o)=>s+(o.tip||0),0);
+    const sales=orders.reduce((s,o)=>s+(o.orderTotal||0),0);
+    const avg=orders.length?tips/orders.length:0;
+    const initials=d.name.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+    const today=d.days.includes(new Date().getDay());
+    html+=`<div class="driver-card">
+      <div class="dc-top">
+        <div class="dc-avatar" style="background:${d.color};">${initials}</div>
+        <div class="dc-info">
+          <div class="dc-nm">${esc(d.name)}</div>
+          <div class="dc-role">${esc(d.role||'Driver')}</div>
+          ${today?`<div class="dc-today" style="color:${d.color};">Driving today</div>`:''}
+        </div>
+        <div class="dc-actions">
+          <button class="dc-edit" onclick="openEditDriver('${d.id}')">Edit</button>
+          <button class="dc-del" onclick="deleteDriver('${d.id}')">Remove</button>
+        </div>
+      </div>
+      <div class="dc-stats">
+        <div class="dc-stat"><div class="dc-stat-val">${orders.length}</div><div class="dc-stat-label">Orders</div></div>
+        <div class="dc-stat"><div class="dc-stat-val" style="color:var(--success);">$${tips.toFixed(0)}</div><div class="dc-stat-label">Tips</div></div>
+        <div class="dc-stat"><div class="dc-stat-val" style="color:var(--warn);">$${avg.toFixed(2)}</div><div class="dc-stat-label">Avg</div></div>
+        <div class="dc-stat"><div class="dc-stat-val" style="color:var(--txt-2);">$${Math.round(sales)}</div><div class="dc-stat-label">Sales</div></div>
+      </div>
+      <div class="dc-sched">
+        <div class="dc-sched-label">Schedule</div>
+        <div class="day-pills">${DAY.map((dn,i)=>`<span class="day-pill ${d.days.includes(i)?'on':'off'}">${dn}</span>`).join('')}</div>
+      </div>
+    </div>`;
+  });
+  html+=`<div class="add-driver-card" onclick="openAddDriver()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="20" height="20"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/><line x1="12" y1="17" x2="12" y2="21"/><line x1="10" y1="19" x2="14" y2="19"/></svg>
+    Add Driver
+  </div>`;
+  grid.innerHTML=html;
+}
+function openAddDriver(){
+  $('drv-title').textContent='Add Driver';$('drv-edit-id').value='';$('drv-name').value='';$('drv-role').value='';
+  selColor='#CC0000';renderSwatches();
+  document.querySelectorAll('#drv-days input').forEach(c=>{c.checked=[1,3,4,5,6].includes(parseInt(c.value));});
+  openModal('drv-modal');setTimeout(()=>$('drv-name').focus(),100);
+}
+function openEditDriver(id){
+  const d=drivers.find(x=>x.id===id);if(!d)return;
+  $('drv-title').textContent='Edit Driver';$('drv-edit-id').value=id;
+  $('drv-name').value=d.name;$('drv-role').value=d.role||'';
+  selColor=d.color;renderSwatches();
+  document.querySelectorAll('#drv-days input').forEach(c=>{c.checked=d.days.includes(parseInt(c.value));});
+  openModal('drv-modal');
+}
+function saveDriver(){
+  const name=$('drv-name').value.trim();if(!name){toast('Enter name','err');return;}
+  const days=[...document.querySelectorAll('#drv-days input:checked')].map(c=>parseInt(c.value));
+  const id=$('drv-edit-id').value;
+  if(id){const d=drivers.find(x=>x.id===id);if(d){d.name=name;d.color=selColor;d.role=$('drv-role').value.trim();d.days=days;}}
+  else{drivers.push({id:'drv_'+Date.now(),name,color:selColor,role:$('drv-role').value.trim(),days});}
+  localStorage.setItem('hv_drivers',JSON.stringify(drivers));
+  closeModal('drv-modal');refresh();renderDrivers();toast('Driver saved','ok');
+}
+function deleteDriver(id){
+  const d=drivers.find(x=>x.id===id);if(!d||!confirm('Remove '+d.name+'?'))return;
+  pushUndo('delete driver');drivers=drivers.filter(x=>x.id!==id);
+  data.forEach(o=>{if(o.driver?.toLowerCase()===d.name.toLowerCase())o.driver='';});
+  localStorage.setItem('hv_drivers',JSON.stringify(drivers));
+  qSave();refresh();renderDrivers();toast(d.name+' removed','info');
+}
+function renderSwatches(){
+  document.querySelectorAll('#color-swatches .swatch').forEach(s=>{
+    s.classList.toggle('selected',s.dataset.color===selColor);
+    s.onclick=()=>{selColor=s.dataset.color;renderSwatches();};
+  });
+}
+
+// ═══ ANALYTICS ═══
+function renderAnalytics(){
+  if(!data.length){$('analytics-wrap').innerHTML='<div class="empty"><div class="empty-title">No data yet</div></div>';return;}
+  const total=data.reduce((s,d)=>s+(d.tip||0),0);
+  const avg=data.length?total/data.length:0;
+  const maxTip=data.reduce((mx,d)=>(d.tip||0)>mx.tip?d:mx,{tip:0});
+  const zero=data.filter(d=>(d.tip||0)===0).length;
+  const byDow={};
+  data.forEach(d=>{const dow=getDOW(d.date);if(dow>=0){if(!byDow[dow])byDow[dow]={c:0,t:0};byDow[dow].c++;byDow[dow].t+=(d.tip||0);}});
+  const maxC=Math.max(...Object.values(byDow).map(v=>v.c),1);
+  const topRecip={};data.forEach(d=>{if(d.recipient)topRecip[d.recipient]=(topRecip[d.recipient]||0)+1;});
+  const topR=Object.entries(topRecip).sort((a,b)=>b[1]-a[1]).slice(0,8);
+
+  // Feature: Best day of week badge (Feature 5)
+  const bestDow=Object.entries(byDow).sort((a,b)=>(b[1].t/b[1].c)-(a[1].t/a[1].c))[0];
+  const bestDayBadge=bestDow?`<div class="best-day-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Best avg tip: ${DAY[bestDow[0]]} ($${(bestDow[1].t/bestDow[1].c).toFixed(2)}/order)</div>`:'';
+
+  // Feature: Driver comparison (Feature 10)
+  let drvCompare='<div class="drv-compare">';
+  drivers.forEach(drv=>{
+    const dOrds=data.filter(o=>o.driver?.toLowerCase()===drv.name.toLowerCase());
+    const tips=dOrds.reduce((s,o)=>s+(o.tip||0),0);
+    const avg2=dOrds.length?tips/dOrds.length:0;
+    const best=dOrds.reduce((m,o)=>Math.max(m,o.tip||0),0);
+    const zero2=dOrds.filter(o=>(o.tip||0)===0).length;
+    const zeroRate=dOrds.length?zero2/dOrds.length*100:0;
+    drvCompare+=`<div class="drv-compare-card" style="--dc:${drv.color}">
+      <div class="dcc-name">${esc(drv.name)}</div>
+      <div class="dcc-row"><span class="dcc-label">Total tips</span><span class="dcc-val" style="color:var(--success);">$${tips.toFixed(2)}</span></div>
+      <div class="dcc-row"><span class="dcc-label">Orders</span><span class="dcc-val">${dOrds.length}</span></div>
+      <div class="dcc-row"><span class="dcc-label">Avg tip</span><span class="dcc-val">$${avg2.toFixed(2)}</span></div>
+      <div class="dcc-row"><span class="dcc-label">Best tip</span><span class="dcc-val">$${best.toFixed(2)}</span></div>
+      <div class="dcc-row"><span class="dcc-label">Zero-tip rate</span><span class="dcc-val" style="color:${zeroRate>20?'var(--warn)':'var(--txt-0)'};">${zeroRate.toFixed(0)}%</span></div>
+    </div>`;
+  });
+  drvCompare+='</div>';
+
+  // Feature: Week-over-week chart (Feature 3 - chart data)
+  const byWeek={};
+  data.forEach(d=>{
+    const dt=parseDate(d.date);if(!dt)return;
+    const ws=new Date(dt);ws.setDate(dt.getDate()-dt.getDay());
+    const key=fmtDate(ws);
+    if(!byWeek[key])byWeek[key]={tips:0,orders:0,label:MONTH[ws.getMonth()]+' '+ws.getDate()};
+    byWeek[key].tips+=(d.tip||0);byWeek[key].orders++;
+  });
+  const wkEntries=Object.entries(byWeek).sort((a,b)=>parseDate(a[0])-parseDate(b[0])).slice(-8);
+
+  let html=`<div class="an-grid">
+    <div class="an-card"><h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Avg Tip</h4><div class="an-val" style="color:var(--success);">$${avg.toFixed(2)}</div><div class="an-sub">${data.length} orders</div></div>
+    <div class="an-card"><h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Best Single</h4><div class="an-val" style="color:var(--warn);">$${maxTip.tip.toFixed(2)}</div><div class="an-sub">${esc(maxTip.recipient||'\u2014')}</div></div>
+    <div class="an-card"><h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>Zero-Tip Rate</h4><div class="an-val" style="color:var(--red);">${data.length?(zero/data.length*100).toFixed(0):0}%</div><div class="an-sub">${zero} of ${data.length}</div></div>
+    <div class="an-card"><h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M2 12h20M12 2v20"/></svg>All-Time Total</h4><div class="an-val" style="color:var(--info);">$${total.toFixed(2)}</div><div class="an-sub">all orders</div></div>
+  </div>
+  ${bestDayBadge}
+  <div style="margin-top:14px;">${drvCompare}</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;">
+    <div class="an-card"><h4>Orders by Day of Week</h4><div class="bar-chart">`;
+  DAY.forEach((dn,i)=>{
+    const v=byDow[i];if(!v)return;
+    const pct=v.c/maxC*100;
+    html+=`<div class="bar-row"><span class="bar-label">${dn}</span><div class="bar-track"><div class="bar-fill" style="width:${pct}%;"></div></div><span class="bar-val">${v.c} &middot; $${(v.t/v.c).toFixed(2)}/ea</span></div>`;
+  });
+  html+=`</div></div>
+    <div class="an-card"><h4>Top Recipients</h4>`;
+  topR.forEach(([n,c],i)=>{html+=`<div class="lb-row"><span class="lb-rank">${i+1}</span><span class="lb-name">${esc(n)}</span><span class="lb-val">${c}&times;</span></div>`;});
+  html+=`</div></div>`;
+
+  // Feature: Week-over-week chart (Feature 3)
+  if(wkEntries.length>1){
+    html+=`<div class="an-card" style="margin-top:12px;"><h4>Week-Over-Week Tips</h4><div class="bar-chart">`;
+    const maxTips=Math.max(...wkEntries.map(([,v])=>v.tips),1);
+    wkEntries.forEach(([key,v])=>{
+      const pct=v.tips/maxTips*100;
+      html+=`<div class="bar-row"><span class="bar-label" style="width:56px;">${v.label}</span><div class="bar-track"><div class="bar-fill blue" style="width:${pct}%;"></div></div><span class="bar-val">$${v.tips.toFixed(2)} (${v.orders})</span></div>`;
+    });
+    html+=`</div></div>`;
+  }
+
+  $('analytics-wrap').innerHTML=html;
+}
+
+// ═══ EXPORTS ═══
+function exportXLSX(){
+  if(!data.length){toast('No data','err');return;}
+  const wb=XLSX.utils.book_new();
+  const sorted=[...data].sort((a,b)=>(parseDate(a.date)||0)-(parseDate(b.date)||0));
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([
+    ['Date','Time','Recipient','Customer','Phone','Address','Zip','Type','Order Total','Tip','Driver','Order #','Note'],
+    ...sorted.map(d=>[d.date,d.promiseTime,d.recipient,d.customer,d.phone,d.address,d.zip,d.basketType,d.orderTotal,d.tip,d.driver,d.orderNumber,d.note])
+  ]),'All Deliveries');
+  drivers.forEach(drv=>{
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([
+      ['Date','Time','Recipient','Phone','Address','Tip','Order #'],
+      ...sorted.filter(d=>d.driver?.toLowerCase()===drv.name.toLowerCase()).map(d=>[d.date,d.promiseTime,d.recipient,d.phone,d.address,d.tip,d.orderNumber])
+    ]),drv.name);
+  });
+  const dates=[...new Set(data.map(d=>d.date))].sort();
+  const tipH=['Date','Day',...drivers.map(d=>d.name+' Orders'),...drivers.map(d=>d.name+' Tips'),'Total Tips','Avg Tip'];
+  const tipRows=dates.map(dt=>{
+    const dow=DAY[getDOW(dt)];
+    const ds=drivers.map(drv=>data.filter(o=>o.date===dt&&o.driver?.toLowerCase()===drv.name.toLowerCase()));
+    const day=data.filter(o=>o.date===dt);
+    const dT=day.reduce((s,o)=>s+(o.tip||0),0);
+    return[dt,dow,...ds.map(os=>os.length),...ds.map(os=>os.reduce((s,o)=>s+(o.tip||0),0)),dT,day.length?dT/day.length:0];
+  });
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([tipH,...tipRows]),'Tips Summary');
+  XLSX.writeFile(wb,'HyVee_'+new Date().toISOString().slice(0,10)+'.xlsx');
+  toast('XLSX exported','ok');
+}
+function exportCSV(f){
+  if(!data.length){toast('No data','err');return;}
+  const sub=f==='all'?data:data.filter(d=>d.driver?.toLowerCase()===f.toLowerCase());
+  const h=['Date','Time','Recipient','Customer','Phone','Address','Zip','Type','Order Total','Tip','Driver','Order #','Note'];
+  const csv=[h,...sub.map(d=>[d.date,d.promiseTime,d.recipient,d.customer,d.phone,d.address,d.zip,d.basketType,d.orderTotal,d.tip,d.driver,d.orderNumber,d.note])].map(r=>r.map(v=>'"'+(String(v||'')).replace(/"/g,'""')+'"').join(',')).join('\n');
+  dl(new Blob([csv],{type:'text/csv'}),'HyVee_'+f+'_'+new Date().toISOString().slice(0,10)+'.csv');
+  toast('CSV exported','ok');
+}
+function exportWeek(){
+  const orders=getWeekOrders();
+  if(!orders.length){toast('No data for this week','err');return;}
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([
+    ['Date','Time','Recipient','Customer','Phone','Address','Tip','Driver','Order #'],
+    ...orders.map(d=>[d.date,d.promiseTime,d.recipient,d.customer,d.phone,d.address,d.tip,d.driver,d.orderNumber])
+  ]),'This Week');
+  XLSX.writeFile(wb,'HyVee_Week_'+fmtDate(currentWeekStart).replace(/\//g,'-')+'.xlsx');
+  toast('Week exported','ok');
+}
+function exportScheduler(){exportXLSX();}
+function exportJSON(){
+  if(!data.length){toast('No data','err');return;}
+  dl(new Blob([JSON.stringify({deliveries:data,drivers,specialDates},null,2)],{type:'application/json'}),'HyVee_backup_'+new Date().toISOString().slice(0,10)+'.json');
+  toast('Backup exported','ok');
+}
+function copyWeeklySummary(){
+  const orders=getWeekOrders();
+  if(!orders.length){toast('No data for this week','err');return;}
+  const total=orders.reduce((s,d)=>s+(d.tip||0),0);
+  let txt=`Hy-Vee Lee's Summit #1380 \u2014 Week of ${fmtWeekTitle(currentWeekStart)}\n${'='.repeat(50)}\n`;
+  drivers.forEach(d=>{
+    const dOrds=orders.filter(o=>o.driver?.toLowerCase()===d.name.toLowerCase());
+    const t=dOrds.reduce((s,o)=>s+(o.tip||0),0);
+    txt+=`${d.name}: ${dOrds.length} orders \u00b7 $${t.toFixed(2)} tips \u00b7 avg $${dOrds.length?(t/dOrds.length).toFixed(2):'0.00'}\n`;
+  });
+  txt+=`\nTotal: ${orders.length} orders \u00b7 $${total.toFixed(2)}`;
+  navigator.clipboard.writeText(txt).then(()=>toast('Summary copied!','ok')).catch(()=>toast('Copy failed','err'));
+}
+function exportDriverWeekSheet(driverName){
+  const orders=getWeekOrders();
+  const drvOrds=driverName?orders.filter(o=>o.driver?.toLowerCase()===driverName.toLowerCase()):orders;
+  if(!drvOrds.length){toast(`No orders for ${driverName||'week'}`,'err');return;}
+  const wb=XLSX.utils.book_new();
+  const sorted=[...drvOrds].sort((a,b)=>(parseDate(a.date)||0)-(parseDate(b.date)||0)||(a.promiseTime||'').localeCompare(b.promiseTime||''));
+  const totalTips=sorted.reduce((s,o)=>s+(o.tip||0),0);
+  const avgTip=sorted.length?totalTips/sorted.length:0;
+  const header=[
+    [`Hy-Vee Lee's Summit #1380 \u2014 Driver Week Sheet`],
+    [`Driver: ${driverName||'All Drivers'}`],
+    [`Week of: ${fmtWeekTitle(currentWeekStart)}`],
+    [`Total Orders: ${sorted.length}  |  Total Tips: $${totalTips.toFixed(2)}  |  Avg Tip: $${avgTip.toFixed(2)}`],
+    [],['#','Date','Day','Time','Recipient','Address','Phone','Type','Tip','Order #','Note']
+  ];
+  const rows=sorted.map((o,i)=>[i+1,o.date,DAY_FULL[getDOW(o.date)]||'',o.promiseTime,o.recipient,o.address,o.phone,o.basketType,o.tip,o.orderNumber,o.note]);
+  rows.push([]);rows.push(['','','','','','','','TOTAL',totalTips,'','']);rows.push(['','','','','','','','AVG',avgTip,'','']);
+  const ws=XLSX.utils.aoa_to_sheet([...header,...rows]);
+  ws['!cols']=[{wch:4},{wch:10},{wch:10},{wch:14},{wch:22},{wch:30},{wch:14},{wch:9},{wch:8},{wch:12},{wch:20}];
+  XLSX.utils.book_append_sheet(wb,ws,(driverName||'All').substring(0,31));
+  XLSX.writeFile(wb,`HyVee_${(driverName||'Week').replace(/\s/g,'_')}_${fmtDate(currentWeekStart).replace(/\//g,'-')}.xlsx`);
+  toast(`${driverName||'Week'} sheet exported`,'ok');
+}
+function exportAllDriverWeekSheets(){
+  if(!getWeekOrders().length){toast('No orders for this week','err');return;}
+  const wb=XLSX.utils.book_new();
+  const all=getWeekOrders();
+  const totalTips=all.reduce((s,o)=>s+(o.tip||0),0);
+  const summaryRows=[
+    [`Hy-Vee Lee's Summit #1380 \u2014 Week of ${fmtWeekTitle(currentWeekStart)}`],[],
+    ['Driver','Orders','Total Tips','Avg Tip','Best Tip'],
+    ...drivers.map(d=>{
+      const dOrds=all.filter(o=>o.driver?.toLowerCase()===d.name.toLowerCase());
+      const t=dOrds.reduce((s,o)=>s+(o.tip||0),0);
+      const best=dOrds.reduce((m,o)=>Math.max(m,o.tip||0),0);
+      return[d.name,dOrds.length,t,dOrds.length?t/dOrds.length:0,best];
+    }),
+    [],['TOTAL',all.length,totalTips,all.length?totalTips/all.length:0,'']
+  ];
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(summaryRows),'Summary');
+  drivers.forEach(d=>{
+    const dOrds=all.filter(o=>o.driver?.toLowerCase()===d.name.toLowerCase());
+    if(!dOrds.length)return;
+    const sorted=[...dOrds].sort((a,b)=>(parseDate(a.date)||0)-(parseDate(b.date)||0));
+    const tips=sorted.reduce((s,o)=>s+(o.tip||0),0);
+    const rows=[
+      [`${d.name} \u2014 Week of ${fmtWeekTitle(currentWeekStart)}`],
+      [`${sorted.length} orders \u00b7 $${tips.toFixed(2)} tips \u00b7 avg $${sorted.length?tips/sorted.length:0} /order`],[],
+      ['#','Date','Day','Time','Recipient','Address','Phone','Tip','Order #'],
+      ...sorted.map((o,i)=>[i+1,o.date,DAY_FULL[getDOW(o.date)]||'',o.promiseTime,o.recipient,o.address,o.phone,o.tip,o.orderNumber]),
+      [],[``,``,``,``,``,``,`TOTAL`,tips,``]
+    ];
+    const ws=XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols']=[{wch:4},{wch:10},{wch:10},{wch:14},{wch:22},{wch:30},{wch:14},{wch:8},{wch:12}];
+    XLSX.utils.book_append_sheet(wb,ws,d.name.substring(0,31));
+  });
+  XLSX.writeFile(wb,`HyVee_WeekSheets_${fmtDate(currentWeekStart).replace(/\//g,'-')}.xlsx`);
+  toast('All driver sheets exported','ok');
+}
+function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();}
+function clearAllFilters(){
+  $('srch').value='';$('fd').value='';if($('fdrv'))$('fdrv').value='';
+  if($('ftip'))$('ftip').value='';if($('ftype'))$('ftype').value='';
+  drvF='all';renderPills();renderTable();
+}
+
+// ═══ PRINT ═══
+function openPrint(){
+  const dates=[...new Set(data.map(d=>d.date).filter(Boolean))].sort((a,b)=>parseDate(b)-parseDate(a));
+  $('print-date').innerHTML=dates.map(d=>`<option>${d}</option>`).join('');
+  if($('print-mode'))$('print-mode').value='week';
+  updatePrintDriverOptions();$('print-date-wrap').style.display='none';
+  buildPrintPreview();openModal('print-modal');
+}
+function onPrintModeChange(){
+  const mode=$('print-mode').value;
+  $('print-date-wrap').style.display=mode==='day'?'block':'none';
+  updatePrintDriverOptions();buildPrintPreview();
+}
+function updatePrintDriverOptions(){
+  const mode=$('print-mode').value;const sel=$('print-driver');
+  if(mode==='week'){sel.innerHTML='<option value="__all__">All drivers (one sheet each)</option>'+drivers.map(d=>`<option value="${esc(d.name)}">${esc(d.name)} only</option>`).join('');}
+  else{sel.innerHTML='<option value="">All drivers</option>'+drivers.map(d=>`<option value="${esc(d.name)}">${esc(d.name)}</option>`).join('');}
+}
+function buildPrintPreview(){
+  const mode=$('print-mode')?.value||'day';const drvSel=$('print-driver').value;const prev=$('print-preview');
+  if(mode==='day'){
+    const dt=$('print-date').value;
+    const rows=data.filter(d=>d.date===dt&&(!drvSel||d.driver?.toLowerCase()===drvSel.toLowerCase())).sort((a,b)=>(a.promiseTime||'').localeCompare(b.promiseTime||''));
+    if(!rows.length){prev.innerHTML='<p style="color:#999;text-align:center;padding:20px;">No data for this date/filter.</p>';return;}
+    const total=rows.reduce((s,r)=>s+(r.tip||0),0);
+    prev.innerHTML=`<div class="route-sheet">
+      <div class="rs-header"><h2>Hy-Vee Lee's Summit #1380</h2><div>Date: ${dt} &nbsp;|&nbsp; Driver: ${drvSel||'All'} &nbsp;|&nbsp; Orders: ${rows.length} &nbsp;|&nbsp; Tips: $${total.toFixed(2)}</div></div>
+      <table class="rs-table"><thead><tr><th>#</th><th>Time</th><th>Recipient</th><th>Address</th><th>Phone</th><th>Tip</th><th>Order #</th><th>Sig</th></tr></thead>
+      <tbody>${rows.map((r,i)=>`<tr><td>${i+1}</td><td class="mono">${esc(r.promiseTime)||''}</td><td><strong>${esc(r.recipient)}</strong></td><td>${esc(r.address)}</td><td class="mono">${esc(r.phone)}</td><td class="mono"><strong>$${(r.tip||0).toFixed(2)}</strong></td><td class="mono">${esc(r.orderNumber)}</td><td style="width:60px;">&nbsp;</td></tr>`).join('')}</tbody>
+      <tfoot><tr><td colspan="5" style="text-align:right;font-weight:700;padding:8px;">Total:</td><td class="mono" style="font-weight:700;">$${total.toFixed(2)}</td><td colspan="2"></td></tr></tfoot></table></div>`;
+  }else{
+    const drvsToPrint=drvSel==='__all__'?drivers:drivers.filter(d=>d.name===drvSel);
+    if(!drvsToPrint.length){prev.innerHTML='';return;}
+    let html='';
+    drvsToPrint.forEach(drv=>{
+      const wkOrds=getWeekOrders().filter(o=>o.driver?.toLowerCase()===drv.name.toLowerCase()).sort((a,b)=>(parseDate(a.date)||0)-(parseDate(b.date)||0)||(a.promiseTime||'').localeCompare(b.promiseTime||''));
+      if(!wkOrds.length)return;
+      const total=wkOrds.reduce((s,o)=>s+(o.tip||0),0);
+      const byDate={};wkOrds.forEach(o=>{if(!byDate[o.date])byDate[o.date]=[];byDate[o.date].push(o);});
+      html+=`<div class="route-sheet">
+        <div class="rs-header"><h2>Hy-Vee Lee's Summit #1380 \u2014 ${esc(drv.name)}</h2><div>Week of ${fmtWeekTitle(currentWeekStart)} &nbsp;|&nbsp; ${wkOrds.length} orders &nbsp;|&nbsp; $${total.toFixed(2)} tips</div></div>`;
+      Object.entries(byDate).forEach(([dt,ords])=>{
+        const dayTotal=ords.reduce((s,o)=>s+(o.tip||0),0);
+        html+=`<div class="rs-day"><div class="rs-day-header">${dt} ${DAY_FULL[getDOW(dt)]||''} &mdash; $${dayTotal.toFixed(2)}</div>
+          <table class="rs-table"><thead><tr><th>#</th><th>Time</th><th>Recipient</th><th>Address</th><th>Phone</th><th>Tip</th><th>Order #</th><th>Sig</th></tr></thead>
+          <tbody>${ords.map((r,i)=>`<tr><td>${i+1}</td><td class="mono">${esc(r.promiseTime)||''}</td><td><strong>${esc(r.recipient)}</strong></td><td>${esc(r.address)}</td><td class="mono">${esc(r.phone)}</td><td class="mono"><strong>$${(r.tip||0).toFixed(2)}</strong></td><td class="mono">${esc(r.orderNumber)}</td><td style="width:60px;">&nbsp;</td></tr>`).join('')}</tbody></table></div>`;
+      });
+      html+='</div>';
+    });
+    prev.innerHTML=html||'<p style="color:#999;text-align:center;padding:20px;">No data for this week.</p>';
+  }
+}
+function printRouteSheet(){
+  const prev=$('print-preview');if(!prev?.innerHTML)return;
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Route Sheet</title><style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Helvetica Neue',Arial,sans-serif;font-size:12px;color:#1a1a1a;padding:12px;}
+.route-sheet{background:#fff;padding:14px;margin-bottom:12px;border:1px solid #e0e0e0;border-radius:4px;}
+.rs-header{border-bottom:3px solid #CC0000;padding-bottom:7px;margin-bottom:10px;}
+.rs-header h2{font-size:16px;margin:0 0 2px;color:#1a1a1a;}
+.rs-header div{font-size:10px;color:#555;}
+.rs-day{margin-bottom:12px;page-break-inside:avoid;}
+.rs-day-header{background:#f3f3f3;padding:5px 9px;font-weight:700;font-size:12px;border-left:3px solid #CC0000;margin-bottom:4px;}
+.rs-table{width:100%;border-collapse:collapse;font-size:10px;}
+.rs-table th{background:#e8e8e8;padding:5px 7px;text-align:left;border:1px solid #999;font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:0.4px;}
+.rs-table td{padding:5px 7px;border:1px solid #ccc;vertical-align:top;}
+.rs-table .mono{font-family:'Courier New',monospace;}
+@page{margin:10mm;}
+@media print{body{padding:0;}.rs-day{page-break-inside:avoid;}}
+</style></head><body>${prev.innerHTML}
+<scr'+'ipt>setTimeout(()=>{window.print();setTimeout(()=>window.close(),500);},250);<\/scr'+'ipt>
+</body></html>`);
+  w.document.close();
+}
+function quickPrintWeek(){
+  openPrint();
+  if($('print-mode'))$('print-mode').value='week';
+  onPrintModeChange();
+}
+
+// ═══ AI ═══
+function openAI(){$('ai-overlay').classList.add('open');}
+function closeAI(){$('ai-overlay').classList.remove('open');}
+function askAI(q){$('ai-inp').value=q;sendAI();}
+async function sendAI(){
+  const msg=$('ai-inp').value.trim();if(!msg)return;
+  $('ai-inp').value='';
+  addMsg(msg,'user');
+  const prov=$('ai-prov').value,key=getKey();
+  if(!key){addMsg('Add an API key in the sidebar.','err');return;}
+  const dates=[...new Set(data.map(d=>d.date))].sort();
+  const totalT=data.reduce((s,d)=>s+(d.tip||0),0);
+  const wkOrds=getWeekOrders();const wkTips=wkOrds.reduce((s,d)=>s+(d.tip||0),0);
+  const drvSum=drivers.map(d=>{
+    const dOrds=data.filter(o=>o.driver?.toLowerCase()===d.name.toLowerCase());
+    const t=dOrds.reduce((s,o)=>s+(o.tip||0),0);
+    return `${d.name}: ${dOrds.length} orders, $${t.toFixed(2)} tips, drives ${d.days.map(i=>DAY[i]).join('/')}`;
+  }).join('; ');
+  const ctx=`Hy-Vee Lee's Summit #1380 delivery assistant.
+DATA: ${data.length} orders across ${dates.length} dates from ${dates[0]} to ${dates[dates.length-1]}.
+THIS WEEK (${fmtWeekTitle(currentWeekStart)}): ${wkOrds.length} orders, $${wkTips.toFixed(2)} tips.
+DRIVERS: ${drvSum}.
+TOTAL TIPS ALL TIME: $${totalT.toFixed(2)}, AVG: $${data.length?(totalT/data.length).toFixed(2):0}.
+$0 TIP COUNT: ${data.filter(d=>(d.tip||0)===0).length}.
+SAMPLE: ${JSON.stringify(data.slice(0,10))}.
+Be concise. Use $ for money.`;
+  const t=addMsg('','bot');
+  t.innerHTML='<div class="ai-typing"><span></span><span></span><span></span></div>';
+  try{
+    let reply='';
+    if(prov==='anthropic'){
+      const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:$('ai-model').value,max_tokens:800,system:ctx,messages:[{role:'user',content:msg}]})});
+      const d=await r.json();if(!r.ok)throw new Error(d.error?.message);reply=d.content[0].text;
+    }else if(prov==='openai'){
+      const r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:$('ai-model').value,max_tokens:800,messages:[{role:'system',content:ctx},{role:'user',content:msg}]})});
+      const d=await r.json();if(!r.ok)throw new Error(d.error?.message);reply=d.choices[0].message.content;
+    }else if(prov==='google'){
+      const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${$('ai-model').value}:generateContent?key=${key}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:ctx+'\nUser: '+msg}]}]})});
+      const d=await r.json();if(!r.ok)throw new Error(d.error?.message);reply=d.candidates[0].content.parts[0].text;
+    }else if(prov==='deepseek'){
+      const r=await fetch('https://api.deepseek.com/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:$('ai-model').value,max_tokens:800,messages:[{role:'system',content:ctx},{role:'user',content:msg}]})});
+      const d=await r.json();if(!r.ok)throw new Error(d.error?.message);reply=d.choices[0].message.content;
+    }
+    t.textContent=reply;
+  }catch(e){t.className='ai-msg err';t.textContent='Error: '+e.message;}
+}
+function addMsg(text,type){const m=$('ai-msgs'),d=document.createElement('div');d.className='ai-msg '+type;d.textContent=text;m.appendChild(d);m.scrollTop=m.scrollHeight;return d;}
+
+// ═══ FAB ═══
+function setupScrollFAB(){
+  const fab=$('scroll-fab');
+  document.querySelectorAll('.tbl-wrap,.weekly-wrap,.drivers-wrap,.analytics-wrap').forEach(el=>{
+    el.addEventListener('scroll',()=>{
+      const show=el.scrollTop>120;fab.classList.toggle('show',show);
+      const near=el.scrollTop+el.clientHeight>=el.scrollHeight-50;
+      fab.innerHTML=near?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>';
+      fab._target=el;fab._up=near;
+    });
+  });
+}
+function scrollFAB(){
+  const fab=$('scroll-fab');const el=fab._target||document.querySelector('.tbl-wrap');if(!el)return;
+  if(fab._up)el.scrollTo({top:0,behavior:'smooth'});else el.scrollTo({top:el.scrollHeight,behavior:'smooth'});
+}
+
+// ═══ MODALS / UTILS ═══
+function openModal(id){$(id)?.classList.add('open');}
+function closeModal(id){$(id)?.classList.remove('open');}
+function openProcModal(title){openModal('proc-modal');$('proc-title').textContent=title;$('pfill').style.width='0%';$('proc-log').innerHTML='';$('proc-done').disabled=true;}
+function setProgress(p){$('pfill').style.width=p+'%';}
+function log(msg,type){const b=$('proc-log');const s=document.createElement('span');s.className='l'+(type||'info');s.textContent='> '+msg+'\n';b.appendChild(s);b.scrollTop=b.scrollHeight;}
+function clearAll(){
+  if(!confirm('Clear all delivery data?'))return;
+  data=[];pendingFiles=[];undoStack=[];$('undo-btn').disabled=true;
+  localStorage.removeItem('hv_d_june');data=[...PRELOADED_DATA];
+  qSave();refresh();renderFileList();toast('Cleared \u2014 reloaded preloaded data','info');
+}
+function setFS(v){document.documentElement.style.setProperty('--fs',v+'px');$('fs-val').textContent=v;localStorage.setItem('hv_fs',v);document.body.style.fontSize=v+'px';}
+function toast(msg,type){
+  const c=$('toasts'),d=document.createElement('div');
+  d.className='toast '+(type||'info');d.textContent=msg;
+  d.onclick=()=>d.remove();c.appendChild(d);
+  setTimeout(()=>{try{d.remove();}catch(e){}},4500);
+}
+
+// ═══ WEEK STATUS ═══
+function renderWeekStatus(){}
+function setWSRow(dot,row,state){
+  dot.classList.remove('green','red','yellow');dot.style.background='';row.classList.remove('status-green','status-red','status-yellow');
+  if(state==='green'){dot.classList.add('green');row.classList.add('status-green');}
+  else if(state==='red'){dot.classList.add('red');row.classList.add('status-red');}
+  else if(state==='yellow'){dot.classList.add('yellow');row.classList.add('status-yellow');}
+}
+
+// ═══ KEY FALLBACKS ═══
+// Do NOT hardcode real keys here — this file is public on GitHub/Vercel.
+// Enter keys in the sidebar instead; they're stored in your browser only.
+const HARDCODED_KEYS = {
+  anthropic: '',
+  openai:    '',
+  google:    '',
+  deepseek:  ''
+};
+
+// ═══ MULTI-KEY MANAGEMENT ═══
+function saveAllKeys(){
+  const providers=['anthropic','openai','google','deepseek'];
+  providers.forEach(p=>{
+    const el=$('key-'+p);
+    if(el&&el.value.trim()){
+      localStorage.setItem('hv_k_'+p,el.value.trim());
+      const dot=$('ks-'+p);if(dot)dot.classList.add('has-key');
+    }
+  });
+}
+function loadAllKeys(){
+  const providers=['anthropic','openai','google','deepseek'];
+  providers.forEach(p=>{
+    const saved=localStorage.getItem('hv_k_'+p)||HARDCODED_KEYS[p]||'';
+    const el=$('key-'+p);const dot=$('ks-'+p);
+    if(saved&&el){el.value=saved;}
+    if(saved&&dot){dot.classList.add('has-key');}else if(dot){dot.classList.remove('has-key');}
+    if(!localStorage.getItem('hv_k_'+p)&&HARDCODED_KEYS[p]){localStorage.setItem('hv_k_'+p,HARDCODED_KEYS[p]);}
+  });
+  loadKey();updateModelNote();
+}
+function loadKey(){
+  const p=$('ai-prov')?.value;if(!p)return;
+  const saved=localStorage.getItem('hv_k_'+p)||'';
+  const old=$('api-key');if(old)old.value=saved;
+}
+function updateModels(){
+  const p=$('ai-prov')?.value;if(!p)return;
+  const MODELS2={anthropic:['claude-opus-4-5','claude-sonnet-4-5','claude-haiku-4-5-20251001'],openai:['gpt-4o','gpt-4o-mini','gpt-4-turbo'],google:['gemini-2.0-flash','gemini-1.5-pro','gemini-1.5-flash'],deepseek:['deepseek-chat','deepseek-reasoner']};
+  const sel=$('ai-model');if(sel)sel.innerHTML=(MODELS2[p]||[]).map(m=>`<option>${m}</option>`).join('');
+}
+function getKey(){
+  const p=$('ai-prov')?.value;if(!p)return'';
+  const newEl=$('key-'+p);
+  if(newEl&&newEl.value.trim())return newEl.value.trim();
+  return localStorage.getItem('hv_k_'+p)||HARDCODED_KEYS[p]||'';
+}
+
+// ═══ TEST API KEYS ═══
+async function testAllKeys(){
+  const results=$('key-test-results');if(!results)return;
+  results.innerHTML='<div style="font-size:10px;color:var(--txt-3);font-family:var(--mono);padding:4px 0;">Testing keys...</div>';
+  const providers=[
+    {id:'anthropic',name:'Claude (Anthropic)',corsOk:true,color:'#CC0000'},
+    {id:'openai',name:'OpenAI (GPT)',corsOk:false,color:'#1A7A4A'},
+    {id:'google',name:'Gemini (Google)',corsOk:false,color:'#1A5FA3'},
+    {id:'deepseek',name:'DeepSeek',corsOk:false,color:'#7C3AED'},
+  ];
+  results.innerHTML='';
+  for(const p of providers){
+    const key=localStorage.getItem('hv_k_'+p.id)||$('key-'+p.id)?.value?.trim()||HARDCODED_KEYS[p.id]||'';
+    const row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:7px;padding:5px 8px;background:var(--bg-1);border-radius:6px;font-size:11px;margin-bottom:3px;';
+    if(!key){
+      row.innerHTML=`<span style="width:7px;height:7px;border-radius:50%;background:var(--line-2);flex-shrink:0;display:inline-block;"></span><span style="color:var(--txt-3);">${p.name}</span><span style="margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--txt-3);">no key</span>`;
+      results.appendChild(row);continue;
+    }
+    if(!p.corsOk){
+      const looks_valid=key.length>10;
+      const format_ok=(p.id==='openai'&&key.startsWith('sk-'))||(p.id==='google'&&key.length>20)||(p.id==='deepseek'&&key.startsWith('sk-'))||looks_valid;
+      row.innerHTML=`<span style="width:7px;height:7px;border-radius:50%;background:${format_ok?'var(--warn)':'var(--red)'};flex-shrink:0;display:inline-block;"></span><span style="color:var(--txt-1);">${p.name}</span><span style="margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--warn);">${format_ok?'saved (CORS blocks live test)':'key format wrong'}</span>`;
+      results.appendChild(row);
+      const kdot=$('ks-'+p.id);if(kdot&&format_ok)kdot.classList.add('has-key');continue;
+    }
+    row.innerHTML=`<span style="width:7px;height:7px;border-radius:50%;background:var(--warn);flex-shrink:0;display:inline-block;" id="dot-${p.id}"></span><span style="color:var(--txt-1);">${p.name}</span><span style="margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--txt-3);" id="status-${p.id}">testing...</span>`;
+    results.appendChild(row);
+    try{
+      const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:10,messages:[{role:'user',content:'hi'}]})});
+      const d=await r.json();const ok=r.ok&&d.content;
+      const msg=ok?'live test passed':(d.error?.message||'auth failed');
+      const dot=$('dot-'+p.id);const stat=$('status-'+p.id);
+      if(dot)dot.style.background=ok?'var(--success)':'var(--red)';
+      if(stat){stat.textContent=msg;stat.style.color=ok?'var(--success)':'var(--red)';}
+      const kdot=$('ks-'+p.id);if(kdot)kdot.classList.toggle('has-key',ok);
+    }catch(e){
+      const dot=$('dot-'+p.id);const stat=$('status-'+p.id);
+      if(dot)dot.style.background='var(--red)';
+      if(stat){stat.textContent='network error';stat.style.color='var(--red)';}
+    }
+  }
+  const note=document.createElement('div');
+  note.style.cssText='font-size:10px;color:var(--txt-3);margin-top:5px;line-height:1.5;';
+  note.textContent='Yellow = key saved, live test blocked by browser CORS. Keys work fine when parsing PDFs.';
+  results.appendChild(note);
+}
+
+// ═══ PDF TEXT EXTRACTION ═══
+async function extractPDFText(b64){
+  try{
+    const binary=atob(b64);const bytes=new Uint8Array(binary.length);
+    for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
+    let text='';const str=binary;
+    const btMatches=str.matchAll(/BT([\s\S]*?)ET/g);
+    for(const m of btMatches){
+      const block=m[1];const strMatches=block.matchAll(/\(([^)]*)\)/g);
+      for(const s of strMatches){
+        const decoded=s[1].replace(/\\(\d{3})/g,(m,oct)=>String.fromCharCode(parseInt(oct,8))).replace(/\\\\/g,'\\').replace(/\\\(/g,'(').replace(/\\\)/g,')');
+        if(decoded.trim())text+=decoded+' ';
+      }
+    }
+    if(text.length>100)return text;
+    let fallback='',run='';
+    for(let i=0;i<str.length;i++){
+      const c=str.charCodeAt(i);
+      if(c>=32&&c<127)run+=str[i];
+      else if(run.length>3){fallback+=run+'\n';run='';}else run='';
+    }
+    return fallback||'[PDF text extraction failed \u2014 try Claude or Gemini for better results]';
+  }catch(e){return'[Could not extract PDF text: '+e.message+']';}
+}
+
+function updateModelNote(){
+  const m=$('ai-model')?.value||'';const note=$('model-note');if(!note)return;
+  const txt=MODEL_NOTES[m]||'';
+  if(txt.includes('cheapest'))note.style.color='var(--success)';
+  else if(txt.includes('natively'))note.style.color='var(--info)';
+  else note.style.color='var(--txt-3)';
+  note.textContent=txt;
+}
+
+// ═══ GO ═══
+init();
+</script>
+</body>
+</html>
