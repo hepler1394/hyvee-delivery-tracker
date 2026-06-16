@@ -1420,6 +1420,7 @@ function dismissNewWeekBanner(){
 
 // ═══ DATE HELPERS ═══
 function fmtDate(d){return(d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear();}
+function money(n){return(Number(n)||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function parseDate(ds){if(!ds)return null;const[m,d,y]=ds.split('/').map(Number);if(!y||!m||!d)return null;return new Date(y,m-1,d);}
 function getDOW(ds){const dt=parseDate(ds);return dt?dt.getDay():-1;}
 function getWeekStart(dt){const ws=new Date(dt);ws.setDate(dt.getDate()-dt.getDay());return ws;}
@@ -1605,7 +1606,8 @@ async function parseAllPDFs(){
   if(!key){toast('Enter an API key in the sidebar first','err');return;}
   const total=pendingFiles.length;
   openProcModal(`Parsing ${total} PDF${total>1?'s':''}`);
-  log(`Starting ${total} file(s) with ${prov}`,'info');
+  log(`Starting ${total} file(s) with ${prov} / ${model}`,'info');
+  if(prov==='anthropic'&&!/^sk-ant/i.test(key))log('  Heads up: Claude keys normally start with "sk-ant"','info');
   let allOrders=[],allRouteAssignments=[],mtoCount=0,routeCount=0,skipCount=0;
   const batchStart=(performance&&performance.now)?performance.now():Date.now();
   for(let i=0;i<pendingFiles.length;i++){
@@ -2061,7 +2063,7 @@ function renderWeekly(){
     const best=dOrds.reduce((m,o)=>Math.max(m,o.tip||0),0);
     gridHTML+=`<div class="driver-hero" style="--hc:${drv.color};cursor:pointer;" onclick="switchToDeliveries('${drv.name}')">
       <div class="dh-label">${esc(drv.name.toUpperCase())}</div>
-      <div class="dh-amt">$${tips.toFixed(2)}</div>
+      <div class="dh-amt">$${money(tips)}</div>
       <div class="dh-meta">
         <div class="dh-meta-item">Orders<span class="dh-meta-val">${dOrds.length}</span></div>
         <div class="dh-meta-item">Avg<span class="dh-meta-val">$${avg.toFixed(2)}</span></div>
@@ -2072,7 +2074,7 @@ function renderWeekly(){
 
   gridHTML+=`<div class="driver-hero" style="--hc:var(--success);cursor:pointer;" onclick="switchToDeliveries('')">
     <div class="dh-label">WEEK TOTAL</div>
-    <div class="dh-amt">$${totalTips.toFixed(2)}</div>
+    <div class="dh-amt">$${money(totalTips)}</div>
     <div class="dh-meta">
       <div class="dh-meta-item">Orders<span class="dh-meta-val">${orders.length}</span></div>
       <div class="dh-meta-item">Avg<span class="dh-meta-val">$${orders.length?(totalTips/orders.length).toFixed(2):'0.00'}</span></div>
