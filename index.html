@@ -834,6 +834,7 @@ input[type=checkbox] { accent-color: var(--red); width: 13px; height: 13px; curs
 </style>
 </head>
 <body>
+<noscript><div style="padding:20px;font-family:sans-serif;background:#CC0000;color:#fff;text-align:center;">This delivery tracker needs JavaScript enabled to run.</div></noscript>
 
 <!-- ═══ HEADER ═══ -->
 <header>
@@ -2114,7 +2115,7 @@ function renderWeekly(){
         const dOrds=dayOrders.filter(o=>o.driver?.toLowerCase()===drv.name.toLowerCase());
         if(dOrds.length){
           const t=dOrds.reduce((s,o)=>s+(o.tip||0),0);
-          driversHtml+=`<span class="dr-d-pill" style="border-color:${drv.color};color:${drv.color};"><span class="nm">${drv.name}</span>&nbsp;<span class="amt">$${t.toFixed(2)}</span>&nbsp;<span style="opacity:.55;font-family:var(--mono);font-size:10px;">(${dOrds.length})</span></span>`;
+          driversHtml+=`<span class="dr-d-pill" style="border-color:${drv.color};color:${drv.color};"><span class="nm">${drv.name}</span>&nbsp;<span class="amt">$${money(t)}</span>&nbsp;<span style="opacity:.55;font-family:var(--mono);font-size:10px;">(${dOrds.length})</span></span>`;
         }
       });
       const unassigned=dayOrders.filter(o=>!o.driver);
@@ -2124,7 +2125,7 @@ function renderWeekly(){
       <div class="dr-date">${ds}</div>
       <div class="dr-dow">${DAY[d.getDay()]}</div>
       <div class="dr-drivers">${driversHtml||(isMissing?'<span class="dr-status-badge missing">No data</span>':sd?`<span class="dr-status-badge special">${esc(sd.note)}</span>`:'<span style="color:var(--txt-3);font-size:10px;">\u2014</span>')}</div>
-      <div class="dr-total">${hasData?'$'+dayTips.toFixed(2):'\u2014'}</div>
+      <div class="dr-total">${hasData?'$'+money(dayTips):'\u2014'}</div>
     </div>`;
   }
   $('daily-list-body').innerHTML=dHtml;
@@ -2257,7 +2258,7 @@ function editTip(i){
   const cur=(data[i].tip||0).toFixed(2);
   const v=prompt('Edit tip for '+data[i].recipient+':', cur);
   if(v===null)return;
-  let newTip=parseFloat(v);
+  let newTip=parseFloat(String(v).replace(/[^0-9.\-]/g,''));
   if(isNaN(newTip)){toast('Invalid tip amount','err');return;}
   if(newTip<0)newTip=0;
   pushUndo('edit tip');
@@ -2352,7 +2353,7 @@ function renderDrivers(){
       </div>
       <div class="dc-stats">
         <div class="dc-stat"><div class="dc-stat-val">${orders.length}</div><div class="dc-stat-label">Orders</div></div>
-        <div class="dc-stat"><div class="dc-stat-val" style="color:var(--success);">$${tips.toFixed(0)}</div><div class="dc-stat-label">Tips</div></div>
+        <div class="dc-stat"><div class="dc-stat-val" style="color:var(--success);">$${money(tips)}</div><div class="dc-stat-label">Tips</div></div>
         <div class="dc-stat"><div class="dc-stat-val" style="color:var(--warn);">$${avg.toFixed(2)}</div><div class="dc-stat-label">Avg</div></div>
         <div class="dc-stat"><div class="dc-stat-val" style="color:var(--txt-2);">$${Math.round(sales).toLocaleString('en-US')}</div><div class="dc-stat-label">Sales</div></div>
       </div>
