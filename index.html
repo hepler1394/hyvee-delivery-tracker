@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#CC0000">
+<meta name="description" content="Hy-Vee Lee's Summit #1380 delivery tracker — parse MTO printouts, assign drivers, track tips by week.">
 <title>Hy-Vee Delivery — Lee's Summit #1380</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -571,6 +573,8 @@ td.editable:hover { background: var(--bg-2); }
 .review-badge { font-size: 10px; color: #fff; background: var(--red); padding: 1px 5px; border-radius: 3px; margin-left: 3px; font-weight: 800; letter-spacing: .3px; }
 .driver-card { cursor: grab; }
 .driver-card:active { cursor: grabbing; }
+.day-row.today { box-shadow: inset 3px 0 0 var(--red); background: var(--red-soft); }
+.day-row.today .dr-dow { color: var(--red); font-weight: 800; }
 tbody tr.data-row.needs-review { border-left: 2px solid var(--red); }
 input[type=checkbox] { accent-color: var(--red); width: 13px; height: 13px; cursor: pointer; }
 
@@ -1980,7 +1984,9 @@ function saveGoal(){
 function renderGoalBar(){
   const orders=getWeekOrders();
   const earned=orders.reduce((s,o)=>s+(o.tip||0),0);
-  $('goal-current').textContent='$'+earned.toFixed(2)+' earned';
+  const remain=tipGoal-earned;
+  const goalNote=!tipGoal?'':(remain>0?' \u00b7 $'+remain.toFixed(2)+' to go':' \u00b7 goal reached! +$'+(-remain).toFixed(2));
+  $('goal-current').textContent='$'+earned.toFixed(2)+' earned'+goalNote;
   if(!tipGoal){$('goal-pct').textContent='\u2014';$('goal-fill').style.width='0%';return;}
   const pct=Math.min(100,earned/tipGoal*100);
   $('goal-pct').textContent=pct.toFixed(0)+'%';
@@ -2074,7 +2080,8 @@ function renderWeekly(){
     const isSunday=d.getDay()===0;
     const hasData=dayOrders.length>0;
     const isMissing=!hasData&&!isSunday;
-    const cls=isMissing?'missing':sd?'special':'';
+    const isToday=ds===fmtDate(new Date());
+    const cls=(isMissing?'missing':sd?'special':'')+(isToday?' today':'');
     let driversHtml='';
     if(hasData){
       drivers.forEach(drv=>{
@@ -2123,7 +2130,7 @@ function applyFilter(){
     if(ftip==='nonzero'&&(d.tip||0)===0)return false;
     if(ftip==='review'&&d.date&&d.address)return false;
     if(ftype&&d.basketType!==ftype)return false;
-    if(s&&![d.recipient,d.customer,d.address,d.orderNumber,d.phone,d.note].some(v=>v?.toLowerCase().includes(s)))return false;
+    if(s&&![d.recipient,d.customer,d.address,d.orderNumber,d.phone,d.note,d.zip].some(v=>v?.toLowerCase().includes(s)))return false;
     return true;
   });
   const anyFilter=s||fd||fdrv||ftip||ftype||drvF!=='all';
