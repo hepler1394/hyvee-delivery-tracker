@@ -569,6 +569,8 @@ td.editable:hover { background: var(--bg-2); }
 .miss-badge { font-size: 10px; color: #fff; background: var(--warn); padding: 1px 6px; border-radius: 3px; margin-left: 5px; font-weight: 700; }
 .dup-badge { font-size: 10px; color: #fff; background: var(--warn); padding: 1px 5px; border-radius: 3px; margin-left: 3px; font-weight: 800; }
 .review-badge { font-size: 10px; color: #fff; background: var(--red); padding: 1px 5px; border-radius: 3px; margin-left: 3px; font-weight: 800; letter-spacing: .3px; }
+.driver-card { cursor: grab; }
+.driver-card:active { cursor: grabbing; }
 tbody tr.data-row.needs-review { border-left: 2px solid var(--red); }
 input[type=checkbox] { accent-color: var(--red); width: 13px; height: 13px; cursor: pointer; }
 
@@ -964,11 +966,11 @@ input[type=checkbox] { accent-color: var(--red); width: 13px; height: 13px; curs
       </div>
       <div class="settings-row">
         <label>Group by date</label>
-        <label class="toggle"><input type="checkbox" id="t-group" onchange="renderTable()" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+        <label class="toggle"><input type="checkbox" id="t-group" onchange="saveTableToggles();renderTable()" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
       </div>
       <div class="settings-row">
         <label>Highlight $0 tips</label>
-        <label class="toggle"><input type="checkbox" id="t-zero" onchange="renderTable()" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+        <label class="toggle"><input type="checkbox" id="t-zero" onchange="saveTableToggles();renderTable()" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
       </div>
     </div>
 
@@ -1363,6 +1365,7 @@ function init(){
   checkNewWeekBanner();
   setupKeyboard();
   setupScrollFAB();
+  restoreTableToggles();
   refresh();
 }
 
@@ -2143,7 +2146,8 @@ function renderTable(){
   applyFilter();
   updateDateFilter();updateDrvFilter();
   const tbl=$('dt'),empty=$('empty-state'),rc=$('rc');
-  rc.textContent=filtered.length+' rows';
+  const fTips=filtered.reduce((s,d)=>s+(d.tip||0),0);
+  rc.textContent=filtered.length+' rows · $'+fTips.toFixed(2)+' tips';
   const badge=$('badge-deliveries');
   if(badge){badge.style.display=data.length?'inline-flex':'none';badge.textContent=data.length;}
   if(!filtered.length){tbl.style.display='none';empty.style.display='flex';return;}
@@ -2191,6 +2195,8 @@ function renderTable(){
   if(doGroup&&prevDate)html+=`<tr class="day-header"><td colspan="${colspan}"><span>${prevDate} ${DAY_FULL[getDOW(prevDate)]||''}</span><span class="day-tip-r">$${dayTips.toFixed(2)}</span></td></tr>`;
   $('dtb').innerHTML=html;
 }
+function saveTableToggles(){try{localStorage.setItem('hv_tgl',JSON.stringify({group:$('t-group')?.checked,zero:$('t-zero')?.checked}));}catch(_){}}
+function restoreTableToggles(){try{const t=JSON.parse(localStorage.getItem('hv_tgl')||'null');if(t){if($('t-group'))$('t-group').checked=!!t.group;if($('t-zero'))$('t-zero').checked=!!t.zero;}}catch(_){}}
 function sortBy(col){if(srt.col===col)srt.dir=srt.dir==='asc'?'desc':'asc';else{srt.col=col;srt.dir='asc';}renderTable();}
 function cycleDriver(i){
   const opts=[...drivers.map(d=>d.name),''];
@@ -2205,8 +2211,9 @@ function editTip(i){
   const cur=(data[i].tip||0).toFixed(2);
   const v=prompt('Edit tip for '+data[i].recipient+':', cur);
   if(v===null)return;
-  const newTip=parseFloat(v);
+  let newTip=parseFloat(v);
   if(isNaN(newTip)){toast('Invalid tip amount','err');return;}
+  if(newTip<0)newTip=0;
   pushUndo('edit tip');
   data[i].tip=newTip;
   qSave();refresh();
@@ -2284,7 +2291,7 @@ function renderDrivers(){
     const avg=orders.length?tips/orders.length:0;
     const initials=d.name.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
     const today=d.days.includes(new Date().getDay());
-    html+=`<div class="driver-card">
+    html+=`<div class="driver-card" draggable="true" ondragstart="drvDragStart(event,'${d.id}')" ondragover="drvDragOver(event)" ondrop="drvDrop(event,'${d.id}')" title="Drag to reorder">
       <div class="dc-top">
         <div class="dc-avatar" style="background:${d.color};">${initials}</div>
         <div class="dc-info">
@@ -2344,6 +2351,22 @@ function deleteDriver(id){
   data.forEach(o=>{if(o.driver?.toLowerCase()===d.name.toLowerCase())o.driver='';});
   localStorage.setItem('hv_drivers',JSON.stringify(drivers));
   qSave();refresh();renderDrivers();toast(d.name+' removed','info');
+}
+let _drvDragId=null;
+function drvDragStart(e,id){_drvDragId=id;if(e&&e.dataTransfer)e.dataTransfer.effectAllowed='move';}
+function drvDragOver(e){if(e){e.preventDefault();if(e.dataTransfer)e.dataTransfer.dropEffect='move';}}
+function drvDrop(e,targetId){
+  if(e)e.preventDefault();
+  if(!_drvDragId||_drvDragId===targetId){_drvDragId=null;return;}
+  const from=drivers.findIndex(d=>d.id===_drvDragId);
+  const to=drivers.findIndex(d=>d.id===targetId);
+  _drvDragId=null;
+  if(from<0||to<0)return;
+  const moved=drivers.splice(from,1)[0];
+  drivers.splice(to,0,moved);
+  localStorage.setItem('hv_drivers',JSON.stringify(drivers));
+  renderDrivers();refresh();
+  toast('Drivers reordered','ok');
 }
 function renderSwatches(){
   document.querySelectorAll('#color-swatches .swatch').forEach(s=>{
