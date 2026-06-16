@@ -919,18 +919,14 @@ input[type=checkbox] { accent-color: var(--red); width: 13px; height: 13px; curs
         <label>Provider</label>
         <select id="ai-prov" onchange="updateModels();loadKey()">
           <option value="anthropic">Claude (Anthropic)</option>
-          <option value="openai">GPT (OpenAI)</option>
           <option value="google">Gemini (Google)</option>
-          <option value="deepseek">DeepSeek</option>
         </select>
       </div>
       <div class="field"><label>Model</label><select id="ai-model" onchange="updateModelNote()"></select><div id="model-note" class="knote" style="margin-top:3px;font-size:10px;"></div></div>
       <div style="font-size:10px;font-weight:700;color:var(--txt-3);margin-bottom:6px;letter-spacing:.5px;">API KEYS</div>
       <div class="key-grid">
         <div class="key-row"><div class="key-saved" id="ks-anthropic"></div><label>Claude</label><input type="password" id="key-anthropic" placeholder="sk-ant-..." onchange="saveAllKeys()"></div>
-        <div class="key-row"><div class="key-saved" id="ks-openai"></div><label>OpenAI</label><input type="password" id="key-openai" placeholder="sk-..." onchange="saveAllKeys()"></div>
         <div class="key-row"><div class="key-saved" id="ks-google"></div><label>Gemini</label><input type="password" id="key-google" placeholder="AIza..." onchange="saveAllKeys()"></div>
-        <div class="key-row"><div class="key-saved" id="ks-deepseek"></div><label>DeepSeek</label><input type="password" id="key-deepseek" placeholder="sk-..." onchange="saveAllKeys()"></div>
       </div>
       <div class="knote" style="margin-top:5px;">Stored in your browser only</div>
       <button class="sbtn" style="margin-top:8px;" onclick="saveAllKeys();toast('All keys saved','ok')">
@@ -1287,23 +1283,17 @@ input[type=checkbox] { accent-color: var(--red); width: 13px; height: 13px; curs
 const PRELOADED_DATA = [{"date":"6/1/2026","promiseTime":"10:00 AM - 11:00 AM","recipient":"Stephanie Jack","customer":"Todd A VanBuskirk","phone":"660-723-2445","address":"1902 Chestnut Dr, Pleasant Hill, MO 64080","zip":"64080","basketType":"MTO","orderTotal":90.88,"tip":5.0,"qtyByDept":"Floral 1","driver":"Mike","orderNumber":"42854361","note":""},{"date":"6/1/2026","promiseTime":"12:00 PM - 01:00 PM","recipient":"Grace Brown","customer":"Matthew Bussard","phone":"816-550-5115","address":"400 NE Colbern Rd, Lee's Summit, MO 64086","zip":"64086","basketType":"MTO","orderTotal":93.14,"tip":9.37,"qtyByDept":"Floral 1","driver":"Mike","orderNumber":"42910043","note":""},{"date":"6/1/2026","promiseTime":"02:00 PM - 03:00 PM","recipient":"James Barszczak","customer":"James R Barszczak","phone":"816-351-7423","address":"829 N.W. Donovan Rd, Lees Summit, MO 64086","zip":"64086","basketType":"Blended","orderTotal":208.02,"tip":10.78,"qtyByDept":"Bakery 1","driver":"Mike","orderNumber":"42911482","note":""},{"date":"6/2/2026","promiseTime":"01:00 PM - 02:00 PM","recipient":"Kristen Merrell","customer":"Kennedy Merrell","phone":"816-668-0616","address":"301 NE Tudor Rd, Lee's Summit, MO 64086","zip":"64086","basketType":"MTO","orderTotal":64.64,"tip":5.88,"qtyByDept":"Floral 1","driver":"Mike","orderNumber":"42927248","note":""},{"date":"6/2/2026","promiseTime":"06:00 PM - 07:00 PM","recipient":"Jerry Sullivan","customer":"Susan Martin","phone":"913-219-5674","address":"952 NW High Point Dr, Lee's Summit, MO 64081","zip":"64081","basketType":"MTO","orderTotal":73.0,"tip":6.64,"qtyByDept":"Floral 1","driver":"Mike","orderNumber":"42930817","note":""},{"date":"6/3/2026","promiseTime":"10:00 AM - 11:00 AM","recipient":"Erin Birchard","customer":"Jon Birchard","phone":"816-703-7220","address":"901 NE Bluestem, Lee's Summit, MO 64086","zip":"64086","basketType":"MTO","orderTotal":70.61,"tip":6.42,"qtyByDept":"Floral 1","driver":"Mike","orderNumber":"42934202","note":""},{"date":"6/3/2026","promiseTime":"11:00 AM - 12:00 PM","recipient":"Nancy Creasy","customer":"Sandra Cassady","phone":"563-343-7901","address":"311 NE Viewpark Dr, Lee's Summit, MO 64086","zip":"64086","basketType":"MTO","orderTotal":76.57,"tip":6.96,"qtyByDept":"Floral 1","driver":"Mike","orderNumber":"42936946","note":""},{"date":"6/4/2026","promiseTime":"12:00 PM - 01:00 PM","recipient":"Tammy Lorance","customer":"Alyssa Ferguson","phone":"816-699-8473","address":"751 NE Anderson Ln, Lee's Summit, MO 64064","zip":"64064","basketType":"MTO","orderTotal":64.64,"tip":5.88,"qtyByDept":"Floral 1","driver":"Jay","orderNumber":"42944567","note":""},{"date":"6/4/2026","promiseTime":"12:00 PM - 01:00 PM","recipient":"Hunter and Haley Hansen","customer":"Bridgette M Bryson","phone":"660-483-1061","address":"2100 SE 7th St, Lee's Summit, MO 64063","zip":"64063","basketType":"MTO","orderTotal":70.61,"tip":6.42,"qtyByDept":"Floral 1","driver":"Jay","orderNumber":"42948569","note":""},{"date":"6/4/2026","promiseTime":"12:00 PM - 01:00 PM","recipient":"Haley Hansen","customer":"Grant Grego","phone":"816-868-9145","address":"2100 SE 7th St, Lee's Summit, MO 64063","zip":"64063","basketType":"MTO","orderTotal":73.82,"tip":9.63,"qtyByDept":"Floral 1","driver":"Jay","orderNumber":"42948584","note":""},{"date":"6/4/2026","promiseTime":"03:00 PM - 04:00 PM","recipient":"Hadleigh Wright","customer":"Hadleigh Wright","phone":"913-405-5045","address":"601 NE Clubhouse Dr, Lee's Summit, MO 64086","zip":"64086","basketType":"Blended","orderTotal":115.49,"tip":15.0,"qtyByDept":"Meat 0","driver":"Jay","orderNumber":"42951127","note":""},{"date":"6/5/2026","promiseTime":"11:00 AM - 12:00 PM","recipient":"Miranda Burton","customer":"Kidz Kabana","phone":"816-258-0306","address":"816 NW Commerce Dr, Lee's Summit, MO 64086","zip":"64086","basketType":"Blended","orderTotal":111.03,"tip":5.38,"qtyByDept":"Delicatessen 1","driver":"Jay","orderNumber":"42950691","note":""},{"date":"6/5/2026","promiseTime":"11:00 AM - 12:00 PM","recipient":"Kari Butrum","customer":"Abby C Rowe","phone":"618-210-2627","address":"1205 E State Rte Vv, Pleasant, MO 64080","zip":"64080","basketType":"MTO","orderTotal":118.34,"tip":10.76,"qtyByDept":"Floral 1","driver":"Jay","orderNumber":"42958549","note":""},{"date":"6/5/2026","promiseTime":"01:00 PM - 02:00 PM","recipient":"Jan Jackson","customer":"Suzanne Currence","phone":"816-582-5625","address":"100 NE SAINT LUKES BLVD # 4007, Lees Summit, MO 64086","zip":"64086","basketType":"MTO","orderTotal":43.06,"tip":0.0,"qtyByDept":"Floral 1","driver":"Jay","orderNumber":"42963483","note":""},{"date":"6/5/2026","promiseTime":"02:00 PM - 03:00 PM","recipient":"Whitney Thomas","customer":"Jason stewart","phone":"816-582-7952","address":"1128 SE 11th St, Lee's Summit, MO 64081","zip":"64081","basketType":"MTO","orderTotal":76.57,"tip":6.96,"qtyByDept":"Floral 1","driver":"Jay","orderNumber":"42962287","note":""},{"date":"6/5/2026","promiseTime":"02:00 PM - 03:00 PM","recipient":"Tiffany Brigman","customer":"Jaycie Tiehen","phone":"816-935-2838","address":"421 NE Woodbury Dr, Lee's Summit, MO 64086","zip":"64086","basketType":"MTO","orderTotal":60.76,"tip":2.0,"qtyByDept":"Floral 1","driver":"Jay","orderNumber":"42962521","note":""},{"date":"6/5/2026","promiseTime":"03:00 PM - 04:00 PM","recipient":"Sharon Wright","customer":"Gwan Cox","phone":"502-396-3893","address":"233 SE Topaz Dr, Lee's Summit, MO 64063","zip":"64063","basketType":"Blended","orderTotal":89.08,"tip":8.08,"qtyByDept":"Floral 1","driver":"Jay","orderNumber":"42963546","note":""},{"date":"6/5/2026","promiseTime":"03:00 PM - 04:00 PM","recipient":"Jack Ryan","customer":"Mary Ryan","phone":"816-510-1660","address":"1683 NE Lashbrook Ct, Lee's Summit, MO 64086","zip":"64086","basketType":"MTO","orderTotal":63.15,"tip":5.74,"qtyByDept":"Floral 1","driver":"Jay","orderNumber":"42965513","note":""},{"date":"6/6/2026","promiseTime":"06:00 PM - 07:00 PM","recipient":"Brenda Rogers","customer":"kellie norris","phone":"918-914-3827","address":"100 N. E. St. Luke's Blvd # 4030, Lee Summit, MO 64086","zip":"64086","basketType":"MTO","orderTotal":69.19,"tip":5.0,"qtyByDept":"Floral 1","driver":"Jay","orderNumber":"42980834","note":""}];
 
 // ═══ CONSTANTS ═══
+// Only providers that read PDFs natively are offered (Claude + Gemini).
 const MODELS={
   anthropic:['claude-haiku-4-5-20251001','claude-sonnet-4-5','claude-opus-4-5'],
-  openai:['gpt-4o-mini','gpt-4o','gpt-4-turbo'],
-  google:['gemini-2.0-flash','gemini-1.5-flash','gemini-1.5-pro'],
-  deepseek:['deepseek-chat','deepseek-reasoner']
+  google:['gemini-2.5-flash','gemini-2.5-pro']
 };
 const MODEL_NOTES={
   'claude-haiku-4-5-20251001':'~$0.001/page · reads PDF natively',
   'claude-sonnet-4-5':'~$0.005/page · reads PDF natively',
   'claude-opus-4-5':'~$0.02/page · reads PDF natively',
-  'gpt-4o-mini':'~$0.001/page · text extraction only',
-  'gpt-4o':'~$0.005/page · text extraction only',
-  'gemini-2.0-flash':'~$0.0002/page · reads PDF natively — cheapest',
-  'gemini-1.5-flash':'~$0.0003/page · reads PDF natively',
-  'gemini-1.5-pro':'~$0.002/page · reads PDF natively',
-  'deepseek-chat':'~$0.001/page · text extraction only',
-  'deepseek-reasoner':'~$0.004/page · text extraction only',
+  'gemini-2.5-flash':'~$0.0003/page · reads PDF natively — cheapest',
+  'gemini-2.5-pro':'~$0.003/page · reads PDF natively',
 };
 const DAY=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const DAY_FULL=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -2604,7 +2594,7 @@ const HARDCODED_KEYS = {
 
 // ═══ MULTI-KEY MANAGEMENT ═══
 function saveAllKeys(){
-  const providers=['anthropic','openai','google','deepseek'];
+  const providers=['anthropic','google'];
   providers.forEach(p=>{
     const el=$('key-'+p);
     if(el&&el.value.trim()){
@@ -2614,7 +2604,7 @@ function saveAllKeys(){
   });
 }
 function loadAllKeys(){
-  const providers=['anthropic','openai','google','deepseek'];
+  const providers=['anthropic','google'];
   providers.forEach(p=>{
     const saved=localStorage.getItem('hv_k_'+p)||HARDCODED_KEYS[p]||'';
     const el=$('key-'+p);const dot=$('ks-'+p);
@@ -2631,7 +2621,7 @@ function loadKey(){
 }
 function updateModels(){
   const p=$('ai-prov')?.value;if(!p)return;
-  const MODELS2={anthropic:['claude-opus-4-5','claude-sonnet-4-5','claude-haiku-4-5-20251001'],openai:['gpt-4o','gpt-4o-mini','gpt-4-turbo'],google:['gemini-2.0-flash','gemini-1.5-pro','gemini-1.5-flash'],deepseek:['deepseek-chat','deepseek-reasoner']};
+  const MODELS2={anthropic:['claude-opus-4-5','claude-sonnet-4-5','claude-haiku-4-5-20251001'],google:['gemini-2.5-flash','gemini-2.5-pro']};
   const sel=$('ai-model');if(sel)sel.innerHTML=(MODELS2[p]||[]).map(m=>`<option>${m}</option>`).join('');
 }
 function getKey(){
@@ -2647,9 +2637,7 @@ async function testAllKeys(){
   results.innerHTML='<div style="font-size:10px;color:var(--txt-3);font-family:var(--mono);padding:4px 0;">Testing keys...</div>';
   const providers=[
     {id:'anthropic',name:'Claude (Anthropic)',corsOk:true,color:'#CC0000'},
-    {id:'openai',name:'OpenAI (GPT)',corsOk:false,color:'#1A7A4A'},
     {id:'google',name:'Gemini (Google)',corsOk:false,color:'#1A5FA3'},
-    {id:'deepseek',name:'DeepSeek',corsOk:false,color:'#7C3AED'},
   ];
   results.innerHTML='';
   for(const p of providers){
