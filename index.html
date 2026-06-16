@@ -1017,6 +1017,7 @@ input[type=checkbox] { accent-color: var(--red); width: 13px; height: 13px; curs
             <div class="week-subtitle" id="week-subtitle">No data</div>
           </div>
           <button class="week-arrow" onclick="weekNav(1)">&#8250;</button>
+          <button class="week-arrow" title="Jump to current week" onclick="goToToday()" style="width:auto;padding:0 10px;font-size:11px;font-weight:700;">Today</button>
         </div>
 
         <div id="hero-layout-container"></div>
@@ -1955,6 +1956,7 @@ function weekNav(delta){
   const d=new Date(currentWeekStart);d.setDate(d.getDate()+(delta*7));
   currentWeekStart=d;renderWeekly();updateWeekDisplay();
 }
+function goToToday(){currentWeekStart=getWeekStart(new Date());renderWeekly();updateWeekDisplay();renderTable();toast('Jumped to current week','ok');}
 function updateWeekDisplay(){
   if(!currentWeekStart){$('week-display').textContent='Week of \u2014';return;}
   $('week-display').textContent='Week of '+(currentWeekStart.getMonth()+1)+'/'+currentWeekStart.getDate();
@@ -2184,7 +2186,7 @@ function renderTable(){
       `<td class="mono">${esc(d.promiseTime)||'\u2014'}</td>`+
       `<td style="font-weight:600;">${srchTerm?hlText(d.recipient||'',srchTerm):esc(d.recipient)||'\u2014'}${isMiss?'<span class="miss-badge">MISSING</span>':''}${dups?'<span class="dup-badge">DUP</span>':''}${needsReview?'<span class="review-badge" title="Missing date or address">REVIEW</span>':''}</td>`+
       `<td>${srchTerm?hlText(d.customer||'',srchTerm):esc(d.customer)||'\u2014'}</td>`+
-      `<td style="max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(d.address)}">${srchTerm?hlText(d.address||'',srchTerm):esc(d.address)||'\u2014'}</td>`+
+      `<td style="max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(d.address)}">${d.address?`<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(d.address)}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;" title="Open in Google Maps: ${esc(d.address)}">${srchTerm?hlText(d.address,srchTerm):esc(d.address)}</a>`:'\u2014'}</td>`+
       `<td><span class="tbadge">${esc(d.basketType||'MTO')}</span></td>`+
       `<td class="tip-v" onclick="editTip(${idx})" title="Click to edit tip">$${(d.tip||0).toFixed(2)}</td>`+
       `<td><div class="dbadge" style="background:rgba(${rgb},.12);border-color:${color};color:${color};" onclick="cycleDriver(${idx})"><span class="dot" style="background:${color};"></span>${esc(d.driver||'?')}</div></td>`+
@@ -2308,7 +2310,7 @@ function renderDrivers(){
         <div class="dc-stat"><div class="dc-stat-val">${orders.length}</div><div class="dc-stat-label">Orders</div></div>
         <div class="dc-stat"><div class="dc-stat-val" style="color:var(--success);">$${tips.toFixed(0)}</div><div class="dc-stat-label">Tips</div></div>
         <div class="dc-stat"><div class="dc-stat-val" style="color:var(--warn);">$${avg.toFixed(2)}</div><div class="dc-stat-label">Avg</div></div>
-        <div class="dc-stat"><div class="dc-stat-val" style="color:var(--txt-2);">$${Math.round(sales)}</div><div class="dc-stat-label">Sales</div></div>
+        <div class="dc-stat"><div class="dc-stat-val" style="color:var(--txt-2);">$${Math.round(sales).toLocaleString('en-US')}</div><div class="dc-stat-label">Sales</div></div>
       </div>
       <div class="dc-sched">
         <div class="dc-sched-label">Schedule</div>
