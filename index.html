@@ -1592,8 +1592,20 @@ async function parseAllPDFs(){
     const f=pendingFiles[i];
     setProgress(Math.round((i/total)*100));
     log(`[${i+1}/${total}] ${f.name}...`,'info');
+    let result=null;
     try{
-      const result=await parsePDF(f,prov,key,model);
+      result=await parsePDF(f,prov,key,model);
+    }catch(e){
+      const alt=fallbackModel(prov,model);
+      if(alt&&alt!==model&&!isFatalParseError(e.message)){
+        log(`  ${model} failed (${e.message}) — retrying with ${alt}…`,'info');
+        try{result=await parsePDF(f,prov,key,alt);}
+        catch(e2){log(`  Failed: ${e2.message}`,'err');}
+      }else{
+        log(`  Failed: ${e.message}`,'err');
+      }
+    }
+    if(result){
       if(result.type==='route'){
         const wkKey=currentWeekStart?fmtDate(currentWeekStart):'none';
         window._routeUploadedWeeks=window._routeUploadedWeeks||{};
@@ -1608,7 +1620,7 @@ async function parseAllPDFs(){
       }else{
         log(`  Skipped (unrecognized format)`,'info');skipCount++;
       }
-    }catch(e){log(`  Failed: ${e.message}`,'err');}
+    }
   }
   setProgress(90);
   if(allRouteAssignments.length>0&&allOrders.length>0){
@@ -1648,6 +1660,8 @@ async function parseAllPDFs(){
   $('proc-done').disabled=false;
 }
 
+function fallbackModel(prov,model){const list=(typeof MODELS!=='undefined'&&MODELS[prov])||[];return list.find(m=>m!==model)||'';}
+function isFatalParseError(msg){return /not a PDF|HTTP 401|HTTP 403|Failed to fetch|no key/i.test(String(msg||''));}
 async function parsePDF(file,prov,key,model){
   if(file&&!/pdf/i.test(file.type||'')&&!/\.pdf$/i.test(file.name||''))throw new Error('not a PDF file');
   const b64=await toB64(file);
