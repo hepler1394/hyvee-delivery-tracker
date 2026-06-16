@@ -1015,12 +1015,12 @@ input[type=checkbox] { accent-color: var(--red); width: 13px; height: 13px; curs
         </div>
 
         <div class="week-nav">
-          <button class="week-arrow" onclick="weekNav(-1)">&#8249;</button>
+          <button class="week-arrow" onclick="weekNav(-1)" aria-label="Previous week" title="Previous week">&#8249;</button>
           <div>
             <div class="week-title" id="week-title">—</div>
             <div class="week-subtitle" id="week-subtitle">No data</div>
           </div>
-          <button class="week-arrow" onclick="weekNav(1)">&#8250;</button>
+          <button class="week-arrow" onclick="weekNav(1)" aria-label="Next week" title="Next week">&#8250;</button>
           <button class="week-arrow" title="Jump to current week" onclick="goToToday()" style="width:auto;padding:0 10px;font-size:11px;font-weight:700;">Today</button>
         </div>
 
@@ -1097,6 +1097,9 @@ input[type=checkbox] { accent-color: var(--red); width: 13px; height: 13px; curs
         </button>
         <button class="tbtn" onclick="openPrint()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print
+        </button>
+        <button class="tbtn" onclick="exportFiltered()" title="Export the current filtered view to CSV">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export view
         </button>
         <div class="tsep"></div>
         <span class="rcount" id="rc">0 rows</span>
@@ -2197,7 +2200,7 @@ function renderTable(){
       `<td><span class="tbadge">${esc(d.basketType||'MTO')}</span></td>`+
       `<td class="tip-v" onclick="editTip(${idx})" title="Click to edit tip">$${(d.tip||0).toFixed(2)}</td>`+
       `<td><div class="dbadge" style="background:rgba(${rgb},.12);border-color:${color};color:${color};" onclick="cycleDriver(${idx})"><span class="dot" style="background:${color};"></span>${esc(d.driver||'?')}</div></td>`+
-      `<td class="ord-v">${srchTerm?hlText(d.orderNumber||'',srchTerm):esc(d.orderNumber)||'\u2014'}</td>`+
+      `<td class="ord-v"${d.orderNumber?` onclick="copyText('${esc(d.orderNumber)}')" title="Click to copy" style="cursor:pointer;"`:''}>${srchTerm?hlText(d.orderNumber||'',srchTerm):esc(d.orderNumber)||'\u2014'}</td>`+
       `<td class="editable note-cell" onclick="editNote(${idx})">${d.note?esc(d.note):'\u2014'}${noteHtml}</td>`+
       `</tr>`;
   });
@@ -2206,6 +2209,16 @@ function renderTable(){
 }
 function saveTableToggles(){try{localStorage.setItem('hv_tgl',JSON.stringify({group:$('t-group')?.checked,zero:$('t-zero')?.checked}));}catch(_){}}
 function restoreTableToggles(){try{const t=JSON.parse(localStorage.getItem('hv_tgl')||'null');if(t){if($('t-group'))$('t-group').checked=!!t.group;if($('t-zero'))$('t-zero').checked=!!t.zero;}}catch(_){}}
+function copyText(t){t=String(t||'');if(!t)return;if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(()=>toast('Copied '+t,'ok'),()=>toast('Copy failed','err'));}else{toast('Clipboard unavailable','err');}}
+function exportFiltered(){
+  applyFilter();
+  if(!filtered.length){toast('Nothing to export','err');return;}
+  const h=['Date','Time','Recipient','Customer','Phone','Address','Zip','Type','Order Total','Tip','Driver','Order #','Note'];
+  const rows=filtered.map(d=>[d.date,d.promiseTime,d.recipient,d.customer,d.phone,d.address,d.zip,d.basketType,d.orderTotal,d.tip,d.driver,d.orderNumber,d.note]);
+  const csv=[h,...rows].map(r=>r.map(v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"').join(',')).join('\r\n');
+  dl(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'}),'HyVee_filtered_'+new Date().toISOString().slice(0,10)+'.csv');
+  toast(`Exported ${filtered.length} filtered row${filtered.length>1?'s':''}`,'ok');
+}
 function sortBy(col){if(srt.col===col)srt.dir=srt.dir==='asc'?'desc':'asc';else{srt.col=col;srt.dir='asc';}renderTable();}
 function cycleDriver(i){
   const opts=[...drivers.map(d=>d.name),''];
