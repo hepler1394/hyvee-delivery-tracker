@@ -979,6 +979,9 @@ input[type=checkbox] { accent-color: var(--red); width: 13px; height: 13px; curs
       <button class="sbtn" onclick="mergeDuplicates()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M6 21V9a9 9 0 009 9"/></svg>Merge Duplicates
       </button>
+      <button class="sbtn" onclick="cleanupData()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21l6-6"/><path d="M14 4l6 6-7 7-6-6z"/><path d="M9 11l4 4"/></svg>Clean Up Data
+      </button>
       <button class="sbtn danger" onclick="clearAll()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>Clear All Data
       </button>
@@ -1864,6 +1867,29 @@ function mergeDuplicates(){
     data=data.filter(d=>d.orderNumber!==n);data.push(keep);
   });
   qSave();refresh();toast(`Merged ${dups.length} duplicate(s)`,'ok');
+}
+function cleanupData(){
+  if(!data.length){toast('No data to clean','info');return;}
+  pushUndo('clean up data');
+  let changed=0;
+  const sig=o=>[o.date,o.phone,o.zip,o.address,o.recipient,o.customer,o.qtyByDept,o.orderTotal,o.tip].join('|');
+  data.forEach(o=>{
+    const before=sig(o);
+    o.date=cleanDate(o.date);
+    o.phone=cleanPhone(o.phone);
+    o.zip=cleanZip(o.zip);
+    o.address=collapseWS(o.address);
+    o.recipient=collapseWS(o.recipient);
+    o.customer=collapseWS(o.customer);
+    o.qtyByDept=collapseWS(o.qtyByDept);
+    o.orderTotal=cleanMoney(o.orderTotal);
+    o.tip=cleanMoney(o.tip);
+    if(sig(o)!==before)changed++;
+  });
+  // dates are now canonical, so fill any drivers that previously couldn't be auto-assigned
+  autoAssignArr(data.filter(d=>!d.driver));
+  qSave();refresh();
+  toast(changed?`Cleaned ${changed} of ${data.length} order(s)`:`All ${data.length} order(s) already clean`,'ok');
 }
 
 // ═══ DRIVER LOGIC ═══
