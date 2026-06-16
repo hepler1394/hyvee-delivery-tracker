@@ -1806,29 +1806,44 @@ function toB64(f){return new Promise((res,rej)=>{const r=new FileReader();r.onlo
 // ═══ MERGE DATA ═══
 function applyRouteAssignments(orders,routeSheets){
   let matched=0;
+  // helpers for fuzzy matching
+  const norm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim();
+  const lastName=s=>{const p=norm(s).split(' ').filter(Boolean);return p.length?p[p.length-1]:'';};
+  const houseNum=s=>(norm(s).match(/\d{2,}/)||[])[0]||'';
+  function stopMatchesOrder(stop,order){
+    const sNum=houseNum(stop.address),oNum=houseNum(order.address);
+    if(sNum&&oNum&&sNum===oNum)return true;                 // same house number
+    const sName=norm(stop.name),oLast=lastName(order.recipient);
+    if(oLast&&oLast.length>=3&&sName){
+      const sTokens=sName.split(' ').filter(Boolean);
+      if(sTokens.indexOf(oLast)>=0)return true;             // exact last-name token
+      if(sName.indexOf(oLast)>=0||oLast.indexOf(sName)>=0)return true; // partial last name
+    }
+    return false;
+  }
+  // group sheets by date so multi-driver days are handled safely
+  const byDate={};
   for(const sheet of routeSheets){
-    const{driver,date,stops}=sheet;
-    if(!driver||!date||!stops.length)continue;
+    if(!sheet.driver||!sheet.date||!sheet.stops||!sheet.stops.length)continue;
+    (byDate[sheet.date]=byDate[sheet.date]||[]).push(sheet);
+  }
+  for(const date of Object.keys(byDate)){
+    const sheets=byDate[date];
     const dateOrders=orders.filter(o=>o.date===date);
-    for(const order of dateOrders){
-      const orderAddr=(order.address||'').toLowerCase().replace(/[^a-z0-9\s]/g,'');
-      const orderRecip=(order.recipient||'').toLowerCase().split(' ').pop();
-      let foundStop=stops.find(s=>{
-        const stopAddr=(s.address||'').toLowerCase().replace(/[^a-z0-9\s]/g,'');
-        const stopName=(s.name||'').toLowerCase();
-        const orderNum=(orderAddr.match(/^\d+/)||[])[0];
-        const stopNum=(stopAddr.match(/^\d+/)||[])[0];
-        const numMatch=orderNum&&stopNum&&orderNum===stopNum;
-        const nameMatch=stopName&&orderRecip&&(stopName.includes(orderRecip)||orderRecip.includes(stopName));
-        return numMatch||nameMatch;
-      });
-      if(foundStop||(dateOrders.length>0&&stops.length>0)){
-        if(!order.driver||order.driver===''){order.driver=driver;matched++;}
-        else if(foundStop){order.driver=driver;matched++;}
+    if(!dateOrders.length)continue;
+    // 1) precise matches first (works even when two drivers share a day)
+    for(const sheet of sheets){
+      for(const order of dateOrders){
+        if(sheet.stops.some(st=>stopMatchesOrder(st,order))){
+          if(order.driver!==sheet.driver){order.driver=sheet.driver;matched++;}
+        }
       }
     }
-    const stillUnassigned=dateOrders.filter(o=>!o.driver);
-    for(const order of stillUnassigned){order.driver=driver;matched++;}
+    // 2) only on an unambiguous single-driver day, sweep the rest to that driver
+    if(sheets.length===1){
+      const drv=sheets[0].driver;
+      for(const order of dateOrders){if(!order.driver){order.driver=drv;matched++;}}
+    }
   }
   return matched;
 }
