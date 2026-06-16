@@ -926,12 +926,12 @@ input[type=checkbox] { accent-color: var(--red); width: 13px; height: 13px; curs
       <div class="sb-label">AI Engine</div>
       <div class="field">
         <label>Provider</label>
-        <select id="ai-prov" onchange="updateModels();loadKey()">
+        <select id="ai-prov" onchange="updateModels();loadKey();saveAIChoice()">
           <option value="anthropic">Claude (Anthropic)</option>
           <option value="google">Gemini (Google)</option>
         </select>
       </div>
-      <div class="field"><label>Model</label><select id="ai-model" onchange="updateModelNote()"></select><div id="model-note" class="knote" style="margin-top:3px;font-size:10px;"></div></div>
+      <div class="field"><label>Model</label><select id="ai-model" onchange="updateModelNote();saveAIChoice()"></select><div id="model-note" class="knote" style="margin-top:3px;font-size:10px;"></div></div>
       <div style="font-size:10px;font-weight:700;color:var(--txt-3);margin-bottom:6px;letter-spacing:.5px;">API KEYS</div>
       <div class="key-grid">
         <div class="key-row"><div class="key-saved" id="ks-anthropic"></div><label>Claude</label><input type="password" id="key-anthropic" placeholder="sk-ant-..." onchange="saveAllKeys()"></div>
@@ -1353,7 +1353,7 @@ function init(){
   specialDates=JSON.parse(localStorage.getItem('hv_special')||'[]');
   tipGoal=parseFloat(localStorage.getItem('hv_goal')||'0')||0;
   if(tipGoal){$('goal-input').value=tipGoal;$('goal-display').textContent=tipGoal.toFixed(2);}
-  updateModels(); loadAllKeys();
+  updateModels(); loadAllKeys(); restoreAIChoice();
   const fs=localStorage.getItem('hv_fs');if(fs){$('fs-range').value=fs;setFS(fs);}
   const saved=localStorage.getItem('hv_d_june');
   if(saved){
@@ -1428,6 +1428,8 @@ function fmtWeekTitle(ws){const we=new Date(ws);we.setDate(ws.getDate()+6);retur
 
 // ═══ AI MODELS ═══
 function updateModels(){const p=$('ai-prov').value;$('ai-model').innerHTML=MODELS[p].map(m=>`<option>${m}</option>`).join('');}
+function saveAIChoice(){try{localStorage.setItem('hv_ai',JSON.stringify({prov:$('ai-prov')?.value,model:$('ai-model')?.value}));}catch(_){}}
+function restoreAIChoice(){try{const a=JSON.parse(localStorage.getItem('hv_ai')||'null');if(!a)return;if(a.prov&&$('ai-prov')&&MODELS[a.prov]){$('ai-prov').value=a.prov;updateModels();}if(a.model&&$('ai-model')&&[...$('ai-model').options].some(o=>o.value===a.model)){$('ai-model').value=a.model;}if(typeof loadKey==='function')loadKey();if(typeof updateModelNote==='function')updateModelNote();}catch(_){}}
 function loadKey(){$('api-key')&&($('api-key').value=localStorage.getItem('hv_k_'+$('ai-prov').value)||'');}
 function saveKey(){localStorage.setItem('hv_k_'+$('ai-prov').value,$('api-key')?.value?.trim()||'');toast('Key saved','ok');}
 function toggleKey(){const i=$('api-key');if(i)i.type=i.type==='password'?'text':'password';}
@@ -2180,7 +2182,8 @@ function renderTable(){
   updateDateFilter();updateDrvFilter();
   const tbl=$('dt'),empty=$('empty-state'),rc=$('rc');
   const fTips=filtered.reduce((s,d)=>s+(d.tip||0),0);
-  rc.textContent=filtered.length+' rows · $'+fTips.toFixed(2)+' tips';
+  const fReview=filtered.filter(d=>!d.date||!d.address).length;
+  rc.textContent=filtered.length+' rows · $'+fTips.toFixed(2)+' tips'+(fReview?' · '+fReview+' need review':'');
   const badge=$('badge-deliveries');
   if(badge){badge.style.display=data.length?'inline-flex':'none';badge.textContent=data.length;}
   if(!filtered.length){tbl.style.display='none';empty.style.display='flex';return;}
