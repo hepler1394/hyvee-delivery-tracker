@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#CC0000">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23CC0000'/%3E%3Ctext x='32' y='44' font-family='Arial,sans-serif' font-size='30' font-weight='bold' fill='white' text-anchor='middle'%3EHV%3C/text%3E%3C/svg%3E">
 <meta name="description" content="Hy-Vee Lee's Summit #1380 delivery tracker — parse MTO printouts, assign drivers, track tips by week.">
 <title>Hy-Vee Delivery — Lee's Summit #1380</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -1075,7 +1076,7 @@ input[type=checkbox] { accent-color: var(--red); width: 13px; height: 13px; curs
         <div class="stat"><div class="slabel">Duplicates</div><div class="sval" id="s6">None</div></div>
       </div>
       <div class="toolbar">
-        <input type="text" id="srch" placeholder="Search name, address, order #..." oninput="debounceSearch()" style="width:220px;">
+        <input type="text" id="srch" placeholder="Search name, address, zip, order #  ( / )" oninput="debounceSearch()" autocomplete="off" aria-label="Search deliveries" style="width:220px;">
         <select id="fd" onchange="renderTable()"><option value="">All Dates</option></select>
         <select id="fdrv" onchange="renderTable()"><option value="">All Drivers</option></select>
         <select id="ftip" onchange="renderTable()">
@@ -1918,14 +1919,24 @@ function cleanupData(){
     o.recipient=collapseWS(o.recipient);
     o.customer=collapseWS(o.customer);
     o.qtyByDept=collapseWS(o.qtyByDept);
-    o.orderTotal=cleanMoney(o.orderTotal);
-    o.tip=cleanMoney(o.tip);
+    o.orderTotal=cleanMoney(o.orderTotal);if(o.orderTotal<0)o.orderTotal=0;
+    o.tip=cleanMoney(o.tip);if(o.tip<0)o.tip=0;
     if(sig(o)!==before)changed++;
+  });
+  // remove exact duplicate order numbers (keep the row with a tip or driver)
+  const counts={};data.forEach(o=>{if(o.orderNumber)counts[o.orderNumber]=(counts[o.orderNumber]||0)+1;});
+  let removed=0;
+  Object.keys(counts).filter(n=>counts[n]>1).forEach(n=>{
+    const rows=data.filter(d=>d.orderNumber===n);
+    const keep=rows.find(r=>r.tip>0||r.driver)||rows[0];
+    data=data.filter(d=>d.orderNumber!==n);data.push(keep);
+    removed+=rows.length-1;
   });
   // dates are now canonical, so fill any drivers that previously couldn't be auto-assigned
   autoAssignArr(data.filter(d=>!d.driver));
   qSave();refresh();
-  toast(changed?`Cleaned ${changed} of ${data.length} order(s)`:`All ${data.length} order(s) already clean`,'ok');
+  const parts=[];if(changed)parts.push(changed+' cleaned');if(removed)parts.push(removed+' duplicate'+(removed>1?'s':'')+' removed');
+  toast(parts.length?parts.join(', '):`All ${data.length} order(s) already clean`,'ok');
 }
 
 // ═══ DRIVER LOGIC ═══
