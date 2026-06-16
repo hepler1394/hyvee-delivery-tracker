@@ -1977,6 +1977,14 @@ function weekNav(delta){
   currentWeekStart=d;renderWeekly();updateWeekDisplay();
 }
 function goToToday(){currentWeekStart=getWeekStart(new Date());renderWeekly();updateWeekDisplay();renderTable();toast('Jumped to current week','ok');}
+function assignDay(ds){
+  const drv=drvForDate(ds);
+  if(!drv){toast('No scheduled driver for '+ds,'info');return;}
+  pushUndo('assign day');
+  let n=0;data.forEach(o=>{if(o.date===ds&&!o.driver){o.driver=drv.name;n++;}});
+  qSave();refresh();
+  toast(n?`Assigned ${n} order(s) to ${drv.name}`:'Nothing to assign','ok');
+}
 function updateWeekDisplay(){
   if(!currentWeekStart){$('week-display').textContent='Week of \u2014';return;}
   $('week-display').textContent='Week of '+(currentWeekStart.getMonth()+1)+'/'+currentWeekStart.getDate();
@@ -2108,7 +2116,7 @@ function renderWeekly(){
         }
       });
       const unassigned=dayOrders.filter(o=>!o.driver);
-      if(unassigned.length)driversHtml+=`<span class="dr-d-pill" style="border-color:var(--warn);color:var(--warn);"><span class="nm">?</span>&nbsp;<span class="amt">${unassigned.length} unassigned</span></span>`;
+      if(unassigned.length)driversHtml+=`<span class="dr-d-pill" onclick="assignDay('${ds}')" title="Click to assign the scheduled driver" style="border-color:var(--warn);color:var(--warn);cursor:pointer;"><span class="nm">?</span>&nbsp;<span class="amt">${unassigned.length} unassigned</span></span>`;
     }
     dHtml+=`<div class="day-row ${cls}">
       <div class="dr-date">${ds}</div>
@@ -2221,7 +2229,7 @@ function renderTable(){
   $('dtb').innerHTML=html;
 }
 function saveTableToggles(){try{localStorage.setItem('hv_tgl',JSON.stringify({group:$('t-group')?.checked,zero:$('t-zero')?.checked}));}catch(_){}}
-function restoreTableToggles(){try{const t=JSON.parse(localStorage.getItem('hv_tgl')||'null');if(t){if($('t-group'))$('t-group').checked=!!t.group;if($('t-zero'))$('t-zero').checked=!!t.zero;}}catch(_){}}
+function restoreTableToggles(){try{const t=JSON.parse(localStorage.getItem('hv_tgl')||'null');if(t){if($('t-group'))$('t-group').checked=!!t.group;if($('t-zero'))$('t-zero').checked=!!t.zero;}}catch(_){}try{const s=JSON.parse(localStorage.getItem('hv_sort')||'null');if(s&&s.col){srt.col=s.col;srt.dir=s.dir==='desc'?'desc':'asc';}}catch(_){}}
 function copyText(t){t=String(t||'');if(!t)return;if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(()=>toast('Copied '+t,'ok'),()=>toast('Copy failed','err'));}else{toast('Clipboard unavailable','err');}}
 function exportFiltered(){
   applyFilter();
@@ -2232,7 +2240,7 @@ function exportFiltered(){
   dl(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'}),'HyVee_filtered_'+new Date().toISOString().slice(0,10)+'.csv');
   toast(`Exported ${filtered.length} filtered row${filtered.length>1?'s':''}`,'ok');
 }
-function sortBy(col){if(srt.col===col)srt.dir=srt.dir==='asc'?'desc':'asc';else{srt.col=col;srt.dir='asc';}renderTable();}
+function sortBy(col){if(srt.col===col)srt.dir=srt.dir==='asc'?'desc':'asc';else{srt.col=col;srt.dir='asc';}try{localStorage.setItem('hv_sort',JSON.stringify(srt));}catch(_){}renderTable();}
 function cycleDriver(i){
   const opts=[...drivers.map(d=>d.name),''];
   const cur=data[i].driver||'';
@@ -2533,8 +2541,8 @@ function exportWeek(){
   if(!orders.length){toast('No data for this week','err');return;}
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([
-    ['Date','Time','Recipient','Customer','Phone','Address','Tip','Driver','Order #'],
-    ...orders.map(d=>[d.date,d.promiseTime,d.recipient,d.customer,d.phone,d.address,d.tip,d.driver,d.orderNumber])
+    ['Date','Time','Recipient','Customer','Phone','Address','Zip','Order Total','Tip','Driver','Order #'],
+    ...orders.map(d=>[d.date,d.promiseTime,d.recipient,d.customer,d.phone,d.address,d.zip,d.orderTotal,d.tip,d.driver,d.orderNumber])
   ]),'This Week');
   XLSX.writeFile(wb,'HyVee_Week_'+fmtDate(currentWeekStart).replace(/\//g,'-')+'.xlsx');
   toast('Week exported','ok');
