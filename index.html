@@ -1760,42 +1760,49 @@ async function parseAllPDFs(){
   if(prov==='anthropic'&&!/^sk-ant/i.test(key))log('  Heads up: Claude keys normally start with "sk-ant"','info');
   let allOrders=[],allRouteAssignments=[],mtoCount=0,routeCount=0,skipCount=0;
   const batchStart=(performance&&performance.now)?performance.now():Date.now();
-  for(let i=0;i<pendingFiles.length;i++){
-    const f=pendingFiles[i];
-    setProgress(Math.round((i/total)*100));
-    log(`[${i+1}/${total}] ${f.name}...`,'info');
-    let result=null;
-    const t0=(performance&&performance.now)?performance.now():Date.now();
-    try{
-      result=await parsePDF(f,prov,key,model);
-    }catch(e){
-      const alt=fallbackModel(prov,model);
-      if(alt&&alt!==model&&!isFatalParseError(e.message)){
-        log(`  ${model} failed (${e.message}) — retrying with ${alt}…`,'info');
-        try{result=await parsePDF(f,prov,key,alt);}
-        catch(e2){log(`  Failed: ${e2.message}`,'err');}
-      }else{
-        log(`  Failed: ${e.message}`,'err');
+  // Parse up to 4 PDFs at once for a big speedup on multi-file uploads (keeps retry + per-file logging).
+  const CONC=Math.min(4,pendingFiles.length);
+  const queue=pendingFiles.map((f,idx)=>({f,idx}));
+  let done=0;
+  async function worker(){
+    while(queue.length){
+      const {f,idx}=queue.shift();
+      log(`[${idx+1}/${total}] ${f.name}...`,'info');
+      let result=null;
+      const t0=(performance&&performance.now)?performance.now():Date.now();
+      try{
+        result=await parsePDF(f,prov,key,model);
+      }catch(e){
+        const alt=fallbackModel(prov,model);
+        if(alt&&alt!==model&&!isFatalParseError(e.message)){
+          log(`  ${f.name}: ${model} failed (${e.message}) — retrying with ${alt}…`,'info');
+          try{result=await parsePDF(f,prov,key,alt);}
+          catch(e2){log(`  ${f.name} failed: ${e2.message}`,'err');}
+        }else{
+          log(`  ${f.name} failed: ${e.message}`,'err');
+        }
       }
-    }
-    const secs=(((performance&&performance.now)?performance.now():Date.now())-t0)/1000;
-    if(result){
-      if(result.type==='route'){
-        const wkKey=currentWeekStart?fmtDate(currentWeekStart):'none';
-        window._routeUploadedWeeks=window._routeUploadedWeeks||{};
-        window._routeUploadedWeeks[wkKey]=true;
+      const secs=(((performance&&performance.now)?performance.now():Date.now())-t0)/1000;
+      if(result){
+        if(result.type==='route'){
+          const wkKey=currentWeekStart?fmtDate(currentWeekStart):'none';
+          window._routeUploadedWeeks=window._routeUploadedWeeks||{};
+          window._routeUploadedWeeks[wkKey]=true;
+        }
+        if(result.type==='mto'){
+          log(`  ${f.name} — ${result.orders.length} orders (${secs.toFixed(1)}s)`,'ok');
+          allOrders=allOrders.concat(result.orders);mtoCount++;
+        }else if(result.type==='route'){
+          log(`  ${f.name} — route: ${result.assignments.driver} on ${result.assignments.date}, ${result.assignments.stops.length} stops (${secs.toFixed(1)}s)`,'ok');
+          allRouteAssignments.push(result.assignments);routeCount++;
+        }else{
+          log(`  ${f.name} skipped (unrecognized format)`,'info');skipCount++;
+        }
       }
-      if(result.type==='mto'){
-        log(`  MTO Printout — ${result.orders.length} orders (${secs.toFixed(1)}s)`,'ok');
-        allOrders=allOrders.concat(result.orders);mtoCount++;
-      }else if(result.type==='route'){
-        log(`  Route Sheet — ${result.assignments.driver} on ${result.assignments.date}, ${result.assignments.stops.length} stops (${secs.toFixed(1)}s)`,'ok');
-        allRouteAssignments.push(result.assignments);routeCount++;
-      }else{
-        log(`  Skipped (unrecognized format)`,'info');skipCount++;
-      }
+      done++;setProgress(Math.round((done/total)*90));
     }
   }
+  await Promise.all(Array.from({length:CONC},()=>worker()));
   setProgress(90);
   if(allRouteAssignments.length>0&&allOrders.length>0){
     log(`Matching route sheets to orders...`,'info');
