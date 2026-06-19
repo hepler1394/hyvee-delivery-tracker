@@ -802,6 +802,45 @@ input:focus-visible, a:focus-visible, [tabindex]:focus-visible {
   outline: 2px solid var(--red); outline-offset: 2px; border-radius: var(--r-sm);
 }
 
+/* ═══ SCHEDULE PANEL ═══ */
+.schedule-wrap { flex: 1; overflow-y: auto; padding: 22px; }
+.sch-intro { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+.sch-h2 { font-size: 18px; font-weight: 800; }
+.sch-sub { font-size: 12px; color: var(--txt-3); margin-top: 4px; max-width: 460px; line-height: 1.55; }
+.sch-upload-box { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.sch-upload-btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 14px; background: var(--red); color: #fff; border-radius: var(--r-md); font-size: 12px; font-weight: 600; cursor: pointer; transition: background .14s; }
+.sch-upload-btn:hover { background: var(--red-dk); }
+.sch-upload-btn svg { width: 14px; height: 14px; }
+.sch-upload-note { font-size: 10px; color: var(--txt-3); }
+.sch-weeknav { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 16px; }
+.sch-week-label { font-size: 15px; font-weight: 700; min-width: 220px; text-align: center; }
+.sch-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-bottom: 18px; }
+.sch-cell { background: var(--bg-0); border: 1px solid var(--line-2); border-top: 3px solid var(--line-2); border-radius: var(--r-lg); padding: 12px 10px; display: flex; flex-direction: column; gap: 7px; }
+.sch-cell.today { border-top-color: var(--red); box-shadow: 0 0 0 1px var(--red-mid); }
+.sch-cell.assigned { border-top-color: var(--sc); }
+.sch-dow { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--txt-3); }
+.sch-date { font-family: var(--mono); font-size: 16px; font-weight: 800; color: var(--txt-0); line-height: 1; }
+.sch-sel { background: var(--bg-1); border: 1px solid var(--line-2); border-radius: var(--r-md); color: var(--txt-0); font-family: var(--sans); font-size: 12px; font-weight: 600; padding: 6px 8px; outline: none; cursor: pointer; appearance: none; width: 100%; }
+.sch-sel:focus { border-color: var(--red); }
+.sch-meta { font-size: 10px; color: var(--txt-3); font-family: var(--mono); }
+.sch-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.sch-foot { font-size: 11px; color: var(--txt-3); line-height: 1.5; }
+
+/* ═══ RESPONSIVE / MOBILE ═══ */
+@media (max-width: 760px) {
+  html, body { overflow: auto; }
+  .app { flex-direction: column; }
+  aside { width: 100%; min-width: 0; border-right: none; border-bottom: 1px solid var(--line-2); }
+  .main { overflow: visible; }
+  .stats-bar { grid-template-columns: repeat(2, 1fr); }
+  .hero-layout, .drv-compare { grid-template-columns: 1fr; }
+  .sch-grid { grid-template-columns: repeat(2, 1fr); }
+  .sch-intro { flex-direction: column; }
+  .sch-upload-box { align-items: flex-start; }
+  header { flex-wrap: wrap; height: auto; padding: 8px 12px; }
+  .week-chip { display: none; }
+}
+
 /* ═══ TOASTS ═══ */
 .toasts { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 7px; z-index: 999; }
 .toast {
@@ -907,6 +946,11 @@ input:focus-visible, a:focus-visible, [tabindex]:focus-visible {
     <!-- Bar chart icon -->
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
     Analytics
+  </div>
+  <div class="ntab" data-panel="schedule" onclick="switchTab('schedule',this)" title="Schedule / Workdays (press 5)">
+    <!-- Calendar-clock icon -->
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M12 14v3l2 1"/></svg>
+    Schedule
   </div>
 </nav>
 
@@ -1152,6 +1196,45 @@ input:focus-visible, a:focus-visible, [tabindex]:focus-visible {
     <div class="panel" id="panel-analytics">
       <div class="analytics-wrap" id="analytics-wrap"><div class="empty"><div class="empty-title">No data yet</div></div></div>
     </div>
+
+    <!-- ═══ SCHEDULE PANEL ═══ -->
+    <div class="panel" id="panel-schedule">
+      <div class="schedule-wrap" id="schedule-wrap">
+        <div class="sch-intro">
+          <div>
+            <h2 class="sch-h2">Workday Schedule</h2>
+            <p class="sch-sub">Set who drives each day — auto-assign uses this. Upload a schedule PDF, or just tap a day and pick the driver. No route sheet needed.</p>
+          </div>
+          <div class="sch-upload-box">
+            <label class="sch-upload-btn" for="sch-fi">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9,15 12,12 15,15"/></svg>
+              Upload schedule PDF
+            </label>
+            <input type="file" id="sch-fi" accept=".pdf" multiple style="display:none;" onchange="handleScheduleFiles(event)">
+            <span class="sch-upload-note">Reads it with your AI key</span>
+          </div>
+        </div>
+
+        <div class="sch-weeknav">
+          <button class="week-arrow" onclick="schedWeekNav(-1)" aria-label="Previous week">&#8249;</button>
+          <div class="sch-week-label" id="sch-week-label">—</div>
+          <button class="week-arrow" onclick="schedWeekNav(1)" aria-label="Next week">&#8250;</button>
+          <button class="sbtn" style="width:auto;margin:0 0 0 10px;padding:7px 12px;" onclick="goToToday();renderSchedule()">Today</button>
+        </div>
+
+        <div class="sch-grid" id="sch-grid"></div>
+
+        <div class="sch-actions">
+          <button class="sbtn accent" style="width:auto;" onclick="applyScheduleAll()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>Apply schedule to all deliveries
+          </button>
+          <button class="sbtn" style="width:auto;" onclick="clearSchedule()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg>Clear schedule
+          </button>
+        </div>
+        <p class="sch-foot">A day set here overrides each driver's usual weekly days. Special dates (holidays) are left unassigned.</p>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1351,6 +1434,7 @@ const DEF_DRIVERS=[
 let data=[];
 let drivers=[];
 let specialDates=[];
+let scheduleMap={};
 let undoStack=[];
 let filtered=[];
 let srt={col:'date',dir:'asc'};
@@ -1374,6 +1458,7 @@ function init(){
   if(localStorage.getItem('hv_theme')==='dark') document.body.classList.add('dark');
   drivers=JSON.parse(localStorage.getItem('hv_drivers')||'null')||[...DEF_DRIVERS];
   specialDates=JSON.parse(localStorage.getItem('hv_special')||'[]');
+  try{scheduleMap=JSON.parse(localStorage.getItem('hv_schedule')||'{}')||{};}catch(_){scheduleMap={};}
   tipGoal=parseFloat(localStorage.getItem('hv_goal')||'0')||0;
   if(tipGoal){$('goal-input').value=tipGoal;$('goal-display').textContent=tipGoal.toFixed(2);}
   updateModels(); loadAllKeys(); restoreAIChoice();
@@ -1513,7 +1598,7 @@ function setupKeyboard(){
     else if(e.key==='e'||e.key==='E')openModal('exp-modal');
     else if(e.key==='ArrowLeft'&&e.shiftKey)weekNav(-1);
     else if(e.key==='ArrowRight'&&e.shiftKey)weekNav(1);
-    else if(e.key>='1'&&e.key<='4'){const tabs=document.querySelectorAll('.ntab');const i=parseInt(e.key)-1;if(tabs[i])tabs[i].click();}
+    else if(e.key>='1'&&e.key<='5'){const tabs=document.querySelectorAll('.ntab');const i=parseInt(e.key)-1;if(tabs[i])tabs[i].click();}
   });
 }
 
@@ -1528,6 +1613,7 @@ function switchTab(id,el){
   else if(id==='deliveries')renderTable();
   else if(id==='drivers')renderDrivers();
   else if(id==='analytics')renderAnalytics();
+  else if(id==='schedule')renderSchedule();
 }
 
 // ═══ FILE HANDLING ═══
@@ -1987,6 +2073,11 @@ function cleanupData(){
 // ═══ DRIVER LOGIC ═══
 function drvForDate(ds){
   const sd=specialDates.find(s=>s.date===ds);if(sd)return null;
+  // an uploaded/manual schedule wins over the recurring weekly days
+  if(scheduleMap&&scheduleMap[ds]){
+    const sdr=drivers.find(x=>x.name.toLowerCase()===String(scheduleMap[ds]).toLowerCase());
+    if(sdr)return sdr;
+  }
   const dow=getDOW(ds);return dow<0?null:drivers.find(d=>d.days.includes(dow))||null;
 }
 function autoAssignArr(arr){
@@ -2022,6 +2113,112 @@ function renderBulkDriver(){
   const prev=sel.value;
   sel.innerHTML='<option value="">— select driver —</option>'+drivers.map(d=>`<option value="${esc(d.name)}">${esc(d.name)}</option>`).join('');
   if(prev&&drivers.some(d=>d.name===prev))sel.value=prev;
+}
+
+// ═══ SCHEDULE (workday calendar) ═══
+function saveSchedule(){try{localStorage.setItem('hv_schedule',JSON.stringify(scheduleMap));}catch(_){}}
+function recurringDriverForDOW(dow){const d=drivers.find(x=>x.days.includes(dow));return d?d.name:'';}
+function schedWeekNav(delta){
+  if(!currentWeekStart)currentWeekStart=getWeekStart(new Date());
+  const d=new Date(currentWeekStart);d.setDate(d.getDate()+delta*7);currentWeekStart=d;
+  updateWeekDisplay();renderSchedule();
+}
+function renderSchedule(){
+  const grid=$('sch-grid');if(!grid)return;
+  if(!currentWeekStart)currentWeekStart=getWeekStart(new Date());
+  const ws=getWeekStart(currentWeekStart);
+  const todayStr=fmtDate(new Date());
+  let html='';
+  for(let i=0;i<7;i++){
+    const d=new Date(ws);d.setDate(ws.getDate()+i);
+    const ds=fmtDate(d);
+    const manual=scheduleMap[ds]||'';
+    const recurring=recurringDriverForDOW(d.getDay());
+    const eff=manual||recurring;
+    const effDrv=drivers.find(x=>x.name.toLowerCase()===String(eff).toLowerCase());
+    const color=effDrv?effDrv.color:'var(--line-2)';
+    const ordCount=data.filter(o=>o.date===ds).length;
+    const opts='<option value="">— none —</option>'+drivers.map(dr=>`<option value="${esc(dr.name)}"${eff.toLowerCase()===dr.name.toLowerCase()?' selected':''}>${esc(dr.name)}</option>`).join('');
+    const tag=manual?'set':(recurring?'default':'—');
+    html+=`<div class="sch-cell${ds===todayStr?' today':''}${eff?' assigned':''}" style="--sc:${color};">
+      <div class="sch-dow">${DAY[d.getDay()]}</div>
+      <div class="sch-date">${d.getMonth()+1}/${d.getDate()}</div>
+      <select class="sch-sel" onchange="setScheduleDay('${ds}',this.value)" style="${eff?'border-color:'+color:''}">${opts}</select>
+      <div class="sch-meta">${ordCount?ordCount+' orders':'no orders'} · ${tag}</div>
+    </div>`;
+  }
+  grid.innerHTML=html;
+  const lbl=$('sch-week-label');if(lbl)lbl.textContent=fmtWeekTitle(ws);
+}
+function setScheduleDay(ds,val){
+  pushUndo('set schedule '+ds);
+  if(val)scheduleMap[ds]=val; else delete scheduleMap[ds];
+  saveSchedule();
+  let n=0;data.forEach(o=>{if(o.date===ds){o.driver=val||'';n++;}});
+  qSave();refresh();renderSchedule();
+  toast(val?`${ds} → ${val}${n?` (${n} orders)`:''}`:`${ds} cleared`,'ok');
+}
+function applyScheduleAll(){
+  pushUndo('apply schedule');
+  let n=0;data.forEach(o=>{const drv=drvForDate(o.date);if(drv&&o.driver!==drv.name){o.driver=drv.name;n++;}});
+  qSave();refresh();renderSchedule();
+  toast(n?`Applied schedule to ${n} order${n>1?'s':''}`:'Everything already matches the schedule','ok');
+}
+function clearSchedule(){
+  if(!Object.keys(scheduleMap).length){toast('No schedule set','info');return;}
+  if(!confirm('Clear the manual/uploaded schedule? Auto-assign will fall back to each driver\'s usual weekly days.'))return;
+  pushUndo('clear schedule');
+  scheduleMap={};saveSchedule();renderSchedule();
+  toast('Schedule cleared','info');
+}
+function scheduleParsePrompt(){
+  const names=drivers.map(d=>d.name).join(', ')||'the drivers';
+  return `You read employee/driver WORK SCHEDULES and extract which driver works on which calendar date.
+Known drivers: ${names}. If a name on the schedule clearly matches one of these (even a nickname or last name), use the known driver's exact name.
+Year is 2026 unless the document clearly states another year. Convert all dates to M/D/YYYY.
+Return ONLY minified JSON, no markdown, no commentary:
+{"type":"schedule","entries":[{"driver":"Mike","date":"6/15/2026"}]}
+Include ONE entry per driver per date that driver is scheduled to work or deliver. Ignore days off, headers, totals, and anyone not in the known-driver list.`;
+}
+async function aiPDFRaw(b64,prompt,prov,key,model){
+  if(prov==='anthropic'){
+    const body={model,max_tokens:8000,temperature:0,messages:[{role:'user',content:[{type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}},{type:'text',text:prompt}]}]};
+    const r=await fetchWithRetry('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify(body)});
+    if(!r.ok)throw await errFromResponse(r);
+    const d=await r.json();return (d.content||[]).filter(b=>b&&b.type==='text').map(b=>b.text).join('');
+  } else if(prov==='google'){
+    const body={contents:[{parts:[{text:prompt},{inline_data:{mime_type:'application/pdf',data:b64}}]}],generationConfig:{temperature:0,maxOutputTokens:8000,responseMimeType:'application/json'}};
+    const r=await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(!r.ok)throw await errFromResponse(r);
+    const d=await r.json();const cand=d.candidates&&d.candidates[0];return cand?((cand.content&&cand.content.parts)||[]).map(p=>p.text||'').join(''):'';
+  }
+  throw new Error('Schedule upload needs the Claude or Gemini provider');
+}
+async function handleScheduleFiles(e){
+  const files=Array.from(e.target.files||[]).filter(f=>/\.pdf$/i.test(f.name||''));
+  e.target.value='';
+  if(!files.length){toast('Pick a PDF schedule','info');return;}
+  const prov=$('ai-prov').value, key=getKey(), model=$('ai-model').value;
+  if(!key){toast('Add your '+(prov==='anthropic'?'Claude':'Gemini')+' API key in the sidebar first','warn');return;}
+  toast('Reading schedule with '+model+'…','info');
+  let added=0,failed=0;
+  for(const f of files){
+    try{
+      const b64=await toB64(f);
+      const raw=await aiPDFRaw(b64,scheduleParsePrompt(),prov,key,model);
+      let c=String(raw||'').replace(/```json/gi,'').replace(/```/g,'').trim();
+      let obj=tryParseJSON(c);
+      if(!obj){const s=c.indexOf('{'),en=c.lastIndexOf('}');if(s>=0&&en>s)obj=tryParseJSON(c.slice(s,en+1));}
+      const entries=(obj&&obj.entries)||[];
+      entries.forEach(ent=>{
+        const date=cleanDate(ent.date||'');
+        const drv=ent.driver&&drivers.find(d=>d.name.toLowerCase()===String(ent.driver).toLowerCase());
+        if(date&&drv){scheduleMap[date]=drv.name;added++;}
+      });
+    }catch(err){failed++;toast('Schedule parse failed: '+err.message,'warn');}
+  }
+  if(added){saveSchedule();applyScheduleAll();renderSchedule();toast(`Loaded ${added} scheduled day(s) from ${files.length} file(s)`,'ok');}
+  else if(!failed)toast('No matching driver days found in that PDF','info');
 }
 
 // ═══ REFRESH ═══
