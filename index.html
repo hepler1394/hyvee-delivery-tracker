@@ -952,7 +952,18 @@ input[type=checkbox] { accent-color: var(--red); width: 13px; height: 13px; curs
     <div class="sb">
       <div class="sb-label">Drivers</div>
       <div class="dpills" id="dpills"></div>
-      <button class="sbtn accent" onclick="autoAssign()">
+      <div class="field" style="margin-bottom:6px;">
+        <label>Who drove this week?</label>
+        <select id="bulk-driver"></select>
+      </div>
+      <div class="settings-row" style="margin-bottom:8px;">
+        <label>Only fill unassigned</label>
+        <label class="toggle"><input type="checkbox" id="bulk-unassigned-only"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+      </div>
+      <button class="sbtn accent" onclick="assignWeekToDriver()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>Assign this week to driver
+      </button>
+      <button class="sbtn" onclick="autoAssign()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Auto-assign by schedule
       </button>
     </div>
@@ -1962,6 +1973,27 @@ function autoAssign(){
   data.forEach(o=>{const drv=drvForDate(o.date);if(drv)o.driver=drv.name;});
   qSave();refresh();toast('Drivers auto-assigned','ok');
 }
+// Assign every order in the currently-viewed week to one chosen driver (no route sheet needed)
+function assignWeekToDriver(){
+  const sel=$('bulk-driver');
+  const name=sel&&sel.value;
+  if(!name){toast('Pick a driver first','info');return;}
+  const weekOrders=getWeekOrders();
+  if(!weekOrders.length){toast('No orders in this week to assign','info');return;}
+  const onlyUnassigned=$('bulk-unassigned-only')&&$('bulk-unassigned-only').checked;
+  const targets=onlyUnassigned?weekOrders.filter(o=>!o.driver):weekOrders;
+  if(!targets.length){toast('No unassigned orders this week','info');return;}
+  pushUndo('assign week to '+name);
+  targets.forEach(o=>{o.driver=name;});
+  qSave();refresh();
+  toast(`Assigned ${targets.length} order${targets.length>1?'s':''} this week to ${name}`,'ok');
+}
+function renderBulkDriver(){
+  const sel=$('bulk-driver');if(!sel)return;
+  const prev=sel.value;
+  sel.innerHTML='<option value="">— select driver —</option>'+drivers.map(d=>`<option value="${esc(d.name)}">${esc(d.name)}</option>`).join('');
+  if(prev&&drivers.some(d=>d.name===prev))sel.value=prev;
+}
 
 // ═══ REFRESH ═══
 function refresh(){
@@ -2309,6 +2341,7 @@ function renderPills(){
   const un=data.filter(o=>!o.driver).length;
   html+=`<div class="dpill${drvF==='un'?' active':''}" onclick="setF('un')" style="--pc:var(--warn)"><span class="pc-num">${un}</span>Unassigned</div>`;
   el.innerHTML=html;
+  renderBulkDriver();
 }
 function setF(v){drvF=v;renderPills();renderTable();}
 function renderTipScroll(){
