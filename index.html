@@ -841,6 +841,14 @@ input:focus-visible, a:focus-visible, [tabindex]:focus-visible {
 .sch-meta { font-size: 10px; color: var(--txt-3); font-family: var(--mono); }
 .sch-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
 .sch-foot { font-size: 11px; color: var(--txt-3); line-height: 1.5; }
+.sch-summary { margin-bottom: 18px; }
+.schs-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--txt-3); margin-bottom: 8px; }
+.schs-cards { display: flex; gap: 8px; flex-wrap: wrap; }
+.schs-card { flex: 1; min-width: 120px; background: var(--bg-0); border: 1px solid var(--line-2); border-left: 3px solid var(--sc, var(--line-2)); border-radius: var(--r-md); padding: 10px 12px; }
+.schs-card.total { --sc: var(--red); background: var(--red-soft); }
+.schs-nm { font-size: 11px; font-weight: 700; color: var(--txt-2); }
+.schs-amt { font-family: var(--mono); font-size: 18px; font-weight: 800; color: var(--success); margin-top: 2px; }
+.schs-sub { font-size: 10px; color: var(--txt-3); font-family: var(--mono); margin-top: 1px; }
 
 /* ═══ RESPONSIVE / MOBILE ═══ */
 @media (max-width: 760px) {
@@ -1244,6 +1252,8 @@ input:focus-visible, a:focus-visible, [tabindex]:focus-visible {
         </div>
 
         <div class="sch-grid" id="sch-grid"></div>
+
+        <div class="sch-summary" id="sch-summary"></div>
 
         <div class="sch-actions">
           <button class="sbtn accent" style="width:auto;" onclick="applyScheduleAll()">
@@ -2162,7 +2172,27 @@ function renderSchedule(){
   if(!currentWeekStart)currentWeekStart=getWeekStart(new Date());
   $('sch-vt-week')?.classList.toggle('active',schedView!=='month');
   $('sch-vt-month')?.classList.toggle('active',schedView==='month');
-  if(schedView==='month')renderScheduleMonth(grid); else renderScheduleWeek(grid);
+  let dates;
+  if(schedView==='month'){renderScheduleMonth(grid);dates=monthDateStrings(currentWeekStart);}
+  else{renderScheduleWeek(grid);dates=weekDateStrings(currentWeekStart);}
+  renderSchedSummary(dates);
+}
+function weekDateStrings(ref){const ws=getWeekStart(ref);const out=[];for(let i=0;i<7;i++){const d=new Date(ws);d.setDate(ws.getDate()+i);out.push(fmtDate(d));}return out;}
+function monthDateStrings(ref){const y=ref.getFullYear(),m=ref.getMonth(),n=new Date(y,m+1,0).getDate();const out=[];for(let day=1;day<=n;day++)out.push(fmtDate(new Date(y,m,day)));return out;}
+function renderSchedSummary(dates){
+  const el=$('sch-summary');if(!el)return;
+  const set=new Set(dates);
+  const rows=drivers.map(d=>{
+    const os=data.filter(o=>set.has(o.date)&&o.driver&&o.driver.toLowerCase()===d.name.toLowerCase());
+    return {name:d.name,color:d.color,cnt:os.length,tips:os.reduce((s,o)=>s+(o.tip||0),0)};
+  });
+  const total=rows.reduce((s,r)=>s+r.tips,0), totalCnt=rows.reduce((s,r)=>s+r.cnt,0);
+  const unassigned=data.filter(o=>set.has(o.date)&&!o.driver).length;
+  let html=`<div class="schs-title">${schedView==='month'?'Month':'Week'} totals</div><div class="schs-cards">`;
+  rows.forEach(r=>{html+=`<div class="schs-card" style="--sc:${r.color}"><div class="schs-nm">${esc(r.name)}</div><div class="schs-amt" style="color:${r.color}">$${money(r.tips)}</div><div class="schs-sub">${r.cnt} order${r.cnt===1?'':'s'}${r.cnt?` · avg $${money(r.tips/r.cnt)}`:''}</div></div>`;});
+  html+=`<div class="schs-card total"><div class="schs-nm">All drivers</div><div class="schs-amt">$${money(total)}</div><div class="schs-sub">${totalCnt} order${totalCnt===1?'':'s'}${unassigned?` · ${unassigned} unassigned`:''}</div></div>`;
+  html+=`</div>`;
+  el.innerHTML=html;
 }
 function renderScheduleWeek(grid){
   grid.className='sch-grid';
