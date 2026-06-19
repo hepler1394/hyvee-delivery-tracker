@@ -841,6 +841,11 @@ input:focus-visible, a:focus-visible, [tabindex]:focus-visible {
 .sch-meta { font-size: 10px; color: var(--txt-3); font-family: var(--mono); }
 .sch-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
 .sch-foot { font-size: 11px; color: var(--txt-3); line-height: 1.5; }
+.sch-quick { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+.sch-quick-label { font-size: 11px; font-weight: 700; color: var(--txt-3); margin-right: 2px; }
+.sch-qbtn { padding: 6px 12px; border-radius: var(--r-md); border: 1px solid var(--sc, var(--line-2)); background: var(--bg-0); color: var(--sc, var(--txt-1)); font-size: 12px; font-weight: 600; font-family: var(--sans); cursor: pointer; transition: all .14s; }
+.sch-qbtn:hover { background: var(--sc, var(--bg-2)); color: #fff; }
+.sch-qbtn.clear { --sc: var(--warn); }
 .sch-summary { margin-bottom: 18px; }
 .schs-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--txt-3); margin-bottom: 8px; }
 .schs-cards { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -1159,15 +1164,16 @@ input:focus-visible, a:focus-visible, [tabindex]:focus-visible {
     <!-- ═══ DELIVERIES PANEL ═══ -->
     <div class="panel" id="panel-deliveries">
       <div class="stats-bar">
-        <div class="stat"><div class="slabel">Orders</div><div class="sval" id="s1">0</div></div>
-        <div class="stat"><div class="slabel">Tips</div><div class="sval success" id="s2">$0.00</div></div>
-        <div class="stat"><div class="slabel">Sales</div><div class="sval warn" id="s3">$0.00</div></div>
-        <div class="stat"><div class="slabel">Avg Tip</div><div class="sval info" id="s4">$0.00</div></div>
-        <div class="stat"><div class="slabel">Days</div><div class="sval accent" id="s5">0</div></div>
-        <div class="stat"><div class="slabel">Duplicates</div><div class="sval" id="s6">None</div></div>
+        <div class="stat" title="Total delivery orders (current filter)"><div class="slabel">Orders</div><div class="sval" id="s1">0</div></div>
+        <div class="stat" title="Total tips collected (current filter)"><div class="slabel">Tips</div><div class="sval success" id="s2">$0.00</div></div>
+        <div class="stat" title="Total order sales value (current filter)"><div class="slabel">Sales</div><div class="sval warn" id="s3">$0.00</div></div>
+        <div class="stat" title="Average tip per order"><div class="slabel">Avg Tip</div><div class="sval info" id="s4">$0.00</div></div>
+        <div class="stat" title="Number of distinct delivery dates"><div class="slabel">Days</div><div class="sval accent" id="s5">0</div></div>
+        <div class="stat" title="Orders sharing an order number — use Merge Duplicates to clean up"><div class="slabel">Duplicates</div><div class="sval" id="s6">None</div></div>
       </div>
       <div class="toolbar">
         <input type="text" id="srch" placeholder="Search name, address, zip, order #  ( / )" oninput="debounceSearch()" autocomplete="off" aria-label="Search deliveries" style="width:220px;">
+        <button class="tbtn" onclick="document.getElementById('srch').value='';debounceSearch();" title="Clear search" aria-label="Clear search">&#x2715;</button>
         <select id="fd" onchange="renderTable()"><option value="">All Dates</option></select>
         <select id="fdrv" onchange="renderTable()"><option value="">All Drivers</option></select>
         <select id="ftip" onchange="renderTable()">
@@ -1253,6 +1259,8 @@ input:focus-visible, a:focus-visible, [tabindex]:focus-visible {
 
         <div class="sch-grid" id="sch-grid"></div>
 
+        <div class="sch-quick" id="sch-quick"></div>
+
         <div class="sch-summary" id="sch-summary"></div>
 
         <div class="sch-actions">
@@ -1334,6 +1342,10 @@ input:focus-visible, a:focus-visible, [tabindex]:focus-visible {
         <div class="exp-opt" onclick="exportWeek();closeModal('exp-modal')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg>
           <strong>This Week Only</strong><span>Current week (Excel)</span>
+        </div>
+        <div class="exp-opt" onclick="printWeekSummary();closeModal('exp-modal')" style="border-color:rgba(204,0,0,0.3);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          <strong>Print / PDF Summary</strong><span>One-page weekly report</span>
         </div>
         <div class="exp-opt" onclick="exportWeekCSV();closeModal('exp-modal')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>
@@ -2175,6 +2187,7 @@ function renderSchedule(){
   let dates;
   if(schedView==='month'){renderScheduleMonth(grid);dates=monthDateStrings(currentWeekStart);}
   else{renderScheduleWeek(grid);dates=weekDateStrings(currentWeekStart);}
+  renderSchedQuick();
   renderSchedSummary(dates);
 }
 function weekDateStrings(ref){const ws=getWeekStart(ref);const out=[];for(let i=0;i<7;i++){const d=new Date(ws);d.setDate(ws.getDate()+i);out.push(fmtDate(d));}return out;}
@@ -2258,6 +2271,97 @@ function clearSchedule(){
   pushUndo('clear schedule');
   scheduleMap={};saveSchedule();renderSchedule();
   toast('Schedule cleared','info');
+}
+function renderSchedQuick(){
+  const el=$('sch-quick');if(!el)return;
+  if(schedView==='month'){el.style.display='none';return;}
+  el.style.display='flex';
+  let html='<span class="sch-quick-label">Quick-set this week:</span>';
+  drivers.forEach(d=>{html+=`<button class="sch-qbtn" style="--sc:${d.color}" onclick="setWeekDriver('${esc(d.name)}')">${esc(d.name)}</button>`;});
+  html+=`<button class="sch-qbtn" onclick="applyUsualToWeek()" title="Use each driver's usual weekly days">Usual days</button>`;
+  html+=`<button class="sch-qbtn clear" onclick="clearWeek()">Clear week</button>`;
+  el.innerHTML=html;
+}
+function setWeekDriver(name){
+  pushUndo('set week '+name);
+  const dates=weekDateStrings(currentWeekStart);
+  dates.forEach(ds=>{scheduleMap[ds]=name;});
+  let n=0;data.forEach(o=>{if(dates.indexOf(o.date)>=0){o.driver=name;n++;}});
+  saveSchedule();qSave();refresh();renderSchedule();
+  toast(`This week → ${name}${n?` (${n} orders)`:''}`,'ok');
+}
+function applyUsualToWeek(){
+  pushUndo('usual schedule week');
+  const dates=weekDateStrings(currentWeekStart);
+  dates.forEach(ds=>{const drv=recurringDriverForDOW(getDOW(ds));if(drv)scheduleMap[ds]=drv;else delete scheduleMap[ds];});
+  data.forEach(o=>{if(dates.indexOf(o.date)>=0){const drv=drvForDate(o.date);o.driver=drv?drv.name:'';}});
+  saveSchedule();qSave();refresh();renderSchedule();
+  toast('Applied usual weekly schedule to this week','ok');
+}
+function clearWeek(){
+  pushUndo('clear week schedule');
+  const dates=weekDateStrings(currentWeekStart);
+  dates.forEach(ds=>delete scheduleMap[ds]);
+  data.forEach(o=>{if(dates.indexOf(o.date)>=0)o.driver='';});
+  saveSchedule();qSave();refresh();renderSchedule();
+  toast('Cleared this week\'s assignments','info');
+}
+// ═══ PRINTABLE WEEKLY SUMMARY (save as PDF) ═══
+function printWeekSummary(){
+  const dates=weekDateStrings(currentWeekStart);
+  const set=new Set(dates);
+  const ords=data.filter(o=>set.has(o.date));
+  const ws=getWeekStart(currentWeekStart);
+  const title=fmtWeekTitle(ws);
+  const drvRows=drivers.map(d=>{
+    const os=ords.filter(o=>o.driver&&o.driver.toLowerCase()===d.name.toLowerCase());
+    const tips=os.reduce((s,o)=>s+(o.tip||0),0);
+    const sales=os.reduce((s,o)=>s+(o.orderTotal||0),0);
+    return {name:d.name,color:d.color,cnt:os.length,tips,sales,avg:os.length?tips/os.length:0};
+  }).filter(r=>r.cnt>0);
+  const totTips=ords.reduce((s,o)=>s+(o.tip||0),0);
+  const totSales=ords.reduce((s,o)=>s+(o.orderTotal||0),0);
+  const dayRows=dates.map(ds=>{
+    const os=ords.filter(o=>o.date===ds);
+    if(!os.length)return '';
+    const tips=os.reduce((s,o)=>s+(o.tip||0),0);
+    const drvs=[...new Set(os.map(o=>o.driver).filter(Boolean))].join(', ')||'—';
+    return `<tr><td>${ds} (${DAY[getDOW(ds)]||''})</td><td>${os.length}</td><td>${drvs}</td><td class="r">$${money(tips)}</td></tr>`;
+  }).join('');
+  const drvTable=drvRows.map(r=>`<tr><td><span class="dot" style="background:${r.color}"></span>${esc(r.name)}</td><td>${r.cnt}</td><td class="r">$${money(r.sales)}</td><td class="r">$${money(r.tips)}</td><td class="r">$${money(r.avg)}</td></tr>`).join('');
+  const w=window.open('','_blank');
+  if(!w){toast('Allow pop-ups to print the summary','warn');return;}
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Hy-Vee Weekly Summary — ${title}</title>
+  <style>
+  *{box-sizing:border-box;} body{font-family:Arial,Helvetica,sans-serif;color:#1a1a1a;margin:0;padding:28px 32px;}
+  .hd{display:flex;align-items:center;gap:12px;border-bottom:3px solid #CC0000;padding-bottom:12px;margin-bottom:16px;}
+  .hd .logo{width:38px;height:38px;background:#CC0000;border-radius:7px;color:#fff;font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:center;}
+  .hd h1{font-size:18px;margin:0;} .hd p{margin:2px 0 0;font-size:12px;color:#666;}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.5px;color:#CC0000;margin:18px 0 6px;}
+  table{width:100%;border-collapse:collapse;font-size:12px;} th,td{text-align:left;padding:7px 9px;border-bottom:1px solid #e3e3e3;}
+  th{background:#f6f6f6;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#555;}
+  td.r,th.r{text-align:right;font-variant-numeric:tabular-nums;} .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+  .totals{display:flex;gap:18px;margin:14px 0;} .tcard{flex:1;border:1px solid #ddd;border-left:4px solid #CC0000;border-radius:6px;padding:10px 14px;}
+  .tcard .l{font-size:10px;text-transform:uppercase;color:#777;} .tcard .v{font-size:22px;font-weight:800;}
+  .foot{margin-top:24px;font-size:10px;color:#999;text-align:center;}
+  @media print{body{padding:0;}}
+  </style></head><body>
+  <div class="hd"><div class="logo">HV</div><div><h1>Weekly Delivery Summary</h1><p>Hy-Vee Lee's Summit #1380 · Week of ${title}</p></div></div>
+  <div class="totals">
+    <div class="tcard"><div class="l">Orders</div><div class="v">${ords.length}</div></div>
+    <div class="tcard"><div class="l">Total Tips</div><div class="v">$${money(totTips)}</div></div>
+    <div class="tcard"><div class="l">Total Sales</div><div class="v">$${money(totSales)}</div></div>
+    <div class="tcard"><div class="l">Avg Tip</div><div class="v">$${money(ords.length?totTips/ords.length:0)}</div></div>
+  </div>
+  <h2>By Driver</h2>
+  <table><thead><tr><th>Driver</th><th>Orders</th><th class="r">Sales</th><th class="r">Tips</th><th class="r">Avg Tip</th></tr></thead><tbody>${drvTable||'<tr><td colspan="5">No assigned orders</td></tr>'}</tbody></table>
+  <h2>Daily Breakdown</h2>
+  <table><thead><tr><th>Date</th><th>Orders</th><th>Driver(s)</th><th class="r">Tips</th></tr></thead><tbody>${dayRows||'<tr><td colspan="4">No orders this week</td></tr>'}</tbody></table>
+  <div class="foot">Generated ${new Date().toLocaleString('en-US')} · Hy-Vee Delivery Tracker</div>
+  </body></html>`);
+  w.document.close();
+  setTimeout(()=>{try{w.focus();w.print();}catch(_){}},350);
+  toast('Opened printable summary — use your browser\'s Save as PDF','ok');
 }
 function scheduleParsePrompt(){
   const names=drivers.map(d=>d.name).join(', ')||'the drivers';
