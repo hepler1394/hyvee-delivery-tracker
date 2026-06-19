@@ -812,7 +812,23 @@ input:focus-visible, a:focus-visible, [tabindex]:focus-visible {
 .sch-upload-btn:hover { background: var(--red-dk); }
 .sch-upload-btn svg { width: 14px; height: 14px; }
 .sch-upload-note { font-size: 10px; color: var(--txt-3); }
+.sch-viewtoggle { display: flex; justify-content: center; gap: 0; margin-bottom: 12px; }
+.sch-vt-btn { padding: 6px 18px; font-size: 12px; font-weight: 600; font-family: var(--sans); cursor: pointer; background: var(--bg-0); color: var(--txt-2); border: 1px solid var(--line-2); }
+.sch-vt-btn:first-child { border-radius: var(--r-md) 0 0 var(--r-md); }
+.sch-vt-btn:last-child { border-radius: 0 var(--r-md) var(--r-md) 0; border-left: none; }
+.sch-vt-btn.active { background: var(--red); border-color: var(--red); color: #fff; }
 .sch-weeknav { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 16px; }
+/* month grid */
+.sch-grid.month { grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.sch-wd-head { font-size: 10px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--txt-3); text-align: center; padding: 2px 0; }
+.sch-mcell { background: var(--bg-0); border: 1px solid var(--line); border-radius: var(--r-md); padding: 6px 6px 7px; min-height: 74px; display: flex; flex-direction: column; gap: 4px; }
+.sch-mcell.blank { background: transparent; border: none; }
+.sch-mcell.today { box-shadow: inset 0 0 0 2px var(--red); }
+.sch-mcell.assigned { border-left: 3px solid var(--sc); }
+.sch-mnum { font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--txt-1); }
+.sch-mnum .oc { float: right; font-size: 9px; color: var(--txt-3); font-weight: 600; }
+.sch-msel { background: var(--bg-1); border: 1px solid var(--line-2); border-radius: var(--r-sm); color: var(--txt-0); font-family: var(--sans); font-size: 11px; font-weight: 600; padding: 4px 5px; outline: none; cursor: pointer; appearance: none; width: 100%; margin-top: auto; }
+.sch-msel:focus { border-color: var(--red); }
 .sch-week-label { font-size: 15px; font-weight: 700; min-width: 220px; text-align: center; }
 .sch-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-bottom: 18px; }
 .sch-cell { background: var(--bg-0); border: 1px solid var(--line-2); border-top: 3px solid var(--line-2); border-radius: var(--r-lg); padding: 12px 10px; display: flex; flex-direction: column; gap: 7px; }
@@ -1215,10 +1231,15 @@ input:focus-visible, a:focus-visible, [tabindex]:focus-visible {
           </div>
         </div>
 
+        <div class="sch-viewtoggle">
+          <button class="sch-vt-btn" id="sch-vt-week" onclick="setSchedView('week')">Week</button>
+          <button class="sch-vt-btn" id="sch-vt-month" onclick="setSchedView('month')">Month</button>
+        </div>
+
         <div class="sch-weeknav">
-          <button class="week-arrow" onclick="schedWeekNav(-1)" aria-label="Previous week">&#8249;</button>
+          <button class="week-arrow" onclick="schedNav(-1)" aria-label="Previous">&#8249;</button>
           <div class="sch-week-label" id="sch-week-label">—</div>
-          <button class="week-arrow" onclick="schedWeekNav(1)" aria-label="Next week">&#8250;</button>
+          <button class="week-arrow" onclick="schedNav(1)" aria-label="Next">&#8250;</button>
           <button class="sbtn" style="width:auto;margin:0 0 0 10px;padding:7px 12px;" onclick="goToToday();renderSchedule()">Today</button>
         </div>
 
@@ -2118,37 +2139,67 @@ function renderBulkDriver(){
 // ═══ SCHEDULE (workday calendar) ═══
 function saveSchedule(){try{localStorage.setItem('hv_schedule',JSON.stringify(scheduleMap));}catch(_){}}
 function recurringDriverForDOW(dow){const d=drivers.find(x=>x.days.includes(dow));return d?d.name:'';}
-function schedWeekNav(delta){
+let schedView=localStorage.getItem('hv_schedview')||'week';
+function setSchedView(v){schedView=v;try{localStorage.setItem('hv_schedview',v);}catch(_){}renderSchedule();}
+function schedNav(delta){
   if(!currentWeekStart)currentWeekStart=getWeekStart(new Date());
-  const d=new Date(currentWeekStart);d.setDate(d.getDate()+delta*7);currentWeekStart=d;
-  updateWeekDisplay();renderSchedule();
+  const d=new Date(currentWeekStart);
+  if(schedView==='month')d.setMonth(d.getMonth()+delta);
+  else d.setDate(d.getDate()+delta*7);
+  currentWeekStart=d;updateWeekDisplay();renderSchedule();
 }
+function driverOpts(eff){return '<option value="">— none —</option>'+drivers.map(dr=>`<option value="${esc(dr.name)}"${eff.toLowerCase()===dr.name.toLowerCase()?' selected':''}>${esc(dr.name)}</option>`).join('');}
+function effForDate(ds,dow){const manual=scheduleMap[ds]||'';const recurring=recurringDriverForDOW(dow);const eff=manual||recurring;const drv=drivers.find(x=>x.name.toLowerCase()===String(eff).toLowerCase());return{manual,recurring,eff,drv,color:drv?drv.color:'var(--line-2)'};}
 function renderSchedule(){
   const grid=$('sch-grid');if(!grid)return;
   if(!currentWeekStart)currentWeekStart=getWeekStart(new Date());
+  $('sch-vt-week')?.classList.toggle('active',schedView!=='month');
+  $('sch-vt-month')?.classList.toggle('active',schedView==='month');
+  if(schedView==='month')renderScheduleMonth(grid); else renderScheduleWeek(grid);
+}
+function renderScheduleWeek(grid){
+  grid.className='sch-grid';
   const ws=getWeekStart(currentWeekStart);
   const todayStr=fmtDate(new Date());
   let html='';
   for(let i=0;i<7;i++){
     const d=new Date(ws);d.setDate(ws.getDate()+i);
     const ds=fmtDate(d);
-    const manual=scheduleMap[ds]||'';
-    const recurring=recurringDriverForDOW(d.getDay());
-    const eff=manual||recurring;
-    const effDrv=drivers.find(x=>x.name.toLowerCase()===String(eff).toLowerCase());
-    const color=effDrv?effDrv.color:'var(--line-2)';
+    const e=effForDate(ds,d.getDay());
     const ordCount=data.filter(o=>o.date===ds).length;
-    const opts='<option value="">— none —</option>'+drivers.map(dr=>`<option value="${esc(dr.name)}"${eff.toLowerCase()===dr.name.toLowerCase()?' selected':''}>${esc(dr.name)}</option>`).join('');
-    const tag=manual?'set':(recurring?'default':'—');
-    html+=`<div class="sch-cell${ds===todayStr?' today':''}${eff?' assigned':''}" style="--sc:${color};">
+    const tag=e.manual?'set':(e.recurring?'default':'—');
+    html+=`<div class="sch-cell${ds===todayStr?' today':''}${e.eff?' assigned':''}" style="--sc:${e.color};">
       <div class="sch-dow">${DAY[d.getDay()]}</div>
       <div class="sch-date">${d.getMonth()+1}/${d.getDate()}</div>
-      <select class="sch-sel" onchange="setScheduleDay('${ds}',this.value)" style="${eff?'border-color:'+color:''}">${opts}</select>
+      <select class="sch-sel" onchange="setScheduleDay('${ds}',this.value)" style="${e.eff?'border-color:'+e.color:''}">${driverOpts(e.eff)}</select>
       <div class="sch-meta">${ordCount?ordCount+' orders':'no orders'} · ${tag}</div>
     </div>`;
   }
   grid.innerHTML=html;
   const lbl=$('sch-week-label');if(lbl)lbl.textContent=fmtWeekTitle(ws);
+}
+function renderScheduleMonth(grid){
+  grid.className='sch-grid month';
+  const ref=new Date(currentWeekStart);
+  const year=ref.getFullYear(),month=ref.getMonth();
+  const first=new Date(year,month,1);
+  const startPad=first.getDay(); // Sunday-start
+  const daysInMonth=new Date(year,month+1,0).getDate();
+  const todayStr=fmtDate(new Date());
+  let html=DAY.map(d=>`<div class="sch-wd-head">${d}</div>`).join('');
+  for(let i=0;i<startPad;i++)html+=`<div class="sch-mcell blank"></div>`;
+  for(let day=1;day<=daysInMonth;day++){
+    const d=new Date(year,month,day);
+    const ds=fmtDate(d);
+    const e=effForDate(ds,d.getDay());
+    const ordCount=data.filter(o=>o.date===ds).length;
+    html+=`<div class="sch-mcell${ds===todayStr?' today':''}${e.eff?' assigned':''}" style="--sc:${e.color};">
+      <div class="sch-mnum">${day}${ordCount?`<span class="oc">${ordCount}</span>`:''}</div>
+      <select class="sch-msel" onchange="setScheduleDay('${ds}',this.value)" style="${e.eff?'border-color:'+e.color:''}">${driverOpts(e.eff)}</select>
+    </div>`;
+  }
+  grid.innerHTML=html;
+  const lbl=$('sch-week-label');if(lbl)lbl.textContent=MONTH[month]+' '+year;
 }
 function setScheduleDay(ds,val){
   pushUndo('set schedule '+ds);
