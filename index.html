@@ -2,8 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#CC0000">
+<meta name="color-scheme" content="light dark">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Hy-Vee Delivery">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23CC0000'/%3E%3Ctext x='32' y='44' font-family='Arial,sans-serif' font-size='30' font-weight='bold' fill='white' text-anchor='middle'%3EHV%3C/text%3E%3C/svg%3E">
 <meta name="description" content="Hy-Vee Lee's Summit #1380 delivery tracker — parse MTO printouts, assign drivers, track tips by week.">
 <title>Hy-Vee Delivery — Lee's Summit #1380</title>
@@ -791,6 +796,12 @@ input[type=checkbox] { accent-color: var(--red); width: 13px; height: 13px; curs
 .scroll-fab.show { display: flex; }
 .scroll-fab:hover { background: var(--red-dk); transform: scale(1.06); }
 
+/* ═══ KEYBOARD FOCUS (a11y) ═══ */
+button:focus-visible, .ntab:focus-visible, .dpill:focus-visible, select:focus-visible,
+input:focus-visible, a:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--red); outline-offset: 2px; border-radius: var(--r-sm);
+}
+
 /* ═══ TOASTS ═══ */
 .toasts { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 7px; z-index: 999; }
 .toast {
@@ -851,7 +862,7 @@ input[type=checkbox] { accent-color: var(--red); width: 13px; height: 13px; curs
   <div class="hsep"></div>
   <div class="week-chip" id="week-display">Week of —</div>
   <div class="save-ind" id="save-ind">saved</div>
-  <button class="icon-btn" onclick="toggleTheme()" title="Toggle light/dark mode" id="theme-btn">
+  <button class="icon-btn" onclick="toggleTheme()" title="Toggle light/dark mode" aria-label="Toggle light or dark mode" id="theme-btn">
     <!-- Moon icon (shown in light mode — click for dark) -->
     <svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
     <!-- Sun icon (shown in dark mode — click for light) -->
@@ -876,23 +887,23 @@ input[type=checkbox] { accent-color: var(--red); width: 13px; height: 13px; curs
 </header>
 
 <!-- ═══ NAV ═══ -->
-<nav>
-  <div class="ntab active" data-panel="weekly" onclick="switchTab('weekly',this)">
+<nav aria-label="Main views">
+  <div class="ntab active" data-panel="weekly" onclick="switchTab('weekly',this)" title="This Week (press 1)">
     <!-- Calendar icon -->
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
     This Week
   </div>
-  <div class="ntab" data-panel="deliveries" onclick="switchTab('deliveries',this)">
+  <div class="ntab" data-panel="deliveries" onclick="switchTab('deliveries',this)" title="All Deliveries (press 2)">
     <!-- List icon -->
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
     All Deliveries <span class="ntab-badge" id="badge-deliveries" style="display:none;">0</span>
   </div>
-  <div class="ntab" data-panel="drivers" onclick="switchTab('drivers',this)">
+  <div class="ntab" data-panel="drivers" onclick="switchTab('drivers',this)" title="Drivers (press 3)">
     <!-- Users icon -->
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
     Drivers
   </div>
-  <div class="ntab" data-panel="analytics" onclick="switchTab('analytics',this)">
+  <div class="ntab" data-panel="analytics" onclick="switchTab('analytics',this)" title="Analytics (press 4)">
     <!-- Bar chart icon -->
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
     Analytics
@@ -935,8 +946,8 @@ input[type=checkbox] { accent-color: var(--red); width: 13px; height: 13px; curs
       <div class="field"><label>Model</label><select id="ai-model" onchange="updateModelNote();saveAIChoice()"></select><div id="model-note" class="knote" style="margin-top:3px;font-size:10px;"></div></div>
       <div style="font-size:10px;font-weight:700;color:var(--txt-3);margin-bottom:6px;letter-spacing:.5px;">API KEYS</div>
       <div class="key-grid">
-        <div class="key-row"><div class="key-saved" id="ks-anthropic"></div><label>Claude</label><input type="password" id="key-anthropic" placeholder="sk-ant-..." onchange="saveAllKeys()"></div>
-        <div class="key-row"><div class="key-saved" id="ks-google"></div><label>Gemini</label><input type="password" id="key-google" placeholder="AIza..." onchange="saveAllKeys()"></div>
+        <div class="key-row"><div class="key-saved" id="ks-anthropic"></div><label>Claude</label><input type="password" id="key-anthropic" placeholder="sk-ant-..." autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Claude API key" onchange="saveAllKeys()"></div>
+        <div class="key-row"><div class="key-saved" id="ks-google"></div><label>Gemini</label><input type="password" id="key-google" placeholder="AIza..." autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Gemini API key" onchange="saveAllKeys()"></div>
       </div>
       <div class="knote" style="margin-top:5px;">Stored in your browser only</div>
       <button class="sbtn" style="margin-top:8px;" onclick="saveAllKeys();toast('All keys saved','ok')">
@@ -1307,10 +1318,10 @@ input[type=checkbox] { accent-color: var(--red); width: 13px; height: 13px; curs
   </div>
 </div>
 
-<button class="scroll-fab" id="scroll-fab" onclick="scrollFAB()">
+<button class="scroll-fab" id="scroll-fab" onclick="scrollFAB()" title="Scroll to top/bottom" aria-label="Scroll to top or bottom">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
 </button>
-<div class="toasts" id="toasts"></div>
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
 
 <script>
 const PRELOADED_DATA = [{"date":"6/1/2026","promiseTime":"10:00 AM - 11:00 AM","recipient":"Stephanie Jack","customer":"Todd A VanBuskirk","phone":"660-723-2445","address":"1902 Chestnut Dr, Pleasant Hill, MO 64080","zip":"64080","basketType":"MTO","orderTotal":90.88,"tip":5.0,"qtyByDept":"Floral 1","driver":"Mike","orderNumber":"42854361","note":""},{"date":"6/1/2026","promiseTime":"12:00 PM - 01:00 PM","recipient":"Grace Brown","customer":"Matthew Bussard","phone":"816-550-5115","address":"400 NE Colbern Rd, Lee's Summit, MO 64086","zip":"64086","basketType":"MTO","orderTotal":93.14,"tip":9.37,"qtyByDept":"Floral 1","driver":"Mike","orderNumber":"42910043","note":""},{"date":"6/1/2026","promiseTime":"02:00 PM - 03:00 PM","recipient":"James Barszczak","customer":"James R Barszczak","phone":"816-351-7423","address":"829 N.W. Donovan Rd, Lees Summit, MO 64086","zip":"64086","basketType":"Blended","orderTotal":208.02,"tip":10.78,"qtyByDept":"Bakery 1","driver":"Mike","orderNumber":"42911482","note":""},{"date":"6/2/2026","promiseTime":"01:00 PM - 02:00 PM","recipient":"Kristen Merrell","customer":"Kennedy Merrell","phone":"816-668-0616","address":"301 NE Tudor Rd, Lee's Summit, MO 64086","zip":"64086","basketType":"MTO","orderTotal":64.64,"tip":5.88,"qtyByDept":"Floral 1","driver":"Mike","orderNumber":"42927248","note":""},{"date":"6/2/2026","promiseTime":"06:00 PM - 07:00 PM","recipient":"Jerry Sullivan","customer":"Susan Martin","phone":"913-219-5674","address":"952 NW High Point Dr, Lee's Summit, MO 64081","zip":"64081","basketType":"MTO","orderTotal":73.0,"tip":6.64,"qtyByDept":"Floral 1","driver":"Mike","orderNumber":"42930817","note":""},{"date":"6/3/2026","promiseTime":"10:00 AM - 11:00 AM","recipient":"Erin Birchard","customer":"Jon Birchard","phone":"816-703-7220","address":"901 NE Bluestem, Lee's Summit, MO 64086","zip":"64086","basketType":"MTO","orderTotal":70.61,"tip":6.42,"qtyByDept":"Floral 1","driver":"Mike","orderNumber":"42934202","note":""},{"date":"6/3/2026","promiseTime":"11:00 AM - 12:00 PM","recipient":"Nancy Creasy","customer":"Sandra Cassady","phone":"563-343-7901","address":"311 NE Viewpark Dr, Lee's Summit, MO 64086","zip":"64086","basketType":"MTO","orderTotal":76.57,"tip":6.96,"qtyByDept":"Floral 1","driver":"Mike","orderNumber":"42936946","note":""},{"date":"6/4/2026","promiseTime":"12:00 PM - 01:00 PM","recipient":"Tammy Lorance","customer":"Alyssa Ferguson","phone":"816-699-8473","address":"751 NE Anderson Ln, Lee's Summit, MO 64064","zip":"64064","basketType":"MTO","orderTotal":64.64,"tip":5.88,"qtyByDept":"Floral 1","driver":"Jay","orderNumber":"42944567","note":""},{"date":"6/4/2026","promiseTime":"12:00 PM - 01:00 PM","recipient":"Hunter and Haley Hansen","customer":"Bridgette M Bryson","phone":"660-483-1061","address":"2100 SE 7th St, Lee's Summit, MO 64063","zip":"64063","basketType":"MTO","orderTotal":70.61,"tip":6.42,"qtyByDept":"Floral 1","driver":"Jay","orderNumber":"42948569","note":""},{"date":"6/4/2026","promiseTime":"12:00 PM - 01:00 PM","recipient":"Haley Hansen","customer":"Grant Grego","phone":"816-868-9145","address":"2100 SE 7th St, Lee's Summit, MO 64063","zip":"64063","basketType":"MTO","orderTotal":73.82,"tip":9.63,"qtyByDept":"Floral 1","driver":"Jay","orderNumber":"42948584","note":""},{"date":"6/4/2026","promiseTime":"03:00 PM - 04:00 PM","recipient":"Hadleigh Wright","customer":"Hadleigh Wright","phone":"913-405-5045","address":"601 NE Clubhouse Dr, Lee's Summit, MO 64086","zip":"64086","basketType":"Blended","orderTotal":115.49,"tip":15.0,"qtyByDept":"Meat 0","driver":"Jay","orderNumber":"42951127","note":""},{"date":"6/5/2026","promiseTime":"11:00 AM - 12:00 PM","recipient":"Miranda Burton","customer":"Kidz Kabana","phone":"816-258-0306","address":"816 NW Commerce Dr, Lee's Summit, MO 64086","zip":"64086","basketType":"Blended","orderTotal":111.03,"tip":5.38,"qtyByDept":"Delicatessen 1","driver":"Jay","orderNumber":"42950691","note":""},{"date":"6/5/2026","promiseTime":"11:00 AM - 12:00 PM","recipient":"Kari Butrum","customer":"Abby C Rowe","phone":"618-210-2627","address":"1205 E State Rte Vv, Pleasant, MO 64080","zip":"64080","basketType":"MTO","orderTotal":118.34,"tip":10.76,"qtyByDept":"Floral 1","driver":"Jay","orderNumber":"42958549","note":""},{"date":"6/5/2026","promiseTime":"01:00 PM - 02:00 PM","recipient":"Jan Jackson","customer":"Suzanne Currence","phone":"816-582-5625","address":"100 NE SAINT LUKES BLVD # 4007, Lees Summit, MO 64086","zip":"64086","basketType":"MTO","orderTotal":43.06,"tip":0.0,"qtyByDept":"Floral 1","driver":"Jay","orderNumber":"42963483","note":""},{"date":"6/5/2026","promiseTime":"02:00 PM - 03:00 PM","recipient":"Whitney Thomas","customer":"Jason stewart","phone":"816-582-7952","address":"1128 SE 11th St, Lee's Summit, MO 64081","zip":"64081","basketType":"MTO","orderTotal":76.57,"tip":6.96,"qtyByDept":"Floral 1","driver":"Jay","orderNumber":"42962287","note":""},{"date":"6/5/2026","promiseTime":"02:00 PM - 03:00 PM","recipient":"Tiffany Brigman","customer":"Jaycie Tiehen","phone":"816-935-2838","address":"421 NE Woodbury Dr, Lee's Summit, MO 64086","zip":"64086","basketType":"MTO","orderTotal":60.76,"tip":2.0,"qtyByDept":"Floral 1","driver":"Jay","orderNumber":"42962521","note":""},{"date":"6/5/2026","promiseTime":"03:00 PM - 04:00 PM","recipient":"Sharon Wright","customer":"Gwan Cox","phone":"502-396-3893","address":"233 SE Topaz Dr, Lee's Summit, MO 64063","zip":"64063","basketType":"Blended","orderTotal":89.08,"tip":8.08,"qtyByDept":"Floral 1","driver":"Jay","orderNumber":"42963546","note":""},{"date":"6/5/2026","promiseTime":"03:00 PM - 04:00 PM","recipient":"Jack Ryan","customer":"Mary Ryan","phone":"816-510-1660","address":"1683 NE Lashbrook Ct, Lee's Summit, MO 64086","zip":"64086","basketType":"MTO","orderTotal":63.15,"tip":5.74,"qtyByDept":"Floral 1","driver":"Jay","orderNumber":"42965513","note":""},{"date":"6/6/2026","promiseTime":"06:00 PM - 07:00 PM","recipient":"Brenda Rogers","customer":"kellie norris","phone":"918-914-3827","address":"100 N. E. St. Luke's Blvd # 4030, Lee Summit, MO 64086","zip":"64086","basketType":"MTO","orderTotal":69.19,"tip":5.0,"qtyByDept":"Floral 1","driver":"Jay","orderNumber":"42980834","note":""}];
@@ -1318,13 +1329,13 @@ const PRELOADED_DATA = [{"date":"6/1/2026","promiseTime":"10:00 AM - 11:00 AM","
 // ═══ CONSTANTS ═══
 // Only providers that read PDFs natively are offered (Claude + Gemini).
 const MODELS={
-  anthropic:['claude-haiku-4-5-20251001','claude-sonnet-4-5','claude-opus-4-5'],
+  anthropic:['claude-haiku-4-5-20251001','claude-sonnet-4-6','claude-opus-4-8'],
   google:['gemini-2.5-flash','gemini-2.5-pro']
 };
 const MODEL_NOTES={
-  'claude-haiku-4-5-20251001':'~$0.001/page · reads PDF natively',
-  'claude-sonnet-4-5':'~$0.005/page · reads PDF natively',
-  'claude-opus-4-5':'~$0.02/page · reads PDF natively',
+  'claude-haiku-4-5-20251001':'~$0.001/page · reads PDF natively · recommended',
+  'claude-sonnet-4-6':'~$0.005/page · reads PDF natively · most accurate',
+  'claude-opus-4-8':'~$0.02/page · reads PDF natively · highest quality',
   'gemini-2.5-flash':'~$0.0003/page · reads PDF natively — cheapest',
   'gemini-2.5-pro':'~$0.003/page · reads PDF natively',
 };
@@ -1388,6 +1399,13 @@ function init(){
   setupScrollFAB();
   restoreTableToggles();
   refresh();
+  try{
+    const savedTab=localStorage.getItem('hv_tab');
+    if(savedTab&&savedTab!=='weekly'){
+      const t=document.querySelector('.ntab[data-panel="'+savedTab+'"]');
+      if(t)t.click();
+    }
+  }catch(_){}
 }
 
 function initCurrentWeek(){
@@ -1456,7 +1474,10 @@ function toggleTheme(){
 function qSave(){
   setSaveInd('saving');
   clearTimeout(saveTimer);
-  saveTimer=setTimeout(()=>{localStorage.setItem('hv_d_june',JSON.stringify(data));setSaveInd('saved');},700);
+  saveTimer=setTimeout(()=>{
+    try{localStorage.setItem('hv_d_june',JSON.stringify(data));setSaveInd('saved');}
+    catch(e){setSaveInd('unsaved');toast('Could not save locally (storage full or private mode)','warn');}
+  },700);
 }
 function setSaveInd(s){const el=$('save-ind');el.className='save-ind '+s;el.textContent=s==='saved'?'saved':s==='saving'?'saving...':'unsaved';}
 function pushUndo(action){undoStack.push({action,snap:JSON.stringify(data)});if(undoStack.length>30)undoStack.shift();$('undo-btn').disabled=false;}
@@ -1477,7 +1498,14 @@ function setupKeyboard(){
       if(e.key==='Escape'){e.target.blur();document.querySelectorAll('.modal-bg.open,.ai-overlay.open').forEach(m=>m.classList.remove('open'));}
       return;
     }
+    // never hijack browser/OS combos (Ctrl+P print, Ctrl+A select-all, Cmd+R, etc.)
+    if(e.ctrlKey||e.metaKey||e.altKey){
+      if(e.key==='ArrowLeft'&&e.shiftKey)weekNav(-1);
+      else if(e.key==='ArrowRight'&&e.shiftKey)weekNav(1);
+      return;
+    }
     if(e.key==='/'){e.preventDefault();$('srch')?.focus();}
+    else if(e.key==='?'){e.preventDefault();toast('Shortcuts: / search · P parse · A ask AI · E export · Z undo · 1-4 tabs · Shift+←/→ week','info');}
     else if(e.key==='Escape'){document.querySelectorAll('.modal-bg.open,.ai-overlay.open').forEach(m=>m.classList.remove('open'));}
     else if(e.key==='p'||e.key==='P')parseAllPDFs();
     else if(e.key==='z'||e.key==='Z')undoAction();
@@ -1491,6 +1519,7 @@ function setupKeyboard(){
 
 // ═══ TABS ═══
 function switchTab(id,el){
+  try{localStorage.setItem('hv_tab',id);}catch(_){}
   document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
@@ -2322,9 +2351,9 @@ function updateStats(){
   const avg=tot?tips/tot:0;
   const dates=[...new Set(src_data.map(d=>d.date).filter(Boolean))];
   $('s1').textContent=tot;
-  $('s2').textContent='$'+tips.toFixed(2);
-  $('s3').textContent='$'+sales.toFixed(2);
-  $('s4').textContent='$'+avg.toFixed(2);
+  $('s2').textContent='$'+money(tips);
+  $('s3').textContent='$'+money(sales);
+  $('s4').textContent='$'+money(avg);
   $('s5').textContent=dates.length;
   const nums={};data.forEach(d=>{if(d.orderNumber)nums[d.orderNumber]=(nums[d.orderNumber]||0)+1;});
   const dc=Object.values(nums).filter(n=>n>1).length;
@@ -2832,7 +2861,7 @@ function openProcModal(title){openModal('proc-modal');$('proc-title').textConten
 function setProgress(p){$('pfill').style.width=p+'%';}
 function log(msg,type){const b=$('proc-log');const s=document.createElement('span');s.className='l'+(type||'info');s.textContent='> '+msg+'\n';b.appendChild(s);b.scrollTop=b.scrollHeight;}
 function clearAll(){
-  if(!confirm('Clear all delivery data?'))return;
+  if(!confirm('Clear ALL delivery data and reload the built-in sample data?\n\nThis cannot be undone. Consider Export first to keep a backup.'))return;
   data=[];pendingFiles=[];undoStack=[];$('undo-btn').disabled=true;
   localStorage.removeItem('hv_d_june');data=[...PRELOADED_DATA];
   qSave();refresh();renderFileList();toast('Cleared \u2014 reloaded preloaded data','info');
@@ -2841,6 +2870,7 @@ function setFS(v){document.documentElement.style.setProperty('--fs',v+'px');$('f
 function toast(msg,type){
   const c=$('toasts'),d=document.createElement('div');
   d.className='toast '+(type||'info');d.textContent=msg;
+  d.title='Click to dismiss';
   d.onclick=()=>d.remove();c.appendChild(d);
   setTimeout(()=>{try{d.remove();}catch(e){}},4500);
 }
@@ -2868,10 +2898,14 @@ const HARDCODED_KEYS = {
 function saveAllKeys(){
   const providers=['anthropic','google'];
   providers.forEach(p=>{
-    const el=$('key-'+p);
-    if(el&&el.value.trim()){
+    const el=$('key-'+p);if(!el)return;
+    const dot=$('ks-'+p);
+    if(el.value.trim()){
       localStorage.setItem('hv_k_'+p,el.value.trim());
-      const dot=$('ks-'+p);if(dot)dot.classList.add('has-key');
+      if(dot)dot.classList.add('has-key');
+    }else{
+      localStorage.removeItem('hv_k_'+p);
+      if(dot)dot.classList.remove('has-key');
     }
   });
 }
@@ -2893,7 +2927,7 @@ function loadKey(){
 }
 function updateModels(){
   const p=$('ai-prov')?.value;if(!p)return;
-  const MODELS2={anthropic:['claude-opus-4-5','claude-sonnet-4-5','claude-haiku-4-5-20251001'],google:['gemini-2.5-flash','gemini-2.5-pro']};
+  const MODELS2={anthropic:['claude-haiku-4-5-20251001','claude-sonnet-4-6','claude-opus-4-8'],google:['gemini-2.5-flash','gemini-2.5-pro']};
   const sel=$('ai-model');if(sel)sel.innerHTML=(MODELS2[p]||[]).map(m=>`<option>${m}</option>`).join('');
 }
 function getKey(){
