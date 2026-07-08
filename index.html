@@ -3338,6 +3338,33 @@ const HARDCODED_KEYS = {
   deepseek:  ''
 };
 
+// ═══ SECURE CLAUDE PROXY ═══
+// The real Anthropic key lives ONLY in the ANTHROPIC_API_KEY env var on Vercel and
+// is served through /api/claude — it never ships to the browser. SERVER_PROXY is a
+// harmless sentinel so the app's "needs a key" guards pass without a real secret in
+// this public file. Any Claude call made WITHOUT a user-pasted key is transparently
+// rerouted to the proxy by the fetch shim below (a user's own key still goes direct).
+const SERVER_PROXY = '__server_proxy__';
+(function installClaudeProxyShim(){
+  if (typeof window === 'undefined' || !window.fetch || window.__claudeProxyShim) return;
+  window.__claudeProxyShim = true;
+  const _fetch = window.fetch.bind(window);
+  window.fetch = function(url, opts){
+    opts = opts || {};
+    if (typeof url === 'string' && url.indexOf('api.anthropic.com/v1/messages') !== -1) {
+      const h = Object.assign({}, opts.headers || {});
+      const k = h['x-api-key'];
+      if (!k || k === SERVER_PROXY) {
+        delete h['x-api-key'];
+        delete h['anthropic-dangerous-direct-browser-access'];
+        h['Content-Type'] = 'application/json';
+        return _fetch('/api/claude', Object.assign({}, opts, { headers: h }));
+      }
+    }
+    return _fetch(url, opts);
+  };
+})();
+
 // ═══ MULTI-KEY MANAGEMENT ═══
 function saveAllKeys(){
   const providers=['anthropic','google'];
@@ -3378,7 +3405,11 @@ function getKey(){
   const p=$('ai-prov')?.value;if(!p)return'';
   const newEl=$('key-'+p);
   if(newEl&&newEl.value.trim())return newEl.value.trim();
-  return localStorage.getItem('hv_k_'+p)||HARDCODED_KEYS[p]||'';
+  const saved=localStorage.getItem('hv_k_'+p)||HARDCODED_KEYS[p]||'';
+  if(saved)return saved;
+  // No user key: Claude still works through the secure server proxy (/api/claude).
+  if(p==='anthropic')return SERVER_PROXY;
+  return '';
 }
 
 // ═══ TEST API KEYS ═══
@@ -3391,7 +3422,7 @@ async function testAllKeys(){
   ];
   results.innerHTML='';
   for(const p of providers){
-    const key=localStorage.getItem('hv_k_'+p.id)||$('key-'+p.id)?.value?.trim()||HARDCODED_KEYS[p.id]||'';
+    const key=localStorage.getItem('hv_k_'+p.id)||$('key-'+p.id)?.value?.trim()||HARDCODED_KEYS[p.id]||(p.id==='anthropic'?SERVER_PROXY:'');
     const row=document.createElement('div');
     row.style.cssText='display:flex;align-items:center;gap:7px;padding:5px 8px;background:var(--bg-1);border-radius:6px;font-size:11px;margin-bottom:3px;';
     if(!key){
