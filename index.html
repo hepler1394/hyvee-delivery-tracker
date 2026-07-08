@@ -20,7 +20,7 @@
 <meta name="referrer" content="no-referrer">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
@@ -61,8 +61,8 @@
   --d-mike: #CC0000;
   --d-jay:  #1A5FA3;
 
-  --sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --mono: 'JetBrains Mono', monospace;
+  --sans: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', monospace;
 
   --r-sm:  4px;
   --r-md:  8px;
@@ -105,8 +105,9 @@ body.dark {
 }
 body.dark header { background: #8E0E0E; }
 body.dark .hbtn.solid { color: #B41E1E; }
-body.dark .driver-hero .dh-label,
-body.dark .driver-hero .dh-amt { filter: brightness(1.45) saturate(0.85); }
+body.dark .ledger-row .lg-amt,
+body.dark .ledger-row .lg-dot,
+body.dark .dcc-name, body.dark .dcc-name::before { filter: brightness(1.4) saturate(0.85); }
 body.dark .modal-bg { background: rgba(0,0,0,.6); }
 
 /* theme toggle icon swap */
@@ -140,7 +141,7 @@ header {
 .logo-wordmark {
   display: flex; flex-direction: column;
 }
-.logo-name { font-weight: 800; font-size: 14px; color: #fff; letter-spacing: .2px; }
+.logo-name { font-weight: 700; font-size: 14px; color: #fff; letter-spacing: -0.01em; }
 .logo-sub  { font-size: 10px; color: rgba(255,255,255,0.75); font-weight: 400; margin-top: 1px; }
 .logo-icon {
   width: 32px; height: 32px;
@@ -239,9 +240,9 @@ aside {
 /* ═══ SIDEBAR ═══ */
 .sb { padding: 14px 15px; }
 .sb-label {
-  font-size: 10px; font-weight: 700;
-  letter-spacing: 1.2px; text-transform: uppercase;
-  color: var(--txt-3);
+  font-size: 12px; font-weight: 600;
+  letter-spacing: -0.005em;
+  color: var(--txt-1);
   margin-bottom: 10px;
 }
 .sb-div { height: 1px; background: var(--line-2); }
@@ -383,23 +384,38 @@ aside {
   transition: all .14s;
 }
 .week-arrow:hover { background: var(--red); border-color: var(--red); color: #fff; }
-.week-title { font-size: 19px; font-weight: 800; text-align: center; min-width: 260px; }
+.week-title { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; text-align: center; min-width: 260px; }
 .week-subtitle { font-size: 11px; color: var(--txt-3); text-align: center; margin-top: 2px; font-family: var(--mono); }
 
-/* 2x2 hero grid */
-.hero-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-.driver-hero {
-  background: var(--bg-0); border: 1px solid var(--line-2);
-  border-left: 3px solid var(--hc);
-  border-radius: var(--r-lg); padding: 18px;
-  cursor: pointer; transition: box-shadow .14s;
+/* Week top: tip ledger + upload status, side by side */
+.week-top { display: grid; grid-template-columns: minmax(0,1.5fr) minmax(0,1fr); gap: 14px; margin-bottom: 18px; align-items: start; }
+
+/* ═══ TIP LEDGER (per-driver tips this week) ═══ */
+.ledger { background: var(--bg-0); border: 1px solid var(--line-2); border-radius: var(--r-lg); overflow: hidden; }
+.ledger-hd, .ledger-row {
+  display: grid; grid-template-columns: minmax(0,1fr) 4rem 4.5rem 6rem;
+  align-items: baseline; gap: 12px; padding: 11px 16px;
 }
-.driver-hero:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
-.dh-label { font-size: 10px; font-weight: 700; letter-spacing: 1.3px; color: var(--hc); margin-bottom: 4px; text-transform: uppercase; }
-.dh-amt { font-family: var(--mono); font-size: 32px; font-weight: 800; color: var(--hc); line-height: 1; }
-.dh-meta { display: flex; gap: 14px; margin-top: 10px; }
-.dh-meta-item { font-size: 10px; color: var(--txt-3); }
-.dh-meta-val { font-family: var(--mono); font-weight: 700; color: var(--txt-0); display: block; font-size: 12px; }
+.ledger-hd {
+  font-size: 11px; font-weight: 600; color: var(--txt-3);
+  background: var(--bg-1); border-bottom: 1px solid var(--line-2);
+}
+.ledger-hd span:not(:first-child) { text-align: right; }
+.ledger-row {
+  width: 100%; text-align: left; font-family: var(--sans);
+  background: none; border: none; border-top: 1px solid var(--line);
+  color: var(--txt-0); cursor: pointer; transition: background .14s;
+}
+.ledger-row:hover { background: var(--bg-1); }
+.lg-name { display: flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 600; min-width: 0; align-self: center; }
+.lg-name .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lg-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--hc, var(--txt-3)); flex-shrink: 0; }
+.lg-orders, .lg-avg { font-family: var(--mono); font-size: 12px; color: var(--txt-3); text-align: right; font-variant-numeric: tabular-nums; }
+.lg-amt { font-family: var(--mono); font-size: 17px; font-weight: 700; color: var(--hc, var(--txt-0)); text-align: right; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.ledger-row.total { border-top: 2px solid var(--line-2); background: var(--bg-1); }
+.ledger-row.total .lg-name { font-weight: 700; }
+.ledger-row.total .lg-amt { color: var(--success); font-size: 19px; }
+.ledger-empty { padding: 22px 16px; font-size: 12px; color: var(--txt-3); line-height: 1.6; }
 
 /* Daily breakdown */
 .daily-list { background: var(--bg-0); border: 1px solid var(--line-2); border-radius: var(--r-lg); overflow: hidden; margin-bottom: 16px; }
@@ -459,8 +475,8 @@ aside {
 .nwb-dismiss { background: none; border: none; color: var(--txt-3); cursor: pointer; font-size: 16px; line-height: 1; padding: 0 4px; }
 
 /* ═══ STATUS HERO (bottom-right 2x2 card) ═══ */
-.status-hero { background: var(--bg-0); border: 1px solid var(--line-2); border-left: 3px solid var(--line-2); border-radius: var(--r-lg); padding: 18px; display: flex; flex-direction: column; transition: border-color .3s; }
-.sh-title { font-size: 10px; font-weight: 700; letter-spacing: 1.3px; text-transform: uppercase; color: var(--txt-3); margin-bottom: 12px; }
+.status-hero { background: var(--bg-0); border: 1px solid var(--line-2); border-radius: var(--r-lg); padding: 16px 18px; display: flex; flex-direction: column; transition: border-color .3s; }
+.sh-title { font-size: 12px; font-weight: 600; letter-spacing: -0.005em; color: var(--txt-1); margin-bottom: 11px; }
 .sh-row { display: flex; align-items: center; gap: 9px; padding: 7px 0; }
 .sh-row+.sh-row { border-top: 1px solid var(--line); }
 .sh-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; background: var(--line-2); transition: background .3s; }
@@ -488,7 +504,7 @@ aside {
 .stat { padding: 10px 14px; border-right: 1px solid var(--line); transition: background .14s; }
 .stat:last-child { border-right: none; }
 .stat:hover { background: var(--bg-2); }
-.slabel { font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--txt-3); margin-bottom: 3px; }
+.slabel { font-size: 11px; font-weight: 500; letter-spacing: -0.005em; color: var(--txt-3); margin-bottom: 3px; }
 .sval { font-family: var(--mono); font-size: 18px; font-weight: 800; color: var(--txt-0); }
 .sval.success { color: var(--success); }
 .sval.warn    { color: var(--warn); }
@@ -542,7 +558,7 @@ table.dt thead th {
   background: var(--bg-1); border-bottom: 2px solid var(--red);
   padding: 9px 11px; text-align: left;
   font-size: 10px; font-weight: 700; color: var(--txt-2);
-  letter-spacing: .9px; text-transform: uppercase;
+  letter-spacing: .3px; text-transform: uppercase;
   cursor: pointer; user-select: none; white-space: nowrap; z-index: 5;
 }
 table.dt thead th:hover { background: var(--bg-2); color: var(--txt-0); }
@@ -553,7 +569,7 @@ tbody tr.data-row:hover { background: var(--bg-1) !important; }
 tbody tr.data-row.selected { background: var(--red-soft) !important; }
 tbody tr.data-row.zero-tip { background: var(--warn-soft) !important; }
 tbody tr.data-row.zero-tip td.tip-v { color: var(--warn) !important; }
-tbody tr.data-row.dup-row { border-left: 2px solid var(--warn); }
+tbody tr.data-row.dup-row { background: var(--bg-2); }
 tbody tr.data-row.search-match td.match-col { background: rgba(204,0,0,0.06); }
 .day-header { background: var(--bg-1); }
 .day-header td {
@@ -587,9 +603,9 @@ td.editable:hover { background: var(--bg-2); }
 .review-badge { font-size: 10px; color: #fff; background: var(--red); padding: 1px 5px; border-radius: 3px; margin-left: 3px; font-weight: 800; letter-spacing: .3px; }
 .driver-card { cursor: grab; }
 .driver-card:active { cursor: grabbing; }
-.day-row.today { box-shadow: inset 3px 0 0 var(--red); background: var(--red-soft); }
+.day-row.today { background: var(--red-soft); }
 .day-row.today .dr-dow { color: var(--red); font-weight: 800; }
-tbody tr.data-row.needs-review { border-left: 2px solid var(--red); }
+tbody tr.data-row.needs-review { background: var(--red-soft); }
 input[type=checkbox] { accent-color: var(--red); width: 13px; height: 13px; cursor: pointer; }
 
 /* ═══ NOTE TOOLTIP ═══ */
@@ -637,9 +653,9 @@ input[type=checkbox] { accent-color: var(--red); width: 13px; height: 13px; curs
 .dc-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 10px; }
 .dc-stat { text-align: center; padding: 7px 4px; background: var(--bg-1); border-radius: var(--r-md); }
 .dc-stat-val { font-family: var(--mono); font-size: 14px; font-weight: 800; color: var(--txt-0); }
-.dc-stat-label { font-size: 9px; color: var(--txt-3); margin-top: 2px; text-transform: uppercase; letter-spacing: .6px; }
+.dc-stat-label { font-size: 10px; color: var(--txt-3); margin-top: 2px; letter-spacing: -0.005em; }
 .dc-sched { margin-top: 8px; }
-.dc-sched-label { font-size: 9px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--txt-3); margin-bottom: 5px; }
+.dc-sched-label { font-size: 11px; font-weight: 500; letter-spacing: -0.005em; color: var(--txt-3); margin-bottom: 5px; }
 .day-pills { display: flex; gap: 3px; }
 .day-pill { font-size: 10px; font-family: var(--mono); padding: 3px 6px; border-radius: var(--r-sm); border: 1px solid var(--line-2); }
 .day-pill.on { background: var(--red); border-color: var(--red); color: #fff; font-weight: 700; }
@@ -661,7 +677,7 @@ input[type=checkbox] { accent-color: var(--red); width: 13px; height: 13px; curs
   background: var(--bg-0); border: 1px solid var(--line-2);
   border-radius: var(--r-lg); padding: 14px;
 }
-.an-card h4 { font-size: 10px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--txt-3); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.an-card h4 { font-size: 12px; font-weight: 600; letter-spacing: -0.005em; color: var(--txt-2); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
 .an-card h4 svg { width: 11px; height: 11px; }
 .an-val { font-family: var(--mono); font-size: 24px; font-weight: 800; color: var(--txt-0); }
 .an-sub { font-size: 10px; color: var(--txt-3); margin-top: 3px; }
@@ -686,8 +702,9 @@ input[type=checkbox] { accent-color: var(--red); width: 13px; height: 13px; curs
 .best-day-badge svg { width: 11px; height: 11px; }
 /* Driver comparison */
 .drv-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-.drv-compare-card { background: var(--bg-0); border: 1px solid var(--line-2); border-left: 3px solid var(--dc); border-radius: var(--r-lg); padding: 14px; }
-.dcc-name { font-size: 11px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--dc); margin-bottom: 10px; }
+.drv-compare-card { background: var(--bg-0); border: 1px solid var(--line-2); border-radius: var(--r-lg); padding: 14px; }
+.dcc-name { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 700; letter-spacing: -0.005em; color: var(--dc); margin-bottom: 10px; }
+.dcc-name::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--dc); flex-shrink: 0; }
 .dcc-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; padding: 4px 0; border-bottom: 1px solid var(--line); }
 .dcc-row:last-child { border-bottom: none; }
 .dcc-label { color: var(--txt-3); }
@@ -798,7 +815,7 @@ input[type=checkbox] { accent-color: var(--red); width: 13px; height: 13px; curs
   width: 42px; height: 42px; border-radius: 50%;
   background: var(--red); border: none; color: #fff;
   cursor: pointer; display: none; align-items: center; justify-content: center;
-  box-shadow: 0 4px 16px rgba(204,0,0,.35); z-index: 700;
+  box-shadow: 0 4px 14px rgba(0,0,0,.18); z-index: 700;
   font-size: 18px; transition: all .14s;
 }
 .scroll-fab.show { display: flex; }
@@ -813,7 +830,7 @@ input:focus-visible, a:focus-visible, [tabindex]:focus-visible {
 /* ═══ SCHEDULE PANEL ═══ */
 .schedule-wrap { flex: 1; overflow-y: auto; padding: 22px; }
 .sch-intro { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
-.sch-h2 { font-size: 18px; font-weight: 800; }
+.sch-h2 { font-size: 19px; font-weight: 700; letter-spacing: -0.02em; }
 .sch-sub { font-size: 12px; color: var(--txt-3); margin-top: 4px; max-width: 460px; line-height: 1.55; }
 .sch-upload-box { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
 .sch-upload-btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 14px; background: var(--red); color: #fff; border-radius: var(--r-md); font-size: 12px; font-weight: 600; cursor: pointer; transition: background .14s; }
@@ -828,21 +845,21 @@ input:focus-visible, a:focus-visible, [tabindex]:focus-visible {
 .sch-weeknav { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 16px; }
 /* month grid */
 .sch-grid.month { grid-template-columns: repeat(7, 1fr); gap: 6px; }
-.sch-wd-head { font-size: 10px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--txt-3); text-align: center; padding: 2px 0; }
+.sch-wd-head { font-size: 10px; font-weight: 600; letter-spacing: .2px; text-transform: uppercase; color: var(--txt-3); text-align: center; padding: 2px 0; }
 .sch-mcell { background: var(--bg-0); border: 1px solid var(--line); border-radius: var(--r-md); padding: 6px 6px 7px; min-height: 74px; display: flex; flex-direction: column; gap: 4px; }
 .sch-mcell.blank { background: transparent; border: none; }
 .sch-mcell.today { box-shadow: inset 0 0 0 2px var(--red); }
-.sch-mcell.assigned { border-left: 3px solid var(--sc); }
+.sch-mcell.assigned { border-color: var(--sc); background: var(--bg-1); }
 .sch-mnum { font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--txt-1); }
 .sch-mnum .oc { float: right; font-size: 9px; color: var(--txt-3); font-weight: 600; }
 .sch-msel { background: var(--bg-1); border: 1px solid var(--line-2); border-radius: var(--r-sm); color: var(--txt-0); font-family: var(--sans); font-size: 11px; font-weight: 600; padding: 4px 5px; outline: none; cursor: pointer; appearance: none; width: 100%; margin-top: auto; }
 .sch-msel:focus { border-color: var(--red); }
 .sch-week-label { font-size: 15px; font-weight: 700; min-width: 220px; text-align: center; }
 .sch-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-bottom: 18px; }
-.sch-cell { background: var(--bg-0); border: 1px solid var(--line-2); border-top: 3px solid var(--line-2); border-radius: var(--r-lg); padding: 12px 10px; display: flex; flex-direction: column; gap: 7px; }
-.sch-cell.today { border-top-color: var(--red); box-shadow: 0 0 0 1px var(--red-mid); }
-.sch-cell.assigned { border-top-color: var(--sc); }
-.sch-dow { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--txt-3); }
+.sch-cell { background: var(--bg-0); border: 1px solid var(--line-2); border-radius: var(--r-lg); padding: 12px 10px; display: flex; flex-direction: column; gap: 7px; }
+.sch-cell.today { border-color: var(--red); box-shadow: 0 0 0 1px var(--red-mid); }
+.sch-cell.assigned { border-color: var(--sc); background: var(--bg-1); }
+.sch-dow { font-size: 10px; font-weight: 600; letter-spacing: .2px; text-transform: uppercase; color: var(--txt-3); }
 .sch-date { font-family: var(--mono); font-size: 16px; font-weight: 800; color: var(--txt-0); line-height: 1; }
 .sch-sel { background: var(--bg-1); border: 1px solid var(--line-2); border-radius: var(--r-md); color: var(--txt-0); font-family: var(--sans); font-size: 12px; font-weight: 600; padding: 6px 8px; outline: none; cursor: pointer; appearance: none; width: 100%; }
 .sch-sel:focus { border-color: var(--red); }
@@ -855,11 +872,13 @@ input:focus-visible, a:focus-visible, [tabindex]:focus-visible {
 .sch-qbtn:hover { background: var(--sc, var(--bg-2)); color: #fff; }
 .sch-qbtn.clear { --sc: var(--warn); }
 .sch-summary { margin-bottom: 18px; }
-.schs-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--txt-3); margin-bottom: 8px; }
+.schs-title { font-size: 13px; font-weight: 600; letter-spacing: -0.005em; color: var(--txt-1); margin-bottom: 8px; }
 .schs-cards { display: flex; gap: 8px; flex-wrap: wrap; }
-.schs-card { flex: 1; min-width: 120px; background: var(--bg-0); border: 1px solid var(--line-2); border-left: 3px solid var(--sc, var(--line-2)); border-radius: var(--r-md); padding: 10px 12px; }
-.schs-card.total { --sc: var(--red); background: var(--red-soft); }
-.schs-nm { font-size: 11px; font-weight: 700; color: var(--txt-2); }
+.schs-card { flex: 1; min-width: 120px; background: var(--bg-0); border: 1px solid var(--line-2); border-radius: var(--r-md); padding: 10px 12px; }
+.schs-card.total { background: var(--red-soft); border-color: rgba(204,0,0,0.25); }
+.schs-nm { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--txt-1); }
+.schs-nm::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--sc, var(--txt-3)); flex-shrink: 0; }
+.schs-card.total .schs-nm::before { background: var(--red); }
 .schs-amt { font-family: var(--mono); font-size: 18px; font-weight: 800; color: var(--success); margin-top: 2px; }
 .schs-sub { font-size: 10px; color: var(--txt-3); font-family: var(--mono); margin-top: 1px; }
 
@@ -870,7 +889,7 @@ input:focus-visible, a:focus-visible, [tabindex]:focus-visible {
   aside { width: 100%; min-width: 0; border-right: none; border-bottom: 1px solid var(--line-2); }
   .main { overflow: visible; }
   .stats-bar { grid-template-columns: repeat(2, 1fr); }
-  .hero-layout, .drv-compare { grid-template-columns: 1fr; }
+  .week-top, .drv-compare { grid-template-columns: 1fr; }
   .sch-grid { grid-template-columns: repeat(2, 1fr); }
   .sch-intro { flex-direction: column; }
   .sch-upload-box { align-items: flex-start; }
@@ -2571,35 +2590,32 @@ function renderWeekly(){
   const layout=$('hero-layout-container');
   if(!layout)return;
 
-  let gridHTML='';
+  let rowsHTML='';
   drivers.forEach(drv=>{
     const dOrds=orders.filter(o=>o.driver?.toLowerCase()===drv.name.toLowerCase());
     const tips=dOrds.reduce((s,o)=>s+(o.tip||0),0);
     const avg=dOrds.length?tips/dOrds.length:0;
-    const best=dOrds.reduce((m,o)=>Math.max(m,o.tip||0),0);
-    gridHTML+=`<div class="driver-hero" style="--hc:${drv.color};cursor:pointer;" onclick="switchToDeliveries('${drv.name}')">
-      <div class="dh-label">${esc(drv.name.toUpperCase())}</div>
-      <div class="dh-amt">$${money(tips)}</div>
-      <div class="dh-meta">
-        <div class="dh-meta-item">Orders<span class="dh-meta-val">${dOrds.length}</span></div>
-        <div class="dh-meta-item">Avg<span class="dh-meta-val">$${money(avg)}</span></div>
-        <div class="dh-meta-item">Best<span class="dh-meta-val">$${money(best)}</span></div>
-      </div>
-    </div>`;
+    rowsHTML+=`<button class="ledger-row" style="--hc:${drv.color};" onclick="switchToDeliveries('${esc(drv.name)}')" title="View ${esc(drv.name)}'s deliveries">
+      <span class="lg-name"><span class="lg-dot"></span><span class="nm">${esc(drv.name)}</span></span>
+      <span class="lg-orders">${dOrds.length}</span>
+      <span class="lg-avg">$${money(avg)}</span>
+      <span class="lg-amt">$${money(tips)}</span>
+    </button>`;
   });
+  const totalAvg=orders.length?totalTips/orders.length:0;
+  if(!rowsHTML) rowsHTML=`<div class="ledger-empty">No drivers yet. Add a driver, then parse a printout to log this week’s tips.</div>`;
+  const ledgerHTML=`<section class="ledger" aria-label="Tips by driver this week">
+    <div class="ledger-hd"><span>Driver</span><span>Orders</span><span>Avg tip</span><span>Tips</span></div>
+    ${rowsHTML}
+    <button class="ledger-row total" onclick="switchToDeliveries('')" title="View all deliveries">
+      <span class="lg-name"><span class="nm">Week total</span></span>
+      <span class="lg-orders">${orders.length}</span>
+      <span class="lg-avg">$${money(totalAvg)}</span>
+      <span class="lg-amt">$${money(totalTips)}</span>
+    </button>
+  </section>`;
 
-  gridHTML+=`<div class="driver-hero" style="--hc:var(--success);cursor:pointer;" onclick="switchToDeliveries('')">
-    <div class="dh-label">WEEK TOTAL</div>
-    <div class="dh-amt">$${money(totalTips)}</div>
-    <div class="dh-meta">
-      <div class="dh-meta-item">Orders<span class="dh-meta-val">${orders.length}</span></div>
-      <div class="dh-meta-item">Avg<span class="dh-meta-val">$${orders.length?money(totalTips/orders.length):'0.00'}</span></div>
-      <div class="dh-meta-item">Zero tips<span class="dh-meta-val">${orders.filter(o=>(o.tip||0)===0).length}</span></div>
-    </div>
-  </div>`;
-
-  gridHTML+=buildStatusHeroHTML(orders);
-  layout.innerHTML=`<div class="hero-layout">${gridHTML}</div>`;
+  layout.innerHTML=`<div class="week-top">${ledgerHTML}${buildStatusHeroHTML(orders)}</div>`;
 
   // Daily breakdown
   let dHtml='';
@@ -2826,7 +2842,7 @@ function renderTipScroll(){
     const avg=cnt?tips/cnt:0;
     html+=`<div class="tip-card" onclick="setF('${d.name}')">
       <div class="tc-left"><div class="tc-dot" style="background:${d.color};"></div>
-        <div><div class="tc-name" style="color:${d.color};">${esc(d.name.toUpperCase())}</div><div class="tc-orders">${cnt} orders</div></div>
+        <div><div class="tc-name" style="color:${d.color};">${esc(d.name)}</div><div class="tc-orders">${cnt} orders</div></div>
       </div>
       <div class="tc-right"><div class="tc-amt" style="color:${d.color};">$${tips.toFixed(2)}</div><div class="tc-avg">avg $${money(avg)}</div></div>
     </div>`;
