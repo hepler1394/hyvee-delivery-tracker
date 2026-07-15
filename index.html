@@ -967,6 +967,45 @@ h1, h2, h3, .sch-h2 { text-wrap: balance; }
   .tip-v { color: #1A7A4A !important; font-weight: 700 !important; }
 }
 
+/* ═══ 2026-07 MOBILE AUDIT ROUND 2 — iPhone layout fixes ═══ */
+@media (max-width: 760px) {
+  /* Tab bar wider than the screen dragged the whole page sideways.
+     Let the tabs scroll horizontally on their own instead. */
+  nav[aria-label="Main views"] {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  nav[aria-label="Main views"]::-webkit-scrollbar { display: none; }
+  .ntab { flex: 0 0 auto; white-space: nowrap; }
+
+  /* Week pager: the 260px title squeezed the ‹ › buttons down to 7px wide. */
+  .week-title { min-width: 0; flex: 1; font-size: 17px; }
+  .week-arrow { flex: 0 0 44px; width: 44px; height: 44px; }
+
+  /* Tip ledger: drop the fixed rem columns that overflowed the card. */
+  .week-top > * { min-width: 0; } /* stop nowrap children inflating the 1fr track */
+  .ledger { width: 100%; max-width: 100%; overflow-x: auto; }
+  .ledger-hd, .ledger-row {
+    grid-template-columns: minmax(0, 1fr) 3rem 4rem 4.5rem;
+    gap: 8px;
+    padding: 11px 12px;
+  }
+
+  /* Legibility floor: 10-11px labels read as lint on a phone. */
+  .logo-sub, #save-ind, .week-subtitle, .ntab-badge { font-size: 12px; }
+  .upload-status p, .upload-status span, .upload-status strong { font-size: 12px; }
+  .knote, #model-note { font-size: 12px; }
+
+  /* Settings modal controls kept 10-12px fonts via their ID selectors,
+     which beat the earlier element-level 16px rule — iOS zooms on focus. */
+  select#ai-prov, select#ai-model, select#bulk-driver,
+  input#key-anthropic, input#key-google {
+    min-height: 44px;
+    font-size: 16px;
+  }
+}
+
 /* Print preview inside modal */
 #print-preview .route-sheet { background: #fff; color: #1a1a1a; padding: 14px; margin-bottom: 12px; border: 1px solid #e0e0e0; border-radius: 5px; font-family: 'Helvetica Neue', Arial, sans-serif; }
 #print-preview .rs-header { border-bottom: 3px solid #CC0000; padding-bottom: 7px; margin-bottom: 11px; }
