@@ -866,11 +866,33 @@ input:focus-visible, a:focus-visible, [tabindex]:focus-visible {
 .sch-meta { font-size: 10px; color: var(--txt-3); font-family: var(--mono); }
 .sch-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
 .sch-foot { font-size: 11px; color: var(--txt-3); line-height: 1.5; }
-.sch-quick { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+.sch-quick { display: flex; flex-direction: column; align-items: stretch; gap: 9px; margin-bottom: 16px; }
+.sch-quick-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .sch-quick-label { font-size: 11px; font-weight: 700; color: var(--txt-3); margin-right: 2px; }
 .sch-qbtn { padding: 6px 12px; border-radius: var(--r-md); border: 1px solid var(--sc, var(--line-2)); background: var(--bg-0); color: var(--sc, var(--txt-1)); font-size: 12px; font-weight: 600; font-family: var(--sans); cursor: pointer; transition: all .14s; }
 .sch-qbtn:hover { background: var(--sc, var(--bg-2)); color: #fff; }
 .sch-qbtn.clear { --sc: var(--warn); }
+/* Per-day assign control */
+.sch-dapill { padding: 6px 13px; border-radius: 999px; border: 1px solid var(--sc, var(--line-2)); background: var(--bg-0); color: var(--sc, var(--txt-1)); font-size: 12px; font-weight: 600; font-family: var(--sans); cursor: pointer; transition: all .14s; }
+.sch-dapill:hover { background: var(--bg-2); }
+.sch-dapill.sel { background: var(--sc, var(--txt-1)); color: #fff; border-color: var(--sc, var(--txt-1)); }
+.sch-da-days { display: flex; gap: 5px; flex-wrap: wrap; }
+.sch-daday { position: relative; min-width: 42px; padding: 5px 6px 8px; border-radius: var(--r-md); border: 1px solid var(--line-2); background: var(--bg-0); color: var(--txt-2); font-family: var(--sans); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 1px; transition: all .12s; }
+.sch-daday:hover { border-color: var(--line-3); }
+.sch-daday .dd-dow { font-size: 9px; font-weight: 700; letter-spacing: .3px; text-transform: uppercase; color: var(--txt-3); }
+.sch-daday .dd-num { font-size: 13px; font-weight: 800; line-height: 1; font-family: var(--mono); }
+.sch-daday.has::after { content: ''; position: absolute; left: 7px; right: 7px; bottom: 3px; height: 2px; border-radius: 2px; background: var(--dc); }
+.sch-daday.sel { border-color: var(--accent); background: var(--accent-soft); color: var(--txt-0); box-shadow: 0 0 0 1px var(--accent) inset; }
+.sch-daday.sel .dd-dow { color: var(--accent); }
+.sch-da-apply { --sc: var(--success); }
+/* Sidebar bulk day-picker */
+.bulk-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; margin-top: 3px; }
+.bd-day { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; padding: 4px 0 5px; border: 1px solid var(--line-2); border-radius: var(--r-sm); background: var(--bg-0); color: var(--txt-3); cursor: pointer; transition: all .12s; font-family: var(--sans); }
+.bd-day:hover { border-color: var(--line-3); }
+.bd-day.on { border-color: var(--accent); background: var(--accent-soft); color: var(--txt-0); }
+.bd-dow { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .2px; }
+.bd-num { font-size: 10px; font-weight: 700; font-family: var(--mono); line-height: 1; }
+.bulk-days-note { font-size: 10px; color: var(--txt-3); margin-top: 5px; font-weight: 600; }
 .sch-summary { margin-bottom: 18px; }
 .schs-title { font-size: 13px; font-weight: 600; letter-spacing: -0.005em; color: var(--txt-1); margin-bottom: 8px; }
 .schs-cards { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -1153,12 +1175,17 @@ h1, h2, h3, .sch-h2 { text-wrap: balance; }
         <label>Who drove this week?</label>
         <select id="bulk-driver"></select>
       </div>
+      <div class="field" style="margin-bottom:6px;">
+        <label>On which days?</label>
+        <div class="bulk-days" id="bulk-days"></div>
+        <div class="bulk-days-note" id="bulk-days-note"></div>
+      </div>
       <div class="settings-row" style="margin-bottom:8px;">
         <label>Only fill unassigned</label>
         <label class="toggle"><input type="checkbox" id="bulk-unassigned-only"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
       </div>
       <button class="sbtn accent" onclick="assignWeekToDriver()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>Assign this week to driver
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>Assign to selected days
       </button>
       <button class="sbtn" onclick="autoAssign()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Auto-assign by schedule
@@ -1346,7 +1373,7 @@ h1, h2, h3, .sch-h2 { text-wrap: balance; }
         <div class="sch-intro">
           <div>
             <h2 class="sch-h2">Workday Schedule</h2>
-            <p class="sch-sub">Set who drives each day — auto-assign uses this. Upload a schedule PDF, or just tap a day and pick the driver. No route sheet needed.</p>
+            <p class="sch-sub">Set who drives each day — auto-assign uses this. Set the whole week to one driver, or use <strong>Certain days</strong> to put a driver on just the days they drove (e.g. Mike all week, Jay on Saturday). You can also tap any day's dropdown below. No route sheet needed.</p>
           </div>
           <div class="sch-upload-box">
             <label class="sch-upload-btn" for="sch-fi">
@@ -1367,7 +1394,7 @@ h1, h2, h3, .sch-h2 { text-wrap: balance; }
           <button class="week-arrow" onclick="schedNav(-1)" aria-label="Previous">&#8249;</button>
           <div class="sch-week-label" id="sch-week-label">—</div>
           <button class="week-arrow" onclick="schedNav(1)" aria-label="Next">&#8250;</button>
-          <button class="sbtn" style="width:auto;margin:0 0 0 10px;padding:7px 12px;" onclick="goToToday();renderSchedule()">Today</button>
+          <button class="sbtn" style="width:auto;margin:0 0 0 10px;padding:7px 12px;" onclick="goToToday();daDays.clear();renderSchedule()">Today</button>
         </div>
 
         <div class="sch-grid" id="sch-grid"></div>
@@ -2261,15 +2288,21 @@ function assignWeekToDriver(){
   const sel=$('bulk-driver');
   const name=sel&&sel.value;
   if(!name){toast('Pick a driver first','info');return;}
-  const weekOrders=getWeekOrders();
+  if(!bulkDays.size){toast('Pick at least one day','info');return;}
+  let weekOrders=getWeekOrders();
   if(!weekOrders.length){toast('No orders in this week to assign','info');return;}
+  if(bulkDays.size<7){
+    weekOrders=weekOrders.filter(o=>bulkDays.has(getDOW(o.date)));
+    if(!weekOrders.length){toast('No orders on the selected days','info');return;}
+  }
   const onlyUnassigned=$('bulk-unassigned-only')&&$('bulk-unassigned-only').checked;
   const targets=onlyUnassigned?weekOrders.filter(o=>!o.driver):weekOrders;
-  if(!targets.length){toast('No unassigned orders this week','info');return;}
+  if(!targets.length){toast('No unassigned orders on those days','info');return;}
   pushUndo('assign week to '+name);
   targets.forEach(o=>{o.driver=name;});
   qSave();refresh();
-  toast(`Assigned ${targets.length} order${targets.length>1?'s':''} this week to ${name}`,'ok');
+  const scope=bulkDays.size===7?'this week':bulkDaysSummary();
+  toast(`Assigned ${targets.length} order${targets.length>1?'s':''} (${scope}) to ${name}`,'ok');
 }
 function renderBulkDriver(){
   const sel=$('bulk-driver');if(!sel)return;
@@ -2277,18 +2310,40 @@ function renderBulkDriver(){
   sel.innerHTML='<option value="">— select driver —</option>'+drivers.map(d=>`<option value="${esc(d.name)}">${esc(d.name)}</option>`).join('');
   if(prev&&drivers.some(d=>d.name===prev))sel.value=prev;
 }
+// Sidebar day-picker — which days of the shown week the bulk-assign applies to
+function bulkDaysSummary(){
+  const idx=[...bulkDays].sort((a,b)=>a-b);
+  if(idx.length===7)return 'All 7 days (whole week)';
+  if(idx.length===0)return 'No days selected';
+  return idx.map(i=>DAY[i]).join(', ');
+}
+function renderBulkDays(){
+  const el=$('bulk-days');if(!el)return;
+  const ws=currentWeekStart?getWeekStart(currentWeekStart):getWeekStart(new Date());
+  let html='';
+  for(let i=0;i<7;i++){
+    const d=new Date(ws);d.setDate(ws.getDate()+i);
+    html+=`<button type="button" class="bd-day${bulkDays.has(i)?' on':''}" title="${DAY[i]} ${d.getMonth()+1}/${d.getDate()}" onclick="toggleBulkDay(${i})"><span class="bd-dow">${DAY[i][0]}</span><span class="bd-num">${d.getDate()}</span></button>`;
+  }
+  el.innerHTML=html;
+  const note=$('bulk-days-note');if(note)note.textContent=bulkDaysSummary();
+}
+function toggleBulkDay(i){if(bulkDays.has(i))bulkDays.delete(i);else bulkDays.add(i);renderBulkDays();}
 
 // ═══ SCHEDULE (workday calendar) ═══
 function saveSchedule(){try{localStorage.setItem('hv_schedule',JSON.stringify(scheduleMap));}catch(_){}}
 function recurringDriverForDOW(dow){const d=drivers.find(x=>x.days.includes(dow));return d?d.name:'';}
 let schedView=localStorage.getItem('hv_schedview')||'week';
-function setSchedView(v){schedView=v;try{localStorage.setItem('hv_schedview',v);}catch(_){}renderSchedule();}
+let daDriver='';          // driver picked for the per-day assigner
+let daDays=new Set();     // date strings currently selected in the per-day assigner
+let bulkDays=new Set([0,1,2,3,4,5,6]); // sidebar bulk-assign: selected day-of-week indices (default: whole week)
+function setSchedView(v){schedView=v;try{localStorage.setItem('hv_schedview',v);}catch(_){}daDays.clear();renderSchedule();}
 function schedNav(delta){
   if(!currentWeekStart)currentWeekStart=getWeekStart(new Date());
   const d=new Date(currentWeekStart);
   if(schedView==='month')d.setMonth(d.getMonth()+delta);
   else d.setDate(d.getDate()+delta*7);
-  currentWeekStart=d;updateWeekDisplay();renderSchedule();
+  currentWeekStart=d;daDays.clear();updateWeekDisplay();renderSchedule();
 }
 function driverOpts(eff){return '<option value="">— none —</option>'+drivers.map(dr=>`<option value="${esc(dr.name)}"${eff.toLowerCase()===dr.name.toLowerCase()?' selected':''}>${esc(dr.name)}</option>`).join('');}
 function effForDate(ds,dow){const manual=scheduleMap[ds]||'';const recurring=recurringDriverForDOW(dow);const eff=manual||recurring;const drv=drivers.find(x=>x.name.toLowerCase()===String(eff).toLowerCase());return{manual,recurring,eff,drv,color:drv?drv.color:'var(--line-2)'};}
@@ -2389,11 +2444,43 @@ function renderSchedQuick(){
   const el=$('sch-quick');if(!el)return;
   if(schedView==='month'){el.style.display='none';return;}
   el.style.display='flex';
-  let html='<span class="sch-quick-label">Quick-set this week:</span>';
-  drivers.forEach(d=>{html+=`<button class="sch-qbtn" style="--sc:${d.color}" onclick="setWeekDriver('${esc(d.name)}')">${esc(d.name)}</button>`;});
-  html+=`<button class="sch-qbtn" onclick="applyUsualToWeek()" title="Use each driver's usual weekly days">Usual days</button>`;
-  html+=`<button class="sch-qbtn clear" onclick="clearWeek()">Clear week</button>`;
-  el.innerHTML=html;
+  const dates=weekDateStrings(currentWeekStart);
+  if(daDriver&&!drivers.some(d=>d.name===daDriver))daDriver='';
+  // Row 1 — whole-week quick set (one tap = every day this week)
+  let r1='<div class="sch-quick-row"><span class="sch-quick-label">Whole week:</span>';
+  drivers.forEach(d=>{r1+=`<button class="sch-qbtn" style="--sc:${d.color}" onclick="setWeekDriver('${esc(d.name)}')">${esc(d.name)}</button>`;});
+  r1+=`<button class="sch-qbtn" onclick="applyUsualToWeek()" title="Use each driver's usual weekly days">Usual days</button>`;
+  r1+=`<button class="sch-qbtn clear" onclick="clearWeek()">Clear week</button></div>`;
+  // Row 2 — assign one driver to just the days you pick
+  let r2='<div class="sch-quick-row"><span class="sch-quick-label">Certain days:</span>';
+  drivers.forEach(d=>{r2+=`<button class="sch-dapill${daDriver===d.name?' sel':''}" style="--sc:${d.color}" onclick="daPickDriver('${esc(d.name)}')">${esc(d.name)}</button>`;});
+  r2+='<div class="sch-da-days">';
+  dates.forEach(ds=>{
+    const dt=parseDate(ds);const dow=dt?dt.getDay():0;
+    const e=effForDate(ds,dow);const sel=daDays.has(ds);
+    r2+=`<button class="sch-daday${sel?' sel':''}${e.eff?' has':''}" style="--dc:${e.color}" title="${e.eff?esc(e.eff)+' now':'unassigned'}" onclick="daToggleDay('${ds}')"><span class="dd-dow">${DAY[dow]}</span><span class="dd-num">${dt?dt.getDate():''}</span></button>`;
+  });
+  r2+='</div>';
+  const nSel=dates.filter(ds=>daDays.has(ds)).length;
+  const lbl=daDriver?(nSel?`Assign ${esc(daDriver)} to ${nSel} day${nSel>1?'s':''}`:`Tap the days for ${esc(daDriver)}`):'Pick a driver, then days';
+  r2+=`<button class="sch-qbtn sch-da-apply" onclick="assignDaysToDriver()">${lbl}</button></div>`;
+  el.innerHTML=r1+r2;
+}
+// Per-day assign: pick one driver, tap the days, apply — a per-week override
+function daPickDriver(name){daDriver=(daDriver===name?'':name);renderSchedQuick();}
+function daToggleDay(ds){if(daDays.has(ds))daDays.delete(ds);else daDays.add(ds);renderSchedQuick();}
+function assignDaysToDriver(){
+  if(!daDriver){toast('Pick a driver first','info');return;}
+  const week=weekDateStrings(currentWeekStart);
+  const targets=week.filter(ds=>daDays.has(ds));
+  if(!targets.length){toast('Tap the days to assign first','info');return;}
+  pushUndo('assign '+daDriver+' to days');
+  targets.forEach(ds=>{scheduleMap[ds]=daDriver;});
+  let n=0;data.forEach(o=>{if(targets.indexOf(o.date)>=0){o.driver=daDriver;n++;}});
+  const who=daDriver,cnt=targets.length;
+  daDays.clear();
+  saveSchedule();qSave();refresh();renderSchedule();
+  toast(`${who} → ${cnt} day${cnt>1?'s':''}${n?` (${n} order${n>1?'s':''})`:''}`,'ok');
 }
 function setWeekDriver(name){
   pushUndo('set week '+name);
@@ -2552,14 +2639,16 @@ function assignDay(ds){
   toast(n?`Assigned ${n} order(s) to ${drv.name}`:'Nothing to assign','ok');
 }
 function updateWeekDisplay(){
+  renderBulkDays();
   if(!currentWeekStart){$('week-display').textContent='Week of \u2014';return;}
   $('week-display').textContent='Week of '+(currentWeekStart.getMonth()+1)+'/'+currentWeekStart.getDate();
 }
 function getWeekOrders(){
   if(!currentWeekStart)return[];
-  const we=new Date(currentWeekStart);we.setDate(currentWeekStart.getDate()+6);
-  const ws=currentWeekStart.getTime(),wEnd=we.getTime();
-  return data.filter(d=>{const dt=parseDate(d.date);if(!dt)return false;return dt.getTime()>=ws&&dt.getTime()<=wEnd;});
+  const ws=new Date(currentWeekStart);ws.setHours(0,0,0,0);         // normalize to whole days so the
+  const we=new Date(ws);we.setDate(ws.getDate()+6);                 // week's first day (Sunday) isn't
+  const a=ws.getTime(),b=we.getTime();                             // dropped by a stray time-of-day
+  return data.filter(d=>{const dt=parseDate(d.date);if(!dt)return false;const t=dt.getTime();return t>=a&&t<=b;});
 }
 
 // Feature: Tip Goal (Feature 1)
